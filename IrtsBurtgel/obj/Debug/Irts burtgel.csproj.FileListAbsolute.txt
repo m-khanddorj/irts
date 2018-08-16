@@ -1,0 +1,15 @@
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\bin\Debug\IrtsBurtgel.exe.config
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\bin\Debug\IrtsBurtgel.exe
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\bin\Debug\IrtsBurtgel.pdb
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\Irts burtgel.csprojAssemblyReference.cache
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\MainWindow.g.cs
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\App.g.cs
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\IrtsBurtgel_MarkupCompile.cache
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\IrtsBurtgel_MarkupCompile.lref
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\MainWindow.baml
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\IrtsBurtgel.g.resources
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\IrtsBurtgel.Properties.Resources.resources
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\Irts burtgel.csproj.GenerateResource.cache
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\Irts burtgel.csproj.CoreCompileInputs.cache
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\IrtsBurtgel.exe
+C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\IrtsBurtgel.pdb
