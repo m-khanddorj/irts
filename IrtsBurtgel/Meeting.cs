@@ -17,8 +17,9 @@ namespace IrtsBurtgel
         public bool isDeleted;
         public int[] uids;
         public int[] gids;
-
-        public Meeting() {
+        
+        public Meeting()
+        {
             this.id = -1;
             this.duration = 0;
             this.intervalDay = 0;
@@ -31,16 +32,23 @@ namespace IrtsBurtgel
         public virtual List<Object[]> ToKVStringList()
         {
             List<Object[]> list = new List<Object[]>();
-            if(this.id != -1)
+            if(id != -1)
             {
-                list.Add(new Object[] { "meeting_id", this.id });
+                list.Add(new Object[] { "meeting_id", id });
             }
-            list.Add(new Object[] { "duration", this.duration});
-            list.Add(new Object[] { "interval_day", this.intervalDay});
-            list.Add(new Object[] { "is_deleted", this.isDeleted});
-            list.Add(new Object[] { "start_datetime", this.startDatetime});
-            list.Add(new Object[] { "end_date", this.endDate });
-            list.Add(new Object[] { "name", this.name});
+            list.Add(new Object[] { "duration", duration});
+            list.Add(new Object[] { "interval_day", intervalDay});
+            list.Add(new Object[] { "is_deleted", isDeleted});
+            list.Add(new Object[] { "start_datetime", startDatetime});
+            if (DateTime.Compare(endDate, new DateTime()) != 0)
+            {
+                list.Add(new Object[] { "end_date", endDate });
+            }
+            else
+            {
+                list.Add(new Object[] { "end_date", null });
+            }
+            list.Add(new Object[] { "name", name});
             return list;
         }
     }

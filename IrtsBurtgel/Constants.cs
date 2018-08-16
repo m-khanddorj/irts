@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Attendance_Registration
+namespace IrtsBurtgel
 {
-    public class Constants
+    class Constants
     {
+
         public static int WINDOWS_AUTH = 0, SQL_AUTH = 1;
         public static int dbauthtype = WINDOWS_AUTH;
         public static string servername = "DESKTOP-RQUPRK9\\SQLEXPRESS";
@@ -30,7 +31,7 @@ namespace Attendance_Registration
             {
                 return "";
             }
-            
+
         }
     }
 }
