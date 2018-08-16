@@ -12,17 +12,9 @@ namespace IrtsBurtgel
     {
         string connectionString;
 
-        public ModifiedMeetingModel(string dataSource, string dbname, string username, string password)
+        public ModifiedMeetingModel()
         {
-            connectionString = "Data Source=" + dataSource + ";Initial Catalog=" + dbname + ";User ID=" + username + ";Password=" + password;
-        }
-        public ModifiedMeetingModel(string dataSource, string dbname, string ints)
-        {
-            connectionString = "Data Source=" + dataSource + ";Initial Catalog=" + dbname + ";=Integrated Security=" + ints;
-        }
-        public ModifiedMeetingModel(string[] parameters)
-        {
-            connectionString = "Data Source=" + parameters[0] + ";Initial Catalog=" + parameters[1] + ";User ID=" + parameters[2] + ";Password=" + parameters[3];
+            connectionString = Constants.GetConnectionString();
         }
 
         public void Add(ModifiedMeeting meeting)
@@ -115,7 +107,7 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    string sql = "SELECT * FROM modified_meeting";
+                    string sql = "SELECT * FROM modified_meeting order by cast(start_datetime as time)";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
@@ -125,13 +117,13 @@ namespace IrtsBurtgel
                             {
                                 ModifiedMeeting meeting = new ModifiedMeeting();
                                 meeting.id = (int)reader["m_meeting_id"];
-                                meeting.startDate = (DateTime)reader["start_date"];
+                                meeting.name = (string)reader["name"];
+                                meeting.startDatetime = (DateTime)reader["start_datetime"];
                                 meeting.endDate = (DateTime)reader["end_date"];
-                                meeting.startTime = (DateTime)reader["start_time"];
                                 meeting.duration = (int)reader["duration"];
                                 meeting.reason = (string)reader["reason"];
                                 meeting.isDeleted = (bool)reader["is_deleted"];
-                                meeting.event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"];
+                                meeting.event_id = reader["event_id"].GetType() != typeof(int) ? -1: (int)reader["event_id"];
                                 meeting.meeting_id = (int)reader["meeting_id"];
                                 list.Add(meeting);
                             }
@@ -171,9 +163,9 @@ namespace IrtsBurtgel
                             {
                                 meeting = new ModifiedMeeting();
                                 meeting.id = (int)reader["m_meeting_id"];
-                                meeting.startDate = (DateTime)reader["start_date"];
+                                meeting.name = (string)reader["name"];
+                                meeting.startDatetime = (DateTime)reader["start_datetime"];
                                 meeting.endDate = (DateTime)reader["end_date"];
-                                meeting.startTime = (DateTime)reader["start_time"];
                                 meeting.duration = (int)reader["duration"];
                                 meeting.reason = (string)reader["reason"];
                                 meeting.isDeleted = (bool)reader["is_deleted"];
@@ -205,7 +197,7 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    string sql = "SELECT * FROM modified_meeting WHERE meeting_id = @meeting_id AND start_date < '" + date.Date.ToString("yyyyMMdd") + "' AND end_date >'" + date.Date.ToString("yyyyMMdd") + "'";
+                    string sql = "SELECT * FROM modified_meeting WHERE meeting_id = @meeting_id AND cast(start_datetime as date) < '" + date.Date.ToString("yyyyMMdd") + "' AND  cast(start_datetime as date)  >'" + date.Date.ToString("yyyyMMdd") + "'";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
@@ -217,9 +209,9 @@ namespace IrtsBurtgel
                             {
                                 meeting = new ModifiedMeeting();
                                 meeting.id = (int)reader["m_meeting_id"];
-                                meeting.startDate = (DateTime)reader["start_date"];
+                                meeting.name = (string)reader["name"];
+                                meeting.startDatetime = (DateTime)reader["start_datetime"];
                                 meeting.endDate = (DateTime)reader["end_date"];
-                                meeting.startTime = (DateTime)reader["start_time"];
                                 meeting.duration = (int)reader["duration"];
                                 meeting.reason = (string)reader["reason"];
                                 meeting.isDeleted = (bool)reader["is_deleted"];
@@ -239,6 +231,6 @@ namespace IrtsBurtgel
 
             return meeting;
         }
-
+        
     }
 }

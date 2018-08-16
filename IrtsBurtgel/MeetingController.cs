@@ -13,14 +13,10 @@ namespace IrtsBurtgel
 
         public MeetingController()
         {
-            string servername = "DESKTOP-G49ADVI\\SQLEXPRESS";
-            string dbname = "IrtsBurtgel";
-            string ints = "SSPI";
-
-            meetingModel = new MeetingModel(servername, dbname, ints);
-            modifiedMeetingModel = new ModifiedMeetingModel(servername, dbname, ints);
+            meetingModel = new MeetingModel();
+            modifiedMeetingModel = new ModifiedMeetingModel();
         }
-
+        
         public List<Meeting> FindByDate(DateTime date)
         {
             List<Meeting> list = meetingModel.GetAll();
@@ -32,11 +28,11 @@ namespace IrtsBurtgel
 
                 if (meeting.intervalDay == 0)
                 {
-                    inDate = (date.Date - meeting.startDate.Date).TotalDays == 0;
+                    inDate = (int)(date.Date - meeting.startDatetime.Date).TotalDays == 0;
                 }
                 else
                 {
-                    inDate = (date.Date - meeting.startDate.Date).TotalDays % meeting.intervalDay == 0;
+                    inDate = (int)((date.Date - meeting.startDatetime.Date).TotalDays) % meeting.intervalDay == 0;
                 }
 
                 if (inDate)
@@ -54,6 +50,11 @@ namespace IrtsBurtgel
             }
 
             return result;
+        }
+
+        public List<Meeting> GetAllMeeting()
+        {
+            return meetingModel.GetAll();
         }
     }
 }

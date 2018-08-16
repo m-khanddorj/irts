@@ -6,29 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-
 namespace IrtsBurtgel
 {
     public class MeetingModel
     {
         string connectionString;
 
-        public MeetingModel(string dataSource, string dbname, string username, string password)
+        public MeetingModel()
         {
-            connectionString = "Data Source=" + dataSource + ";Initial Catalog=" + dbname + ";User ID=" + username + ";Password=" + password;
-        }
-        public MeetingModel(string dataSource, string dbname, string ints)
-        {
-            connectionString = "Data Source=" + dataSource + ";Initial Catalog=" + dbname + ";Integrated Security="+ints;
-        }
-        public MeetingModel(string[] parameters)
-        {
-            connectionString = "Data Source=" + parameters[0] + ";Initial Catalog=" + parameters[1] + ";User ID=" + parameters[2] + ";Password=" + parameters[3];
+            connectionString = Constants.GetConnectionString();
         }
 
         public void Add(Meeting meeting)
         {
-
             try
             {
                 using (SqlConnection conn = new SqlConnection())
@@ -57,7 +47,8 @@ namespace IrtsBurtgel
                         }
                         insertCommand.ExecuteNonQuery();
                     }
-                    
+
+                    MessageBox.Show("Successfully added meeting.");
                 }
 
             }
@@ -95,7 +86,8 @@ namespace IrtsBurtgel
                         }
                         updateCommand.ExecuteNonQuery();
                     }
-                    
+
+                    MessageBox.Show("Successfully updated meeting.");
                 }
 
             }
@@ -115,7 +107,7 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    string sql = "SELECT * FROM meeting";
+                    string sql = "SELECT * FROM meeting order by cast(start_datetime as time)";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
@@ -126,8 +118,8 @@ namespace IrtsBurtgel
                                 Meeting meeting = new Meeting();
                                 meeting.id = (int)reader["meeting_id"];
                                 meeting.name = (string)reader["name"];
-                                meeting.endDate = (DateTime)reader["end_date"];
-                                meeting.startTime = (DateTime)reader["start_datetime"];
+                                meeting.startDatetime = (DateTime)reader["start_datetime"];
+                                meeting.endDate = reader["end_date"].GetType() == typeof(DateTime)? new DateTime():(DateTime)reader["end_date"];
                                 meeting.duration = (int)reader["duration"];
                                 meeting.intervalDay = (int)reader["interval_day"];
                                 meeting.isDeleted = (bool)reader["is_deleted"];
@@ -135,6 +127,7 @@ namespace IrtsBurtgel
                             }
                         }
                     }
+                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -169,8 +162,8 @@ namespace IrtsBurtgel
                                 meeting = new Meeting();
                                 meeting.id = (int)reader["meeting_id"];
                                 meeting.name = (string)reader["name"];
-                                meeting.startDate = (DateTime)reader["start_datetime"];
-                                meeting.endDate = (DateTime)reader["end_date"];
+                                meeting.startDatetime = (DateTime)reader["start_datetime"];
+                                meeting.endDate = reader["end_date"].GetType() == typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"];
                                 meeting.duration = (int)reader["duration"];
                                 meeting.intervalDay = (int)reader["interval_day"];
                                 meeting.isDeleted = (bool)reader["is_deleted"];
@@ -178,6 +171,7 @@ namespace IrtsBurtgel
                             }
                         }
                     }
+                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -214,6 +208,7 @@ namespace IrtsBurtgel
                             }
                         }
                     }
+                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -250,6 +245,7 @@ namespace IrtsBurtgel
                             }
                         }
                     }
+                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -264,9 +260,9 @@ namespace IrtsBurtgel
         public void SetUsers(int id, int[] uids)
         {
             Object[] difference = GetDifference(GetUsers(id), uids);
-            int[] toUpdate = (int[])difference[0];
-            int[] toInsert = (int[])difference[1];
-            int[] toDelete = (int[])difference[2];
+            int[] toUpdate = (int[]) difference[0];
+            int[] toInsert = (int[]) difference[1];
+            int[] toDelete = (int[]) difference[2];
 
             try
             {
@@ -277,7 +273,7 @@ namespace IrtsBurtgel
 
                     List<string> sqlpart = new List<string>();
 
-                    for (int i = 0; i < toDelete.Length; i++)
+                    for(int i=0; i<toDelete.Length; i++)
                     {
                         sqlpart.Add("@uid" + i.ToString());
                     }
@@ -416,7 +412,8 @@ namespace IrtsBurtgel
                     }
                 }
             }
-            return new Object[] { toUpdate, toInsert, toDelete };
+            return new Object[]{toUpdate, toInsert, toDelete};
         }
+
     }
 }
