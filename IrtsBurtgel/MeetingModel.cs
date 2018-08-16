@@ -163,7 +163,7 @@ namespace IrtsBurtgel
                                 meeting.id = (int)reader["meeting_id"];
                                 meeting.name = (string)reader["name"];
                                 meeting.startDatetime = (DateTime)reader["start_datetime"];
-                                meeting.endDate = reader["end_date"].GetType() == typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"];
+                                meeting.endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"];
                                 meeting.duration = (int)reader["duration"];
                                 meeting.intervalDay = (int)reader["interval_day"];
                                 meeting.isDeleted = (bool)reader["is_deleted"];

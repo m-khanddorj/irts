@@ -26,6 +26,7 @@ namespace IrtsBurtgel
 
         SqlConnection conn;
         SqlCommand cmd;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -146,7 +147,6 @@ namespace IrtsBurtgel
             LeftSide.Children.Add(dockPanel);
             return dockPanel;
         }
-
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
         {
             Calendar calendar = (Calendar)sender;
@@ -214,9 +214,10 @@ namespace IrtsBurtgel
             dockPanel.Children.Add(listbox);
         }
 
-        void SetMeeting(Meeting meeting)
+        void setMeeting(object sender, RoutedEventArgs e)
         {
-            meetingModel.Set(meeting);
+            Meeting meeting = (Meeting)((Button)sender).Tag;
+            
         }
         void onMeetingNameChanged(object sender, RoutedEventArgs e)
         {
@@ -246,6 +247,7 @@ namespace IrtsBurtgel
             TextBox name = new TextBox();
             name.Width = 215;
             name.Text =(string) meeting.name;
+            
 
             nameStack.Children.Add(nameLabel);
             nameStack.Children.Add(name);
@@ -263,7 +265,7 @@ namespace IrtsBurtgel
             stLabel.Width = 215;
             TextBox st = new TextBox();
             st.Width = 215;
-            st.Text = ((DateTime)meeting.startTime).ToShortTimeString();
+            st.Text = ((DateTime)meeting.startDatetime).ToShortTimeString();
 
             stStack.Children.Add(stLabel);
             stStack.Children.Add(st);
@@ -280,8 +282,8 @@ namespace IrtsBurtgel
             sdLabel.Width = 215;
             DatePicker sd = new DatePicker();
             sd.Width = 215;
-            sd.DisplayDate = ((DateTime)meeting.startDate);
-            sd.Text = ((DateTime)meeting.startDate).ToShortDateString();
+            sd.DisplayDate = ((DateTime)meeting.startDatetime);
+            sd.Text = ((DateTime)meeting.startDatetime).ToShortDateString();
 
             sdStack.Children.Add(sdLabel);
             sdStack.Children.Add(sd);
@@ -308,8 +310,8 @@ namespace IrtsBurtgel
             fStack.Children.Add(fUnitLabel);
 
             /**
-                * Save button 
-                */
+            * Save button 
+            */
             StackPanel saveStack = new StackPanel();
             saveStack.HorizontalAlignment = HorizontalAlignment.Right;
             saveStack.Margin = new Thickness(0,5,0,5);
@@ -320,9 +322,9 @@ namespace IrtsBurtgel
             saveButton.Height = 25;
             saveButton.Width = 100;
 
-            meeting.startDate = (DateTime)sd.SelectedDate;
-            meeting.name = name.Text;
-            meeting.intervalDay = Int32.Parse(freq.Text);
+            saveButton.Tag = meeting;
+
+            saveButton.Click += setMeeting;
 
             saveStack.Children.Add(saveButton);
 

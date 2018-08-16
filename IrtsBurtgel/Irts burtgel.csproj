@@ -62,6 +62,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Constants.cs" />
     <Compile Include="MeetingController.cs" />
     <Compile Include="Meeting.cs" />
     <Compile Include="MainWindow.xaml.cs">
