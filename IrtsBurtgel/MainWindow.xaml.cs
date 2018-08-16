@@ -214,6 +214,10 @@ namespace IrtsBurtgel
             dockPanel.Children.Add(listbox);
         }
 
+        void SetMeeting(Meeting meeting)
+        {
+            meetingModel.Set(meeting);
+        }
         void onMeetingNameChanged(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
@@ -315,6 +319,10 @@ namespace IrtsBurtgel
             saveButton.Background = Brushes.White;
             saveButton.Height = 25;
             saveButton.Width = 100;
+
+            meeting.startDate = (DateTime)sd.SelectedDate;
+            meeting.name = name.Text;
+            meeting.intervalDay = Int32.Parse(freq.Text);
 
             saveStack.Children.Add(saveButton);
 

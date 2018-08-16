@@ -36,7 +36,7 @@ namespace IrtsBurtgel
                 }
                 else
                 {
-                    inDate = (date.Date - meeting.startDate.Date).TotalDays == 0 % meeting.intervalDay;
+                    inDate = (date.Date - meeting.startDate.Date).TotalDays % meeting.intervalDay == 0;
                 }
 
                 if (inDate)
