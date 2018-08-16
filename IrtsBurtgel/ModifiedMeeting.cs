@@ -17,7 +17,7 @@ namespace IrtsBurtgel
             this.event_id = -1;
             this.meeting_id = -1;
         }
-
+        
         public override List<Object[]> ToKVStringList()
         {
             List<Object[]> list = new List<Object[]>();
@@ -25,10 +25,10 @@ namespace IrtsBurtgel
             {
                 list.Add(new Object[] { "m_meeting_id", this.id });
             }
+            list.Add(new Object[] { "name", this.name });
             list.Add(new Object[] { "duration", this.duration });
             list.Add(new Object[] { "is_deleted", this.isDeleted });
-            list.Add(new Object[] { "start_time", this.startTime });
-            list.Add(new Object[] { "start_date", this.startDate });
+            list.Add(new Object[] { "start_datetime", this.startDatetime });
             list.Add(new Object[] { "end_date", this.endDate });
             list.Add(new Object[] { "reason", this.reason });
             if (this.event_id != -1)
