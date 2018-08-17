@@ -14,7 +14,7 @@ namespace IrtsBurtgel
 
         public UserModel()
         {
-            string connectionString = Constants.GetConnectionString();
+            connectionString = Constants.GetConnectionString();
         }
 
         public int Add(User user)
@@ -37,7 +37,7 @@ namespace IrtsBurtgel
                     }
                     string sqlpart1 = String.Join(",", columnnames);
                     string sqlpart2 = String.Join(",", paramnames);
-                    string sql = "INSERT INTO \"user\"(" + sqlpart1 + ") OUTPUT INSERTED.ID VALUES (" + sqlpart2 + ") ";
+                    string sql = "INSERT INTO \"user\"(" + sqlpart1 + ") OUTPUT INSERTED.user_id VALUES (" + sqlpart2 + ") ";
 
                     using (SqlCommand insertCommand = new SqlCommand(sql, conn))
                     {
@@ -116,6 +116,7 @@ namespace IrtsBurtgel
                                 user.id = (int)reader["user_id"];
                                 user.fname = (string)reader["fname"];
                                 user.lname = (string)reader["lname"];
+                                user.fingerprint = (string)reader["fingerprint"];
                                 user.isDeleted = (bool)reader["is_deleted"];
                                 list.Add(user);
                             }
@@ -155,6 +156,7 @@ namespace IrtsBurtgel
                                 user.id = (int)reader["user_id"];
                                 user.fname = (string)reader["fname"];
                                 user.lname = (string)reader["lname"];
+                                user.fingerprint = (string)reader["fingerprint"];
                                 user.isDeleted = (bool)reader["is_deleted"];
                                 break;
                             }

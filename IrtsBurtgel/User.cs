@@ -14,7 +14,14 @@ namespace IrtsBurtgel
         public string fingerprint;
         public bool isDeleted;
 
-        public User() { }
+        public User()
+        {
+            id = -1;
+            fname = "";
+            lname = "";
+            fingerprint = "";
+            isDeleted = false;
+        }
 
         public User(int id, string fname, string lname, string fingerprint)
         {
