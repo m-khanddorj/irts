@@ -112,13 +112,14 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                User user = new User();
-                                user.id = (int)reader["user_id"];
-                                user.fname = (string)reader["fname"];
-                                user.lname = (string)reader["lname"];
-                                user.fingerprint = (string)reader["fingerprint"];
-                                user.isDeleted = (bool)reader["is_deleted"];
-                                list.Add(user);
+                                list.Add(new User
+                                {
+                                    id = (int)reader["user_id"],
+                                    fname = (string)reader["fname"],
+                                    lname = (string)reader["lname"],
+                                    fingerprint = (string)reader["fingerprint"],
+                                    isDeleted = (bool)reader["is_deleted"]
+                                });
                             }
                         }
                     }
@@ -153,11 +154,14 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                user.id = (int)reader["user_id"];
-                                user.fname = (string)reader["fname"];
-                                user.lname = (string)reader["lname"];
-                                user.fingerprint = (string)reader["fingerprint"];
-                                user.isDeleted = (bool)reader["is_deleted"];
+                                user = new User
+                                {
+                                    id = (int)reader["user_id"],
+                                    fname = (string)reader["fname"],
+                                    lname = (string)reader["lname"],
+                                    fingerprint = (string)reader["fingerprint"],
+                                    isDeleted = (bool)reader["is_deleted"]
+                                };
                                 break;
                             }
                         }
