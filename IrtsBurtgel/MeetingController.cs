@@ -34,6 +34,11 @@ namespace IrtsBurtgel
                 {
                     inDate = (int)((date.Date - meeting.startDatetime.Date).TotalDays) % meeting.intervalDay == 0;
                 }
+                
+                if (DateTime.Compare(meeting.endDate, new DateTime()) != 0)
+                {
+                    inDate = inDate && ((int)((meeting.endDate.Date - date.Date).TotalDays) > 0);
+                }
 
                 if (inDate)
                 {

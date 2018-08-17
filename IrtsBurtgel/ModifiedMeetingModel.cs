@@ -17,6 +17,22 @@ namespace IrtsBurtgel
             connectionString = Constants.GetConnectionString();
         }
 
+        public ModifiedMeeting GetObj(SqlDataReader reader)
+        {
+            return new ModifiedMeeting
+            {
+                id = (int)reader["m_meeting_id"],
+                name = (string)reader["name"],
+                startDatetime = (DateTime)reader["start_datetime"],
+                endDate = (DateTime)reader["end_date"],
+                duration = (int)reader["duration"],
+                reason = (string)reader["reason"],
+                isDeleted = (bool)reader["is_deleted"],
+                event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"],
+                meeting_id = (int)reader["meeting_id"]
+            };
+        }
+
         public void Add(ModifiedMeeting meeting)
         {
             try
@@ -47,8 +63,6 @@ namespace IrtsBurtgel
                         }
                         insertCommand.ExecuteNonQuery();
                     }
-
-                    MessageBox.Show("Successfully added meeting.");
                 }
 
             }
@@ -86,10 +100,7 @@ namespace IrtsBurtgel
                         }
                         updateCommand.ExecuteNonQuery();
                     }
-
-                    MessageBox.Show("Successfully updated meeting.");
                 }
-
             }
             catch (Exception ex)
             {
@@ -115,22 +126,10 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                list.Add(new ModifiedMeeting
-                                {
-                                    id = (int)reader["m_meeting_id"],
-                                    name = (string)reader["name"],
-                                    startDatetime = (DateTime)reader["start_datetime"],
-                                    endDate = (DateTime)reader["end_date"],
-                                    duration = (int)reader["duration"],
-                                    reason = (string)reader["reason"],
-                                    isDeleted = (bool)reader["is_deleted"],
-                                    event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"],
-                                    meeting_id = (int)reader["meeting_id"]
-                                });
+                                list.Add(GetObj(reader));
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -162,23 +161,11 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                meeting = new ModifiedMeeting
-                                {
-                                    id = (int)reader["m_meeting_id"],
-                                    name = (string)reader["name"],
-                                    startDatetime = (DateTime)reader["start_datetime"],
-                                    endDate = (DateTime)reader["end_date"],
-                                    duration = (int)reader["duration"],
-                                    reason = (string)reader["reason"],
-                                    isDeleted = (bool)reader["is_deleted"],
-                                    event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"],
-                                    meeting_id = (int)reader["meeting_id"]
-                                };
+                                meeting = GetObj(reader);
                                 break;
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -210,18 +197,7 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                meeting = new ModifiedMeeting
-                                {
-                                    id = (int)reader["m_meeting_id"],
-                                    name = (string)reader["name"],
-                                    startDatetime = (DateTime)reader["start_datetime"],
-                                    endDate = (DateTime)reader["end_date"],
-                                    duration = (int)reader["duration"],
-                                    reason = (string)reader["reason"],
-                                    isDeleted = (bool)reader["is_deleted"],
-                                    event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"],
-                                    meeting_id = (int)reader["meeting_id"]
-                                };
+                                meeting = GetObj(reader);
                                 break;
                             }
                         }

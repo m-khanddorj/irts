@@ -17,6 +17,18 @@ namespace IrtsBurtgel
             connectionString = Constants.GetConnectionString();
         }
 
+        public User GetObj(SqlDataReader reader)
+        {
+            return new User
+            {
+                id = (int)reader["user_id"],
+                fname = (string)reader["fname"],
+                lname = (string)reader["lname"],
+                fingerprint = (string)reader["fingerprint"],
+                isDeleted = (bool)reader["is_deleted"]
+            };
+        }
+
         public int Add(User user)
         {
             try
@@ -112,19 +124,11 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                list.Add(new User
-                                {
-                                    id = (int)reader["user_id"],
-                                    fname = (string)reader["fname"],
-                                    lname = (string)reader["lname"],
-                                    fingerprint = (string)reader["fingerprint"],
-                                    isDeleted = (bool)reader["is_deleted"]
-                                });
+                                list.Add(GetObj(reader));
                             }
                         }
                     }
                 }
-
             }
             catch (Exception ex)
             {
@@ -154,14 +158,7 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                user = new User
-                                {
-                                    id = (int)reader["user_id"],
-                                    fname = (string)reader["fname"],
-                                    lname = (string)reader["lname"],
-                                    fingerprint = (string)reader["fingerprint"],
-                                    isDeleted = (bool)reader["is_deleted"]
-                                };
+                                user = GetObj(reader);
                                 break;
                             }
                         }

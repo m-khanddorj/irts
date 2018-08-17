@@ -17,6 +17,20 @@ namespace IrtsBurtgel
             connectionString = Constants.GetConnectionString();
         }
 
+        public Meeting GetObj(SqlDataReader reader)
+        {
+            return new Meeting
+            {
+                id = (int)reader["meeting_id"],
+                name = (string)reader["name"],
+                startDatetime = (DateTime)reader["start_datetime"],
+                endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"],
+                duration = (int)reader["duration"],
+                intervalDay = (int)reader["interval_day"],
+                isDeleted = (bool)reader["is_deleted"]
+            };
+        }
+
         public int Add(Meeting meeting)
         {
             try
@@ -85,8 +99,6 @@ namespace IrtsBurtgel
                         }
                         updateCommand.ExecuteNonQuery();
                     }
-
-                    MessageBox.Show("Successfully updated meeting.");
                 }
 
             }
@@ -114,20 +126,10 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                list.Add(new Meeting
-                                {
-                                    id = (int)reader["meeting_id"],
-                                    name = (string)reader["name"],
-                                    startDatetime = (DateTime)reader["start_datetime"],
-                                    endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"],
-                                    duration = (int)reader["duration"],
-                                    intervalDay = (int)reader["interval_day"],
-                                    isDeleted = (bool)reader["is_deleted"]
-                                });
+                                list.Add(GetObj(reader));
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -159,21 +161,11 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                meeting = new Meeting
-                                {
-                                    id = (int)reader["meeting_id"],
-                                    name = (string)reader["name"],
-                                    startDatetime = (DateTime)reader["start_datetime"],
-                                    endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"],
-                                    duration = (int)reader["duration"],
-                                    intervalDay = (int)reader["interval_day"],
-                                    isDeleted = (bool)reader["is_deleted"]
-                                };
+                                meeting = GetObj(reader);
                                 break;
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -210,7 +202,6 @@ namespace IrtsBurtgel
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -247,7 +238,6 @@ namespace IrtsBurtgel
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }

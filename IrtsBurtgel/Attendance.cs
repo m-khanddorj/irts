@@ -26,14 +26,18 @@ namespace IrtsBurtgel
         public virtual List<Object[]> ToKVStringList()
         {
             List<Object[]> list = new List<Object[]>();
-            if (id != -1)
+            if (id != -1) list.Add(new Object[] { "attendance_id", id });
+            if (userId != -1) list.Add(new Object[] { "user_id", userId });
+            if (statusId != -1) list.Add(new Object[] { "status_id", statusId });
+            if (archivedMeetingId != -1) list.Add(new Object[] { "a_meeting_id", archivedMeetingId });
+            if (DateTime.Compare(regTime, new DateTime()) != 0)
             {
-                list.Add(new Object[] { "attendance_id", id });
+                list.Add(new Object[] { "reg_time", regTime });
             }
-            list.Add(new Object[] { "user_id", userId });
-            list.Add(new Object[] { "status_id", statusId });
-            list.Add(new Object[] { "a_meeting_id", archivedMeetingId });
-            list.Add(new Object[] { "reg_time", regTime });
+            else
+            {
+                list.Add(new Object[] { "reg_time", null });
+            }
             return list;
         }
     }
