@@ -14,7 +14,7 @@ namespace IrtsBurtgel
 
         public UserModel()
         {
-            string connectionString = Constants.GetConnectionString();
+            connectionString = Constants.GetConnectionString();
         }
 
         public int Add(User user)
@@ -116,7 +116,6 @@ namespace IrtsBurtgel
                                 user.id = (int)reader["user_id"];
                                 user.fname = (string)reader["fname"];
                                 user.lname = (string)reader["lname"];
-                                user.isDeleted = (bool)reader["is_deleted"];
                                 list.Add(user);
                             }
                         }
@@ -152,10 +151,10 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
+                                user = new User();
                                 user.id = (int)reader["user_id"];
                                 user.fname = (string)reader["fname"];
                                 user.lname = (string)reader["lname"];
-                                user.isDeleted = (bool)reader["is_deleted"];
                                 break;
                             }
                         }

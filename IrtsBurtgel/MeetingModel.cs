@@ -47,8 +47,7 @@ namespace IrtsBurtgel
                         }
                         insertCommand.ExecuteNonQuery();
                     }
-
-                    MessageBox.Show("Successfully added meeting.");
+                    
                 }
 
             }
@@ -86,8 +85,7 @@ namespace IrtsBurtgel
                         }
                         updateCommand.ExecuteNonQuery();
                     }
-
-                    MessageBox.Show("Successfully updated meeting.");
+                    
                 }
 
             }
@@ -127,7 +125,6 @@ namespace IrtsBurtgel
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -171,7 +168,6 @@ namespace IrtsBurtgel
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -208,7 +204,6 @@ namespace IrtsBurtgel
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
@@ -245,7 +240,6 @@ namespace IrtsBurtgel
                             }
                         }
                     }
-                    MessageBox.Show("Successfully retreived meetings.");
                 }
 
             }
