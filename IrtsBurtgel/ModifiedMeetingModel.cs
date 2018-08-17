@@ -115,17 +115,18 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                ModifiedMeeting meeting = new ModifiedMeeting();
-                                meeting.id = (int)reader["m_meeting_id"];
-                                meeting.name = (string)reader["name"];
-                                meeting.startDatetime = (DateTime)reader["start_datetime"];
-                                meeting.endDate = (DateTime)reader["end_date"];
-                                meeting.duration = (int)reader["duration"];
-                                meeting.reason = (string)reader["reason"];
-                                meeting.isDeleted = (bool)reader["is_deleted"];
-                                meeting.event_id = reader["event_id"].GetType() != typeof(int) ? -1: (int)reader["event_id"];
-                                meeting.meeting_id = (int)reader["meeting_id"];
-                                list.Add(meeting);
+                                list.Add(new ModifiedMeeting
+                                {
+                                    id = (int)reader["m_meeting_id"],
+                                    name = (string)reader["name"],
+                                    startDatetime = (DateTime)reader["start_datetime"],
+                                    endDate = (DateTime)reader["end_date"],
+                                    duration = (int)reader["duration"],
+                                    reason = (string)reader["reason"],
+                                    isDeleted = (bool)reader["is_deleted"],
+                                    event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"],
+                                    meeting_id = (int)reader["meeting_id"]
+                                });
                             }
                         }
                     }
@@ -161,16 +162,18 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                meeting = new ModifiedMeeting();
-                                meeting.id = (int)reader["m_meeting_id"];
-                                meeting.name = (string)reader["name"];
-                                meeting.startDatetime = (DateTime)reader["start_datetime"];
-                                meeting.endDate = (DateTime)reader["end_date"];
-                                meeting.duration = (int)reader["duration"];
-                                meeting.reason = (string)reader["reason"];
-                                meeting.isDeleted = (bool)reader["is_deleted"];
-                                meeting.event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"];
-                                meeting.meeting_id = (int)reader["meeting_id"];
+                                meeting = new ModifiedMeeting
+                                {
+                                    id = (int)reader["m_meeting_id"],
+                                    name = (string)reader["name"],
+                                    startDatetime = (DateTime)reader["start_datetime"],
+                                    endDate = (DateTime)reader["end_date"],
+                                    duration = (int)reader["duration"],
+                                    reason = (string)reader["reason"],
+                                    isDeleted = (bool)reader["is_deleted"],
+                                    event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"],
+                                    meeting_id = (int)reader["meeting_id"]
+                                };
                                 break;
                             }
                         }
@@ -207,16 +210,18 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                meeting = new ModifiedMeeting();
-                                meeting.id = (int)reader["m_meeting_id"];
-                                meeting.name = (string)reader["name"];
-                                meeting.startDatetime = (DateTime)reader["start_datetime"];
-                                meeting.endDate = (DateTime)reader["end_date"];
-                                meeting.duration = (int)reader["duration"];
-                                meeting.reason = (string)reader["reason"];
-                                meeting.isDeleted = (bool)reader["is_deleted"];
-                                meeting.event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"];
-                                meeting.meeting_id = (int)reader["meeting_id"];
+                                meeting = new ModifiedMeeting
+                                {
+                                    id = (int)reader["m_meeting_id"],
+                                    name = (string)reader["name"],
+                                    startDatetime = (DateTime)reader["start_datetime"],
+                                    endDate = (DateTime)reader["end_date"],
+                                    duration = (int)reader["duration"],
+                                    reason = (string)reader["reason"],
+                                    isDeleted = (bool)reader["is_deleted"],
+                                    event_id = reader["event_id"].GetType() != typeof(int) ? -1 : (int)reader["event_id"],
+                                    meeting_id = (int)reader["meeting_id"]
+                                };
                                 break;
                             }
                         }

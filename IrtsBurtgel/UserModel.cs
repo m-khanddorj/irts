@@ -37,7 +37,7 @@ namespace IrtsBurtgel
                     }
                     string sqlpart1 = String.Join(",", columnnames);
                     string sqlpart2 = String.Join(",", paramnames);
-                    string sql = "INSERT INTO \"user\"(" + sqlpart1 + ") OUTPUT INSERTED.ID VALUES (" + sqlpart2 + ") ";
+                    string sql = "INSERT INTO \"user\"(" + sqlpart1 + ") OUTPUT INSERTED.user_id VALUES (" + sqlpart2 + ") ";
 
                     using (SqlCommand insertCommand = new SqlCommand(sql, conn))
                     {
@@ -112,11 +112,15 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                User user = new User();
-                                user.id = (int)reader["user_id"];
-                                user.fname = (string)reader["fname"];
-                                user.lname = (string)reader["lname"];
-                                list.Add(user);
+
+                                list.Add(new User
+                                {
+                                    id = (int)reader["user_id"],
+                                    fname = (string)reader["fname"],
+                                    lname = (string)reader["lname"],
+                                    fingerprint = (string)reader["fingerprint"],
+                                    isDeleted = (bool)reader["is_deleted"]
+                                });
                             }
                         }
                     }
@@ -151,10 +155,14 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                user = new User();
-                                user.id = (int)reader["user_id"];
-                                user.fname = (string)reader["fname"];
-                                user.lname = (string)reader["lname"];
+                                user = new User
+                                {
+                                    id = (int)reader["user_id"],
+                                    fname = (string)reader["fname"],
+                                    lname = (string)reader["lname"],
+                                    fingerprint = (string)reader["fingerprint"],
+                                    isDeleted = (bool)reader["is_deleted"]
+                                };
                                 break;
                             }
                         }

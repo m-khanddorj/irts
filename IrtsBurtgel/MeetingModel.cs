@@ -17,7 +17,7 @@ namespace IrtsBurtgel
             connectionString = Constants.GetConnectionString();
         }
 
-        public void Add(Meeting meeting)
+        public int Add(Meeting meeting)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace IrtsBurtgel
                     }
                     string sqlpart1 = String.Join(",", columnnames);
                     string sqlpart2 = String.Join(",", paramnames);
-                    string sql = "INSERT INTO meeting(" + sqlpart1 + ") VALUES (" + sqlpart2 + ") ";
+                    string sql = "INSERT INTO meeting(" + sqlpart1 + ") OUTPUT INSERTED.meeting_id VALUES (" + sqlpart2 + ") ";
 
                     using (SqlCommand insertCommand = new SqlCommand(sql, conn))
                     {
@@ -45,15 +45,15 @@ namespace IrtsBurtgel
                         {
                             insertCommand.Parameters.Add(new SqlParameter("@" + list[i][0], list[i][1]));
                         }
-                        insertCommand.ExecuteNonQuery();
+                        return (int)insertCommand.ExecuteScalar();
                     }
-                    
                 }
 
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
+                return -1;
             }
         }
 
@@ -113,15 +113,16 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                Meeting meeting = new Meeting();
-                                meeting.id = (int)reader["meeting_id"];
-                                meeting.name = (string)reader["name"];
-                                meeting.startDatetime = (DateTime)reader["start_datetime"];
-                                meeting.endDate = reader["end_date"].GetType() != typeof(DateTime)? new DateTime():(DateTime)reader["end_date"];
-                                meeting.duration = (int)reader["duration"];
-                                meeting.intervalDay = (int)reader["interval_day"];
-                                meeting.isDeleted = (bool)reader["is_deleted"];
-                                list.Add(meeting);
+                                list.Add(new Meeting
+                                {
+                                    id = (int)reader["meeting_id"],
+                                    name = (string)reader["name"],
+                                    startDatetime = (DateTime)reader["start_datetime"],
+                                    endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"],
+                                    duration = (int)reader["duration"],
+                                    intervalDay = (int)reader["interval_day"],
+                                    isDeleted = (bool)reader["is_deleted"]
+                                });
                             }
                         }
                     }
@@ -156,14 +157,16 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                meeting = new Meeting();
-                                meeting.id = (int)reader["meeting_id"];
-                                meeting.name = (string)reader["name"];
-                                meeting.startDatetime = (DateTime)reader["start_datetime"];
-                                meeting.endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"];
-                                meeting.duration = (int)reader["duration"];
-                                meeting.intervalDay = (int)reader["interval_day"];
-                                meeting.isDeleted = (bool)reader["is_deleted"];
+                                meeting = new Meeting
+                                {
+                                    id = (int)reader["meeting_id"],
+                                    name = (string)reader["name"],
+                                    startDatetime = (DateTime)reader["start_datetime"],
+                                    endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"],
+                                    duration = (int)reader["duration"],
+                                    intervalDay = (int)reader["interval_day"],
+                                    isDeleted = (bool)reader["is_deleted"]
+                                };
                                 break;
                             }
                         }
