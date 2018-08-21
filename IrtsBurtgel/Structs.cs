@@ -275,7 +275,7 @@ namespace IrtsBurtgel
             FingerID = DataBuf[4];
             Valid = DataBuf[5];
             Array.Copy(DataBuf, 6, TemplateBuf, 0, Size - 16);
-            Template = BitConverter.ToString(TemplateBuf).Replace("-", "");//Str to Hex
+            Template = Convert.ToBase64String(TemplateBuf);
         }
 
         /****************************************************************************************************************************

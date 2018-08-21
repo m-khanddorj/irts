@@ -85,7 +85,7 @@ namespace IrtsBurtgel
                 mDevHandle = IntPtr.Zero;
                 return false;
             }
-
+            // 0x00007ffbbba33028
             byte[] paramValue = new byte[4];
             int size = 4;
             zkfp2.GetParameters(mDevHandle, 1, paramValue, ref size);
@@ -142,11 +142,10 @@ namespace IrtsBurtgel
 
                 foreach (User user in users)
                 {
-                    byte[] blob3 = Convert.FromBase64String(user.fingerprint0);
-                    byte[] blob2 = new byte[2048];
-                    Array.Copy(blob3, blob2, blob3.Length);
+                    byte[] blob3 = Convert.FromBase64String(user.fingerprint0.Trim());
 
-                    int ret = zkfp2.DBMatch(mDBHandle, blob1, blob2);
+                    //0x0f309420
+                    int ret = zkfp2.DBMatch(mDBHandle, blob1, blob3);
 
                     if (ret > 80)
                     {
@@ -163,8 +162,7 @@ namespace IrtsBurtgel
                     if (user.fingerprint1 != "")
                     {
                         blob3 = Convert.FromBase64String(user.fingerprint1);
-                        blob2 = new byte[2048];
-                        ret = zkfp2.DBMatch(mDBHandle, blob1, blob2);
+                        ret = zkfp2.DBMatch(mDBHandle, blob1, blob3);
 
                         if (ret > 80)
                         {
@@ -181,8 +179,12 @@ namespace IrtsBurtgel
                     }
                 }
 
-                Console.WriteLine(identifiedUser.fname);
+                // Add attendance
 
+            }
+            else
+            {
+                result = false;
             }
             return result;
         }

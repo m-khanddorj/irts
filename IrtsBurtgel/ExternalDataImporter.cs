@@ -1,4 +1,5 @@
 ﻿using ExcelDataReader;
+using libzkfpcsharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -103,12 +104,12 @@ namespace IrtsBurtgel
                     if(!dict.ContainsKey(iPIN))
                     {
                         Dictionary<int, string> fps = new Dictionary<int, string>();
-                        fps.Add(fid, Convert.ToBase64String(byTmpInfo));
+                        fps.Add(fid, sTemplate);
                         dict.Add(iPIN, fps);
                     }
                     else
                     {
-                        dict[iPIN].Add(fid, Convert.ToBase64String(byTmpInfo));
+                        dict[iPIN].Add(fid, sTemplate);
                     }
 
                     byTmpInfo = null;
