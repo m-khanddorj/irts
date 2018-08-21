@@ -36,6 +36,12 @@ namespace IrtsBurtgel
             userModel = new Model<User>();
         }
         
+        private void showStatus(object sender, RoutedEventArgs e)
+        {
+            MeetingStatus meetingStatus = new MeetingStatus();
+            meetingStatus.Visibility = Visibility.Visible;
+        }
+
         private void showMenu(object sender, RoutedEventArgs e)
         {
             LeftSide.Children.Clear();
@@ -80,11 +86,20 @@ namespace IrtsBurtgel
             Report.Height = 30;
             Report.Background = Brushes.White;
 
+            Button Org = new Button();
+            Org.Content = "Байгууллага";
+            Org.Margin = margin;
+            Org.Click += ShowOrg;
+            Org.Width = 210;
+            Org.Height = 30;
+            Org.Background = Brushes.White;
+
 
             Menu.Children.Add(Calendar);
             Menu.Children.Add(Meetings);
             Menu.Children.Add(Members);
             Menu.Children.Add(Report);
+            Menu.Children.Add(Org);
 
             LeftSide.Children.Add(Menu);
 
@@ -125,7 +140,7 @@ namespace IrtsBurtgel
             back.Width = 30;
 
             headerPanel.Children.Add(back);
-            DockPanel.SetDock(headerPanel, Dock.Top);
+            DockPanel.SetDock(headerPanel, Dock.Left);
 
             if (controls != null)
             {
@@ -173,7 +188,7 @@ namespace IrtsBurtgel
                     }
                 }
             }
-
+            DockPanel.SetDock(headerPanel, Dock.Top);
             dockPanel.Children.Add(headerPanel);
 
             LeftSide.Children.Add(dockPanel);
@@ -964,43 +979,37 @@ namespace IrtsBurtgel
         {
             MessageBox.Show("h");
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
+        
+        void ShowOrg(object sender, RoutedEventArgs e)
         {
-            ScannerHandler sh = new ScannerHandler(userModel.GetAll());
-            ExternalDataImporter imp = new ExternalDataImporter();
+            LeftSide.Children.Clear();
+            List<Object> list = new List<Object>();
+            Label label = new Label();
+            label.Content = "Байгууллагын мэдээлэл";
+            list.Add(label);
+            DockPanel dockPanel = addHeader(list);
 
-            imp.ImportUserData("C:\\Users\\Orgio\\Documents\\SampleData.xlsx", "C:\\Users\\Orgio\\Documents\\Attendance Registration\\Dat File\\template.fp10.1");
-            
-            sh.InitializeDevice();
-            sh.StartCaptureThread();
-            
-        }
+            StackPanel stackPanel = new StackPanel();
 
-        public void ChangeImage(byte[] stream)
-        {
-            var bitmapImage = new BitmapImage();
-            MemoryStream ms = new MemoryStream();
-            byte[] haha = stream;
-            BitmapFormat.GetBitmap(haha, 300, 375, ref ms);
+            StackPanel nameStack = new StackPanel();
+            nameStack.Orientation = Orientation.Horizontal;
+            nameStack.Margin = new Thickness(0,5,0,5);
 
-            bitmapImage.BeginInit();
-            bitmapImage.StreamSource = ms;
-            bitmapImage.EndInit();
-            image.Source = bitmapImage;
-        }
+            Label orgNameLabel = new Label();
+            orgNameLabel.Width = 215;
+            orgNameLabel.Foreground = Brushes.White;
+            orgNameLabel.Content = "Байгууллагын нэр:";
+            TextBox name = new TextBox();
+            name.Width = 215;
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            userModel.Add(new User
-            {
-                id = -1,
-                fname = "testFName",
-                lname = "TestLname",
-                fingerprint0 = "asfaf",
-                fingerprint1 = "asfaawdadf",
-                isDeleted = false
-            });
+            nameStack.Children.Add(orgNameLabel);
+            nameStack.Children.Add(name);
+
+            stackPanel.Children.Add(nameStack);
+            stackPanel.HorizontalAlignment = HorizontalAlignment.Center;
+
+            dockPanel.Children.Add(stackPanel);
+   
         }
     }
 }
