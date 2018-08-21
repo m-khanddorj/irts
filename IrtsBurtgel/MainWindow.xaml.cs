@@ -34,8 +34,6 @@ namespace IrtsBurtgel
             meetingController = new MeetingController();
             meetingModel = meetingController.meetingModel;
             userModel = new Model<User>();
-
-            userModel = new UserModel();
         }
         
         private void showStatus(object sender, RoutedEventArgs e)
@@ -47,11 +45,13 @@ namespace IrtsBurtgel
         private void showMenu(object sender, RoutedEventArgs e)
         {
             LeftSide.Children.Clear();
-            LeftSide.HorizontalAlignment = HorizontalAlignment.Center;
+            LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
             LeftSide.VerticalAlignment = VerticalAlignment.Center;
+            DockPanel dock = addHeader();
 
             StackPanel Menu = new StackPanel();
             Menu.Name = "MainMenu";
+            Menu.VerticalAlignment = VerticalAlignment.Center;
 
             Thickness margin = new Thickness();
             margin.Bottom = 10;
@@ -103,10 +103,10 @@ namespace IrtsBurtgel
             Menu.Children.Add(Report);
             Menu.Children.Add(Org);
 
-            LeftSide.Children.Add(Menu);
+            dock.Children.Add(Menu);
 
             RightSide.Children.Clear();
-            RightSide.HorizontalAlignment = HorizontalAlignment.Center;
+            RightSide.HorizontalAlignment = HorizontalAlignment.Stretch;
 
             Label title = new Label();
             title.Content = "Дараагийн хурал:";
@@ -125,19 +125,21 @@ namespace IrtsBurtgel
         DockPanel addHeader(List<Object> controls =null, List<Object> rControls = null)
         {
             LeftSide.VerticalAlignment = VerticalAlignment.Stretch;
-            LeftSide.HorizontalAlignment = HorizontalAlignment.Center;
+            LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
 
             DockPanel dockPanel = new DockPanel();
 
             DockPanel headerPanel = new DockPanel();
-            headerPanel.Width = 430;
             headerPanel.Margin = new Thickness(10, 5, 10, -5);
+            headerPanel.HorizontalAlignment = HorizontalAlignment.Stretch;
 
             Button back = new Button();
 
             back.Content = "<";
             back.Click += showMenu;
-            back.Background = Brushes.White;
+            back.Foreground = Brushes.White;
+            back.BorderBrush = Brushes.Transparent;
+            back.Background = Brushes.Transparent;
             back.Height = 30;
             back.Width = 30;
 
@@ -153,7 +155,9 @@ namespace IrtsBurtgel
                         Button tmp = (Button)control;
                         tmp.Height = 30;
                         tmp.Width = 30;
-                        tmp.Background = Brushes.White;
+                        tmp.Foreground = Brushes.White;
+                        tmp.BorderBrush = Brushes.Transparent;
+                        tmp.Background = Brushes.Transparent;
                         headerPanel.Children.Add(tmp);
                     }
                     if(control is Label)
@@ -174,8 +178,9 @@ namespace IrtsBurtgel
                         Button tmp = (Button)control;
                         tmp.Height = 30;
                         tmp.Width = 30;
-                        tmp.Background = Brushes.White;
-                        tmp.Margin = new Thickness(5, 0, 5, 0);
+                        tmp.Foreground = Brushes.White;
+                        tmp.BorderBrush = Brushes.Transparent;
+                        tmp.Background = Brushes.Transparent;
                         tmp.HorizontalAlignment = HorizontalAlignment.Right;
 
                         DockPanel.SetDock(tmp, Dock.Right);
@@ -221,7 +226,6 @@ namespace IrtsBurtgel
 
             ListBox listbox = new ListBox();
             listbox.Margin = new Thickness(10, 10, 10, 10);
-            listbox.MinWidth = 430;
            
 
             foreach (Meeting meeting in meetings)
@@ -255,7 +259,12 @@ namespace IrtsBurtgel
 
 
             Button rButton = new Button();
-            rButton.Content = "c";
+            Image calendarImage = new Image();
+            calendarImage.Source = new BitmapImage(new Uri("images/calendar.png", UriKind.Relative));
+            calendarImage.Width = 20;
+            calendarImage.Height = 20;
+
+            rButton.Content = calendarImage;
             rButton.Click += ShowCalendar;
 
             List<Object> rControls = new List<Object>();
@@ -264,8 +273,7 @@ namespace IrtsBurtgel
             DockPanel dockPanel = addHeader(list,rControls);
 
             Viewbox ll = new Viewbox();
-
-            dockPanel.MinWidth = 430;
+            
             dockPanel.Children.Add(ll);
 
             Calendar calendar = new Calendar();
@@ -277,7 +285,6 @@ namespace IrtsBurtgel
 
             ListBox listbox = new ListBox();
             listbox.Margin = new Thickness(10, 10, 10, 10);
-            listbox.MinWidth = 430;
 
             List<Meeting> meetings = meetingController.FindByDate(DateTime.Today);
 
@@ -294,6 +301,7 @@ namespace IrtsBurtgel
 
             dockPanel.Children.Add(listbox);
         }
+
         void insertMeeting(object sender, RoutedEventArgs e)
         {
             List<Object> controls = (List<Object>)((Button)sender).Tag;
@@ -959,7 +967,6 @@ namespace IrtsBurtgel
 
             ListBox listbox = new ListBox();
             listbox.Margin = new Thickness(10, 10, 10, 10);
-            listbox.MinWidth = 430;
             
             List<User> users = userModel.GetAll();
             foreach(User user in users)
@@ -1008,7 +1015,7 @@ namespace IrtsBurtgel
             nameStack.Children.Add(name);
 
             stackPanel.Children.Add(nameStack);
-            stackPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            stackPanel.HorizontalAlignment = HorizontalAlignment.Stretch;
 
             dockPanel.Children.Add(stackPanel);
    
