@@ -27,9 +27,6 @@ namespace IrtsBurtgel
         Model<User> userModel;
         MeetingController meetingController;
 
-        UserModel userModel;
-
-
         public MainWindow()
         {
             InitializeComponent();
@@ -37,8 +34,6 @@ namespace IrtsBurtgel
             meetingController = new MeetingController();
             meetingModel = meetingController.meetingModel;
             userModel = new Model<User>();
-
-            userModel = new UserModel();
         }
         
         private void showMenu(object sender, RoutedEventArgs e)
