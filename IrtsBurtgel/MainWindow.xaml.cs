@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data.SqlClient;
+using System.IO;
+using Sample;
 
 namespace IrtsBurtgel
 {
@@ -21,10 +23,9 @@ namespace IrtsBurtgel
     /// </summary>
     public partial class MainWindow : Window
     {
-        MeetingModel meetingModel;
+        Model<Meeting> meetingModel;
+        Model<User> userModel;
         MeetingController meetingController;
-
-        UserModel userModel;
 
         public MainWindow()
         {
@@ -32,6 +33,7 @@ namespace IrtsBurtgel
 
             meetingController = new MeetingController();
             meetingModel = meetingController.meetingModel;
+            userModel = new Model<User>();
 
             userModel = new UserModel();
         }
@@ -979,7 +981,7 @@ namespace IrtsBurtgel
         {
             MessageBox.Show("h");
         }
-
+        
         void ShowOrg(object sender, RoutedEventArgs e)
         {
             LeftSide.Children.Clear();
@@ -1009,7 +1011,7 @@ namespace IrtsBurtgel
             stackPanel.HorizontalAlignment = HorizontalAlignment.Center;
 
             dockPanel.Children.Add(stackPanel);
-            
+   
         }
     }
 }

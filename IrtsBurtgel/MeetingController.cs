@@ -8,13 +8,13 @@ namespace IrtsBurtgel
 {
     public class MeetingController
     {
-        public MeetingModel meetingModel;
-        public ModifiedMeetingModel modifiedMeetingModel;
+        public Model<Meeting> meetingModel;
+        public Model<ModifiedMeeting> modifiedMeetingModel;
 
         public MeetingController()
         {
-            meetingModel = new MeetingModel();
-            modifiedMeetingModel = new ModifiedMeetingModel();
+            meetingModel = new Model<Meeting>();
+            modifiedMeetingModel = new Model<ModifiedMeeting>();
         }
         
         public List<Meeting> FindByDate(DateTime date)
@@ -32,12 +32,23 @@ namespace IrtsBurtgel
                 }
                 else
                 {
+                    Console.WriteLine((int)((date.Date - meeting.startDatetime.Date).TotalDays) % meeting.intervalDay);
                     inDate = (int)((date.Date - meeting.startDatetime.Date).TotalDays) % meeting.intervalDay == 0;
+                }
+                
+                if (DateTime.Compare(meeting.endDate, new DateTime()) != 0)
+                {
+                    inDate = inDate && ((int)((meeting.endDate.Date - date.Date).TotalDays) >= 0);
                 }
 
                 if (inDate)
                 {
-                    ModifiedMeeting mMeeting = modifiedMeetingModel.FindByDateAndMid(date.Date, meeting.id);
+                    // TODO: Hardcoded. Improvement needed.
+                    string sql = "SELECT * FROM modified_meeting WHERE meeting_id = @meeting_id AND cast(start_datetime as date) <= '" + date.Date.ToString("yyyyMMdd") + "' AND  cast(start_datetime as date)  >='" + date.Date.ToString("yyyyMMdd") + "'";
+                    List<Object[]> parms = new List<Object[]>();
+                    parms.Add(new Object[] { "meeting_id", meeting.id });
+                    
+                    ModifiedMeeting mMeeting = modifiedMeetingModel.SelectBare(sql, parms);
                     if (mMeeting != null)
                     {
                         result.Add(mMeeting);
