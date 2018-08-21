@@ -27,8 +27,7 @@ namespace IrtsBurtgel
         Model<User> userModel;
         MeetingController meetingController;
 
-        SqlConnection conn;
-        SqlCommand cmd;
+        UserModel userModel;
 
 
         public MainWindow()
@@ -39,8 +38,7 @@ namespace IrtsBurtgel
             meetingModel = meetingController.meetingModel;
             userModel = new Model<User>();
 
-            conn = new SqlConnection();
-            cmd = new SqlCommand();
+            userModel = new UserModel();
         }
         
         private void showMenu(object sender, RoutedEventArgs e)
@@ -112,17 +110,16 @@ namespace IrtsBurtgel
             RightSide.Children.Add(time);
         }
 
-        DockPanel addButton(Array buttons = null)
+        DockPanel addHeader(List<Object> controls =null, List<Object> rControls = null)
         {
             LeftSide.VerticalAlignment = VerticalAlignment.Stretch;
             LeftSide.HorizontalAlignment = HorizontalAlignment.Center;
 
             DockPanel dockPanel = new DockPanel();
 
-            StackPanel menuPanel = new StackPanel();
-            menuPanel.HorizontalAlignment = HorizontalAlignment.Left;
-            menuPanel.Orientation = Orientation.Horizontal;
-            menuPanel.Margin = new Thickness(10, 5, 0, -5);
+            DockPanel headerPanel = new DockPanel();
+            headerPanel.Width = 430;
+            headerPanel.Margin = new Thickness(10, 5, 10, -5);
 
             Button back = new Button();
 
@@ -132,32 +129,81 @@ namespace IrtsBurtgel
             back.Height = 30;
             back.Width = 30;
 
-            menuPanel.Children.Add(back);
-            DockPanel.SetDock(menuPanel, Dock.Top);
+            headerPanel.Children.Add(back);
+            DockPanel.SetDock(headerPanel, Dock.Top);
 
-            if (buttons != null)
+            if (controls != null)
             {
-                foreach (Button button in buttons)
+                foreach (Object control in controls)
                 {
-                    button.Height = 30;
-                    button.Width = 30;
-                    button.Background = Brushes.White;
-                    button.Margin = new Thickness(5, 0, 0, 0);
-                    menuPanel.Children.Add(button);
+                    if(control is Button)
+                    {
+                        Button tmp = (Button)control;
+                        tmp.Height = 30;
+                        tmp.Width = 30;
+                        tmp.Background = Brushes.White;
+                        headerPanel.Children.Add(tmp);
+                    }
+                    if(control is Label)
+                    {
+                        Label tmp = (Label)control;
+                        tmp.Foreground = Brushes.White;
+                        tmp.FontSize = 16;
+                        headerPanel.Children.Add(tmp);
+                    }
+                }
+            }
+            if(rControls!=null)
+            {
+                foreach (Object control in rControls)
+                {
+                    if (control is Button)
+                    {
+                        Button tmp = (Button)control;
+                        tmp.Height = 30;
+                        tmp.Width = 30;
+                        tmp.Background = Brushes.White;
+                        tmp.Margin = new Thickness(5, 0, 5, 0);
+                        tmp.HorizontalAlignment = HorizontalAlignment.Right;
+
+                        DockPanel.SetDock(tmp, Dock.Right);
+                        headerPanel.Children.Add(tmp);
+                    }
+                    if (control is Label)
+                    {
+                        Label tmp = (Label)control;
+                        tmp.Foreground = Brushes.White;
+                        tmp.FontSize = 16;
+                        headerPanel.Children.Add(tmp);
+                    }
                 }
             }
 
-            dockPanel.Children.Add(menuPanel);
+            dockPanel.Children.Add(headerPanel);
 
             LeftSide.Children.Add(dockPanel);
             return dockPanel;
         }
+
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
         {
             Calendar calendar = (Calendar)sender;
 
             LeftSide.Children.Clear();
-            DockPanel dockPanel = addButton();
+
+            List<Object> list = new List<Object>();
+            Label header = new Label();
+            header.Content = "Тухайн өдрийн хурлууд";
+            list.Add(header);
+
+            Button rButton = new Button();
+            rButton.Content = "c";
+            rButton.Click += ShowCalendar;
+
+            List<Object> rControls = new List<Object>();
+            rControls.Add(rButton);
+
+            DockPanel dockPanel = addHeader(list, rControls);
 
             List<Meeting> meetings = meetingController.FindByDate( (DateTime)calendar.SelectedDate );
 
@@ -175,17 +221,35 @@ namespace IrtsBurtgel
                 listBoxItem.Height = 25;
                 listbox.Items.Add(listBoxItem);
             }
-            listbox.SelectionChanged += onMeetingNameChanged;
+            listbox.SelectionChanged +=ModifyMeeting;
 
             dockPanel.Children.Add(listbox);
 
         }
+        /** Shows Calendar on rightside
+         * And meetings that will happen on that day on the Left side
+         * 
+         */
         void ShowCalendar(object sender, RoutedEventArgs e)
         {
             RightSide.Children.Clear();
             LeftSide.Children.Clear();
 
-            DockPanel dockPanel = addButton();
+            List<Object> list = new List<Object>();
+            Label header = new Label();
+            header.Content = "Тухайн өдрийн хурлууд:";
+            header.Foreground = Brushes.White;
+            list.Add(header);
+
+
+            Button rButton = new Button();
+            rButton.Content = "c";
+            rButton.Click += ShowCalendar;
+
+            List<Object> rControls = new List<Object>();
+            rControls.Add(rButton);
+
+            DockPanel dockPanel = addHeader(list,rControls);
 
             Viewbox ll = new Viewbox();
 
@@ -214,15 +278,187 @@ namespace IrtsBurtgel
                 listBoxItem.Height = 25;
                 listbox.Items.Add(listBoxItem);
             }
-            listbox.SelectionChanged += onMeetingNameChanged;
+            listbox.SelectionChanged += ModifyMeeting;
 
             dockPanel.Children.Add(listbox);
         }
+        void insertMeeting(object sender, RoutedEventArgs e)
+        {
+            List<Object> controls = (List<Object>)((Button)sender).Tag;
 
+            string name = ((TextBox)controls[0]).Text;
+            string st = ((TextBox)controls[1]).Text;
+            string sd = ((DateTime)((DatePicker)controls[2]).SelectedDate).ToShortDateString();
+            
+        }
         void setMeeting(object sender, RoutedEventArgs e)
         {
-            Meeting meeting = (Meeting)((Button)sender).Tag;
-            
+           List<Object> controls= (List<Object>)((Button)sender).Tag;
+            TextBox name = (TextBox)controls[0];
+            TextBox st = (TextBox)controls[1];
+            DatePicker sd = (DatePicker)controls[2];
+
+            TextBox duration = (TextBox)controls[3];
+            DatePicker ed = (DatePicker)controls[4];
+            TextBox freq = (TextBox)controls[5];
+            Meeting meeting = (Meeting)controls[6];
+
+            meeting.name = name.Text;
+
+            string datetimeString = sd.Text +" "+ st.Text;
+            //check and set meeting startDateTime
+            try
+            {
+                meeting.startDatetime = DateTime.Parse(datetimeString);
+            }
+            catch( Exception ex )
+            {
+                MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!","Өөрчилсөнгүй");
+                return;
+            }
+            string endDateString = ed.Text + " " + meeting.endDate.ToShortTimeString();
+            //check and set meeting endDate
+            try
+            {
+                meeting.endDate = DateTime.Parse(endDateString);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
+                return;
+            }
+            //check and set meeting duration
+            try
+            {
+                meeting.duration = Int32.Parse(duration.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
+            }
+            //check and set meeting intervalday
+            try
+            {
+                meeting.intervalDay = Int32.Parse(freq.Text);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
+            }
+            //check and update meeting
+            try
+            {
+                meetingModel.Set(meeting);
+                MessageBox.Show("Амжилттай өөрчиллөө.","Өөрчлөгдлөө");
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Та программ ажиллуулж буй орчиноо шалгана уу","Өөрчилсөнгүй");
+            }
+            ShowMeetings(sender, null);
+        }
+        /** Is called when meeting time has to change only 1 time
+         * Gets data from meeting , modifies and inserts into Modified meeting
+         */
+        void ModifyMeeting(object sender, RoutedEventArgs e)
+        {
+            ListBox listBox = (ListBox)sender;
+            Label label = new Label();
+            string id = ((ListBoxItem)listBox.SelectedValue).Uid;
+
+            RightSide.Children.Clear();
+
+            Meeting meeting = meetingModel.Get(Int32.Parse(id));
+            List<Object> controls = new List<Object>();
+
+            StackPanel stackPanel = new StackPanel();
+            stackPanel.Orientation = Orientation.Vertical;
+            stackPanel.Margin = new Thickness(10);
+
+            /**
+                * Name stack
+                */
+
+            StackPanel nameStack = new StackPanel();
+            nameStack.Orientation = Orientation.Horizontal;
+            nameStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label nameLabel = new Label();
+            nameLabel.Content = "Хурлын нэр:";
+            nameLabel.Width = 215;
+            TextBox name = new TextBox();
+            name.Width = 215;
+            name.Text = meeting.name;
+            controls.Add(name);
+
+            nameStack.Children.Add(nameLabel);
+            nameStack.Children.Add(name);
+
+            /**
+                * Starting time stack
+                */
+
+            StackPanel stStack = new StackPanel();
+            stStack.Orientation = Orientation.Horizontal;
+            stStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label stLabel = new Label();
+            stLabel.Content = "Хурал эхлэх цаг:";
+            stLabel.Width = 215;
+            TextBox st = new TextBox();
+            st.Width = 215;
+            st.Text = meeting.startDatetime.ToShortTimeString();
+            controls.Add(st);
+
+            stStack.Children.Add(stLabel);
+            stStack.Children.Add(st);
+
+ 
+            /**
+                * Duration time Stack
+                */
+
+            StackPanel durationStack = new StackPanel();
+            durationStack.Orientation = Orientation.Horizontal;
+            durationStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label durationLabel = new Label();
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
+            durationLabel.Width = 215;
+            TextBox duration = new TextBox();
+            duration.Width = 215;
+            duration.Text = meeting.duration.ToString();
+            controls.Add(duration);
+
+            durationStack.Children.Add(durationLabel);
+            durationStack.Children.Add(duration);
+
+            /**
+            * Save button 
+            */
+            StackPanel saveStack = new StackPanel();
+            saveStack.HorizontalAlignment = HorizontalAlignment.Right;
+            saveStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Button saveButton = new Button();
+            saveButton.Content = "Хадгалах";
+            saveButton.Background = Brushes.White;
+            saveButton.Height = 25;
+            saveButton.Width = 100;
+
+            controls.Add(meeting);
+
+            saveButton.Tag = controls;
+            saveButton.Click += setMeeting;
+
+            saveStack.Children.Add(saveButton);
+
+            stackPanel.Children.Add(nameStack);
+            stackPanel.Children.Add(stStack);
+            stackPanel.Children.Add(durationStack);
+            stackPanel.Children.Add(saveStack);
+
+            RightSide.Children.Add(stackPanel);
         }
         void onMeetingNameChanged(object sender, RoutedEventArgs e)
         {
@@ -233,6 +469,7 @@ namespace IrtsBurtgel
             RightSide.Children.Clear();
 
             Meeting meeting = meetingModel.Get( Int32.Parse(id) );
+            List<Object> controls = new List<Object>();
             
             StackPanel stackPanel = new StackPanel();
             stackPanel.Orientation = Orientation.Vertical;
@@ -252,7 +489,7 @@ namespace IrtsBurtgel
             TextBox name = new TextBox();
             name.Width = 215;
             name.Text =(string) meeting.name;
-            
+            controls.Add(name);
 
             nameStack.Children.Add(nameLabel);
             nameStack.Children.Add(name);
@@ -271,6 +508,7 @@ namespace IrtsBurtgel
             TextBox st = new TextBox();
             st.Width = 215;
             st.Text = ((DateTime)meeting.startDatetime).ToShortTimeString();
+            controls.Add(st);
 
             stStack.Children.Add(stLabel);
             stStack.Children.Add(st);
@@ -289,9 +527,46 @@ namespace IrtsBurtgel
             sd.Width = 215;
             sd.DisplayDate = ((DateTime)meeting.startDatetime);
             sd.Text = ((DateTime)meeting.startDatetime).ToShortDateString();
+            controls.Add(sd);
 
             sdStack.Children.Add(sdLabel);
             sdStack.Children.Add(sd);
+            /**
+                * ending time Stack
+                */
+
+            StackPanel durationStack = new StackPanel();
+            durationStack.Orientation = Orientation.Horizontal;
+            durationStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label durationLabel = new Label();
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
+            durationLabel.Width = 215;
+            TextBox duration = new TextBox();
+            duration.Width = 215;
+            duration.Text = meeting.duration.ToString();
+            controls.Add(duration);
+
+            durationStack.Children.Add(durationLabel);
+            durationStack.Children.Add(duration);
+
+            /**
+                * ending date Stack
+                */
+            StackPanel edStack = new StackPanel();
+            edStack.Orientation = Orientation.Horizontal;
+            edStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label edLabel = new Label();
+            edLabel.Content = "Хурал дуусах өдөр:";
+            edLabel.Width = 215;
+            DatePicker ed = new DatePicker();
+            ed.Width = 215;
+            ed.DisplayDate = ((DateTime)meeting.startDatetime);
+            ed.Text = ((DateTime)meeting.endDate).ToShortDateString();
+            controls.Add(ed);
+            edStack.Children.Add(edLabel);
+            edStack.Children.Add(ed);
 
             /**
                 * Frequency stack
@@ -306,6 +581,7 @@ namespace IrtsBurtgel
             TextBox freq = new TextBox();
             freq.Text = meeting.intervalDay.ToString();
             freq.Width = 25;
+            controls.Add(freq);
             Label fUnitLabel = new Label();
             fUnitLabel.Content = "Хоног";
 
@@ -327,8 +603,9 @@ namespace IrtsBurtgel
             saveButton.Height = 25;
             saveButton.Width = 100;
 
-            saveButton.Tag = meeting;
+            controls.Add(meeting);
 
+            saveButton.Tag = controls;
             saveButton.Click += setMeeting;
 
             saveStack.Children.Add(saveButton);
@@ -336,6 +613,8 @@ namespace IrtsBurtgel
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
             stackPanel.Children.Add(sdStack);
+            stackPanel.Children.Add(durationStack);
+            stackPanel.Children.Add(edStack);
             stackPanel.Children.Add(fStack);
             stackPanel.Children.Add(saveStack);
 
@@ -348,6 +627,8 @@ namespace IrtsBurtgel
             StackPanel stackPanel = new StackPanel();
             stackPanel.Orientation = Orientation.Vertical;
             stackPanel.Margin = new Thickness(10);
+
+            List<Object> controls = new List<Object>();
 
             /**
              * Name stack
@@ -362,6 +643,7 @@ namespace IrtsBurtgel
             nameLabel.Width = 215;
             TextBox name = new TextBox();
             name.Width = 215;
+            controls.Add(name);
 
             nameStack.Children.Add(nameLabel);
             nameStack.Children.Add(name);
@@ -379,6 +661,7 @@ namespace IrtsBurtgel
             stLabel.Width = 215;
             TextBox st = new TextBox();
             st.Width = 215;
+            controls.Add(st);
 
             stStack.Children.Add(stLabel);
             stStack.Children.Add(st);
@@ -395,9 +678,43 @@ namespace IrtsBurtgel
             sdLabel.Width = 215;
             DatePicker sd = new DatePicker();
             sd.Width = 215;
+            controls.Add(sd);
 
             sdStack.Children.Add(sdLabel);
             sdStack.Children.Add(sd);
+            /**
+                * duration Stack
+                */
+
+            StackPanel durationStack = new StackPanel();
+            durationStack.Orientation = Orientation.Horizontal;
+            durationStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label durationLabel = new Label();
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
+            durationLabel.Width = 215;
+            TextBox duration = new TextBox();
+            duration.Width = 215;
+            controls.Add(duration);
+
+            durationStack.Children.Add(durationLabel);
+            durationStack.Children.Add(duration);
+
+            /**
+                * ending date Stack
+                */
+            StackPanel edStack = new StackPanel();
+            edStack.Orientation = Orientation.Horizontal;
+            edStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label edLabel = new Label();
+            edLabel.Content = "Хурал дуусах өдөр:";
+            edLabel.Width = 215;
+            DatePicker ed = new DatePicker();
+            ed.Width = 215;
+            controls.Add(ed);
+            edStack.Children.Add(edLabel);
+            edStack.Children.Add(ed);
 
             /**
              * Frequency stack
@@ -413,6 +730,7 @@ namespace IrtsBurtgel
             freq.Width = 25;
             Label fUnitLabel = new Label();
             fUnitLabel.Content = "Хоног";
+            controls.Add(freq);
 
 
             fStack.Children.Add(fLabel);
@@ -431,12 +749,16 @@ namespace IrtsBurtgel
             saveButton.Background = Brushes.White;
             saveButton.Height = 25;
             saveButton.Width = 100;
-
+            saveButton.Tag = controls;
+            saveButton.Click += insertMeeting;
             saveStack.Children.Add(saveButton);
 
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
             stackPanel.Children.Add(sdStack);
+
+            stackPanel.Children.Add(durationStack);
+            stackPanel.Children.Add(edStack);
             stackPanel.Children.Add(fStack);
             stackPanel.Children.Add(saveStack);
 
@@ -445,19 +767,21 @@ namespace IrtsBurtgel
         void ShowMeetings(object sender, RoutedEventArgs e)
         {
             LeftSide.Children.Clear();
+            Label label = new Label();
+            label.Content = "Нийт хурлууд:";
 
             Button import = new Button();
             import.Content = "+";
             import.Click += addMeeting;
 
-            Button[] buttons = new Button[1];
-            buttons[0] = import;
-
-            DockPanel dockPanel = addButton(buttons);
+            List<Object> controls = new List<Object>();
+            controls.Add(import);
+            controls.Add(label);
+            DockPanel dockPanel = addHeader(controls);
 
             ListBox listbox = new ListBox();
             listbox.Margin = new Thickness(10, 10, 10, 10);
-            listbox.MinWidth=430;
+            listbox.HorizontalAlignment = HorizontalAlignment.Stretch;
 
             List < Meeting >  meetings = meetingModel.GetAll();
 
@@ -477,6 +801,28 @@ namespace IrtsBurtgel
 
         }
 
+        void setUser(object sender,RoutedEventArgs e)
+        {
+            List<Object> controls = (List<Object>)(((Button)sender).Tag);
+
+            TextBox lName = (TextBox)(controls[0]);
+            TextBox fName = (TextBox)(controls[1]);
+            User user = (User)controls[2];
+
+            user.fname = fName.Text;
+            user.lname = lName.Text;
+
+            try
+            {
+                userModel.Set(user);
+                MessageBox.Show("Амжилттай өөрчлөгдлөө", "Өөрчлөгдлөө");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та программ ажиллуулж байгаа орчиноо шалгана уу", "Өөрчилсөнгүй");
+            }
+            ShowMembers(sender,null);
+        }
         void onUserChanged(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
@@ -484,84 +830,86 @@ namespace IrtsBurtgel
 
             RightSide.Children.Clear();
 
-            using (SqlDataReader reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    StackPanel stackPanel = new StackPanel();
-                    stackPanel.Orientation = Orientation.Vertical;
-                    stackPanel.Margin = new Thickness(10);
-                    /**
-                     * lName stack
-                     */
+            User user = userModel.Get(Int32.Parse(id));
+            List<Object> controls = new List<Object>();
 
-                    StackPanel lNameStack = new StackPanel();
-                    lNameStack.Orientation = Orientation.Horizontal;
-                    lNameStack.Margin = new Thickness(0, 5, 0, 5);
+            StackPanel stackPanel = new StackPanel();
+            stackPanel.Orientation = Orientation.Vertical;
+            stackPanel.Margin = new Thickness(10);
+            /**
+             * lName stack
+             */
 
-                    Label lNameLabel = new Label();
-                    lNameLabel.Content = "Овог:";
-                    lNameLabel.Width = 215;
-                    TextBox lName = new TextBox();
-                    lName.Width = 215;
-                    lName.Text = (string)reader["lName"];
+            StackPanel lNameStack = new StackPanel();
+            lNameStack.Orientation = Orientation.Horizontal;
+            lNameStack.Margin = new Thickness(0, 5, 0, 5);
 
-                    lNameStack.Children.Add(lNameLabel);
-                    lNameStack.Children.Add(lName);
+            Label lNameLabel = new Label();
+            lNameLabel.Content = "Овог:";
+            lNameLabel.Width = 215;
+            TextBox lName = new TextBox();
+            lName.Width = 215;
+            lName.Text = user.lname;
+            controls.Add(lName);
 
-
-                    /**
-                     * ffName stack
-                     */
-
-                    StackPanel fNameStack = new StackPanel();
-                    fNameStack.Orientation = Orientation.Horizontal;
-                    fNameStack.Margin = new Thickness(0, 5, 0, 5);
-
-                    Label fNameLabel = new Label();
-                    fNameLabel.Content = "Нэр:";
-                    fNameLabel.Width = 215;
-                    TextBox fName = new TextBox();
-                    fName.Width = 215;
-                    fName.Text = (string)reader["fname"];
-
-                    fNameStack.Children.Add(fNameLabel);
-                    fNameStack.Children.Add(fName);
+            lNameStack.Children.Add(lNameLabel);
+            lNameStack.Children.Add(lName);
 
 
-                    /**
-                     * Save button 
-                     */
-                    StackPanel saveStack = new StackPanel();
-                    saveStack.Orientation = Orientation.Horizontal;
-                    saveStack.HorizontalAlignment = HorizontalAlignment.Right;
-                    saveStack.Margin = new Thickness(0, 5, 0, 5);
+            /**
+             * fName stack
+             */
 
-                    Button saveButton = new Button();
-                    saveButton.Content = "Хадгалах";
-                    saveButton.Background = Brushes.White;
-                    saveButton.Height = 25;
-                    saveButton.Width = 105;
+            StackPanel fNameStack = new StackPanel();
+            fNameStack.Orientation = Orientation.Horizontal;
+            fNameStack.Margin = new Thickness(0, 5, 0, 5);
 
-                    Button deleteButton = new Button();
-                    deleteButton.Content = "Устгах";
-                    deleteButton.Background = Brushes.White;
-                    deleteButton.Foreground = Brushes.Red;
-                    deleteButton.Width = 105;
-                    deleteButton.Height = 25;
-                    deleteButton.Margin = new Thickness(0, 0, 5, 0);
-                    saveStack.Children.Add(deleteButton);
-                    saveStack.Children.Add(saveButton);
+            Label fNameLabel = new Label();
+            fNameLabel.Content = "Нэр:";
+            fNameLabel.Width = 215;
+            TextBox fName = new TextBox();
+            fName.Width = 215;
+            fName.Text = user.fname;
+            controls.Add(fName);
 
-                    stackPanel.Children.Add(lNameStack);
-                    stackPanel.Children.Add(fNameStack);
-                    stackPanel.Children.Add(saveStack);
+            fNameStack.Children.Add(fNameLabel);
+            fNameStack.Children.Add(fName);
 
-                    RightSide.Children.Add(stackPanel);
 
-                }
-                conn.Close();
-            }
+            /**
+             * Save button 
+             */
+            StackPanel saveStack = new StackPanel();
+            saveStack.Orientation = Orientation.Horizontal;
+            saveStack.HorizontalAlignment = HorizontalAlignment.Right;
+            saveStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Button saveButton = new Button();
+            saveButton.Content = "Хадгалах";
+            saveButton.Background = Brushes.White;
+            saveButton.Height = 25;
+            saveButton.Width = 105;
+
+            controls.Add(user);
+            saveButton.Tag = controls;
+            saveButton.Click += setUser;
+
+            Button deleteButton = new Button();
+            deleteButton.Content = "Устгах";
+            deleteButton.Background = Brushes.White;
+            deleteButton.Foreground = Brushes.Red;
+            deleteButton.Width = 105;
+            deleteButton.Height = 25;
+            deleteButton.Margin = new Thickness(0, 0, 5, 0);
+            saveStack.Children.Add(deleteButton);
+            saveStack.Children.Add(saveButton);
+
+            stackPanel.Children.Add(lNameStack);
+            stackPanel.Children.Add(fNameStack);
+            stackPanel.Children.Add(saveStack);
+
+            RightSide.Children.Add(stackPanel);
+
         }
         void importData(object sender, RoutedEventArgs e)
         {
@@ -584,33 +932,32 @@ namespace IrtsBurtgel
         {
             LeftSide.Children.Clear();
 
+            Label label = new Label();
+            label.Content = "Нийт гишүүд:";
+
             Button import = new Button();
             import.Content = "+";
             import.Click += importData;
 
-            Button[] buttons = new Button[1];
-            buttons[0] = import;
+            List<Object> buttons = new List<Object>();
+            buttons.Add(import);
+            buttons.Add(label);
 
-            DockPanel dockPanel = addButton(buttons);
+            DockPanel dockPanel = addHeader(buttons);
 
             ListBox listbox = new ListBox();
             listbox.Margin = new Thickness(10, 10, 10, 10);
             listbox.MinWidth = 430;
-
-            conn.Open();
-            cmd = new SqlCommand("SELECT * FROM \"user\"", conn);
-            using (SqlDataReader reader = cmd.ExecuteReader())
+            
+            List<User> users = userModel.GetAll();
+            foreach(User user in users)
             {
-                while (reader.Read())
-                {
-                    ListBoxItem listBoxItem = new ListBoxItem();
+                ListBoxItem listBoxItem = new ListBoxItem();
 
-                    listBoxItem.Content = ((string)reader["lname"])+" "+reader["fname"];
-                    listBoxItem.Uid = reader["user_id"].ToString();
-                    listBoxItem.Height = 25;
-                    listbox.Items.Add(listBoxItem);
-                }
-                conn.Close();
+                listBoxItem.Content = user.lname + " " + user.fname;
+                listBoxItem.Uid = user.id.ToString();
+                listBoxItem.Height = 25;
+                listbox.Items.Add(listBoxItem);
             }
             listbox.SelectionChanged += onUserChanged;
 
