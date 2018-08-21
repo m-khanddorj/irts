@@ -36,6 +36,12 @@ namespace IrtsBurtgel
             userModel = new UserModel();
         }
         
+        private void showStatus(object sender, RoutedEventArgs e)
+        {
+            MeetingStatus meetingStatus = new MeetingStatus();
+            meetingStatus.Visibility = Visibility.Visible;
+        }
+
         private void showMenu(object sender, RoutedEventArgs e)
         {
             LeftSide.Children.Clear();
@@ -80,11 +86,20 @@ namespace IrtsBurtgel
             Report.Height = 30;
             Report.Background = Brushes.White;
 
+            Button Org = new Button();
+            Org.Content = "Байгууллага";
+            Org.Margin = margin;
+            Org.Click += ShowOrg;
+            Org.Width = 210;
+            Org.Height = 30;
+            Org.Background = Brushes.White;
+
 
             Menu.Children.Add(Calendar);
             Menu.Children.Add(Meetings);
             Menu.Children.Add(Members);
             Menu.Children.Add(Report);
+            Menu.Children.Add(Org);
 
             LeftSide.Children.Add(Menu);
 
@@ -125,7 +140,7 @@ namespace IrtsBurtgel
             back.Width = 30;
 
             headerPanel.Children.Add(back);
-            DockPanel.SetDock(headerPanel, Dock.Top);
+            DockPanel.SetDock(headerPanel, Dock.Left);
 
             if (controls != null)
             {
@@ -173,7 +188,7 @@ namespace IrtsBurtgel
                     }
                 }
             }
-
+            DockPanel.SetDock(headerPanel, Dock.Top);
             dockPanel.Children.Add(headerPanel);
 
             LeftSide.Children.Add(dockPanel);
@@ -963,6 +978,38 @@ namespace IrtsBurtgel
         void ShowReport(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("h");
+        }
+
+        void ShowOrg(object sender, RoutedEventArgs e)
+        {
+            LeftSide.Children.Clear();
+            List<Object> list = new List<Object>();
+            Label label = new Label();
+            label.Content = "Байгууллагын мэдээлэл";
+            list.Add(label);
+            DockPanel dockPanel = addHeader(list);
+
+            StackPanel stackPanel = new StackPanel();
+
+            StackPanel nameStack = new StackPanel();
+            nameStack.Orientation = Orientation.Horizontal;
+            nameStack.Margin = new Thickness(0,5,0,5);
+
+            Label orgNameLabel = new Label();
+            orgNameLabel.Width = 215;
+            orgNameLabel.Foreground = Brushes.White;
+            orgNameLabel.Content = "Байгууллагын нэр:";
+            TextBox name = new TextBox();
+            name.Width = 215;
+
+            nameStack.Children.Add(orgNameLabel);
+            nameStack.Children.Add(name);
+
+            stackPanel.Children.Add(nameStack);
+            stackPanel.HorizontalAlignment = HorizontalAlignment.Center;
+
+            dockPanel.Children.Add(stackPanel);
+            
         }
     }
 }
