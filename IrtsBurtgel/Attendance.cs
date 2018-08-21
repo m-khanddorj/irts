@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace IrtsBurtgel
 {
-    public class Attendance
+    public class Attendance : Entity
     {
+        public override string TableName => "attendance";
+        public override string IDName => "attendance_id";
+
         public int id;
         public int userId;
         public int statusId;
@@ -23,7 +27,7 @@ namespace IrtsBurtgel
             regTime = new DateTime();
         }
         
-        public virtual List<Object[]> ToKVStringList()
+        public override List<Object[]> ToKVStringList()
         {
             List<Object[]> list = new List<Object[]>();
             if (id != -1) list.Add(new Object[] { "attendance_id", id });
@@ -39,6 +43,18 @@ namespace IrtsBurtgel
                 list.Add(new Object[] { "reg_time", null });
             }
             return list;
+        }
+
+        public override Entity GetObj(SqlDataReader reader)
+        {
+            return new Attendance
+            {
+                id = (int)reader["attendance_id"],
+                userId = (int)reader["attendance_id"],
+                archivedMeetingId = (int)reader["attendance_id"],
+                statusId = (int)reader["attendance_id"],
+                regTime = (DateTime)reader["attendance_id"]
+            };
         }
     }
 }

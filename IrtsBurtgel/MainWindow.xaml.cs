@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Data.SqlClient;
+using System.IO;
+using Sample;
 
 namespace IrtsBurtgel
 {
@@ -21,11 +23,13 @@ namespace IrtsBurtgel
     /// </summary>
     public partial class MainWindow : Window
     {
-        MeetingModel meetingModel;
+        Model<Meeting> meetingModel;
+        Model<User> userModel;
         MeetingController meetingController;
 
         SqlConnection conn;
         SqlCommand cmd;
+
 
         public MainWindow()
         {
@@ -33,6 +37,7 @@ namespace IrtsBurtgel
 
             meetingController = new MeetingController();
             meetingModel = meetingController.meetingModel;
+            userModel = new Model<User>();
 
             conn = new SqlConnection();
             cmd = new SqlCommand();
@@ -616,6 +621,44 @@ namespace IrtsBurtgel
         void ShowReport(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("h");
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ScannerHandler sh = new ScannerHandler(userModel.GetAll());
+            ExternalDataImporter imp = new ExternalDataImporter();
+
+            imp.ImportUserData("C:\\Users\\Orgio\\Documents\\SampleData.xlsx", "C:\\Users\\Orgio\\Documents\\Attendance Registration\\Dat File\\template.fp10.1");
+            
+            sh.InitializeDevice();
+            sh.StartCaptureThread();
+            
+        }
+
+        public void ChangeImage(byte[] stream)
+        {
+            var bitmapImage = new BitmapImage();
+            MemoryStream ms = new MemoryStream();
+            byte[] haha = stream;
+            BitmapFormat.GetBitmap(haha, 300, 375, ref ms);
+
+            bitmapImage.BeginInit();
+            bitmapImage.StreamSource = ms;
+            bitmapImage.EndInit();
+            image.Source = bitmapImage;
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            userModel.Add(new User
+            {
+                id = -1,
+                fname = "testFName",
+                lname = "TestLname",
+                fingerprint0 = "asfaf",
+                fingerprint1 = "asfaawdadf",
+                isDeleted = false
+            });
         }
     }
 }

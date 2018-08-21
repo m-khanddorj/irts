@@ -8,28 +8,18 @@ using System.Windows;
 
 namespace IrtsBurtgel
 {
-    public class UserModel
+    public class Model<T> where T : Entity, new()
     {
         string connectionString;
+        T staticObj;
 
-        public UserModel()
+        public Model()
         {
             connectionString = Constants.GetConnectionString();
+            staticObj = new T();
         }
 
-        public User GetObj(SqlDataReader reader)
-        {
-            return new User
-            {
-                id = (int)reader["user_id"],
-                fname = (string)reader["fname"],
-                lname = (string)reader["lname"],
-                fingerprint = (string)reader["fingerprint"],
-                isDeleted = (bool)reader["is_deleted"]
-            };
-        }
-
-        public int Add(User user)
+        public int Add(T obj)
         {
             try
             {
@@ -38,7 +28,7 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    List<Object[]> list = user.ToKVStringList();
+                    List<Object[]> list = obj.ToKVStringList();
                     List<string> columnnames = new List<string>();
                     List<string> paramnames = new List<string>();
 
@@ -49,7 +39,7 @@ namespace IrtsBurtgel
                     }
                     string sqlpart1 = String.Join(",", columnnames);
                     string sqlpart2 = String.Join(",", paramnames);
-                    string sql = "INSERT INTO \"user\"(" + sqlpart1 + ") OUTPUT INSERTED.user_id VALUES (" + sqlpart2 + ") ";
+                    string sql = "INSERT INTO \"" + obj.TableName + "\"(" + sqlpart1 + ") OUTPUT INSERTED." + obj.IDName + " VALUES (" + sqlpart2 + ") ";
 
                     using (SqlCommand insertCommand = new SqlCommand(sql, conn))
                     {
@@ -69,7 +59,7 @@ namespace IrtsBurtgel
             }
         }
 
-        public void Set(User user)
+        public void Set(T obj)
         {
             try
             {
@@ -78,7 +68,7 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    List<Object[]> list = user.ToKVStringList();
+                    List<Object[]> list = obj.ToKVStringList();
                     List<string> keyValueStr = new List<string>();
 
                     for (int i = 1; i < list.Count; i++)
@@ -87,7 +77,7 @@ namespace IrtsBurtgel
                     }
                     string sqlpart1 = String.Join(",", keyValueStr);
                     string sqlpart2 = "\"" + list[0][0] + "\" = " + "@" + list[0][0];
-                    string sql = "UPDATE \"user\" SET " + sqlpart1 + " WHERE " + sqlpart2;
+                    string sql = "UPDATE \"" + obj.TableName + "\" SET " + sqlpart1 + " WHERE " + sqlpart2;
 
                     using (SqlCommand updateCommand = new SqlCommand(sql, conn))
                     {
@@ -106,9 +96,9 @@ namespace IrtsBurtgel
             }
         }
 
-        public List<User> GetAll()
+        public List<T> GetAll()
         {
-            List<User> list = new List<User>();
+            List<T> list = new List<T>();
             try
             {
                 using (SqlConnection conn = new SqlConnection())
@@ -116,7 +106,7 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    string sql = "SELECT * FROM \"user\"";
+                    string sql = "SELECT * FROM \"" + staticObj.TableName + "\"";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
@@ -124,11 +114,12 @@ namespace IrtsBurtgel
                         {
                             while (reader.Read())
                             {
-                                list.Add(GetObj(reader));
+                                list.Add((T)staticObj.GetObj(reader));
                             }
                         }
                     }
                 }
+
             }
             catch (Exception ex)
             {
@@ -138,9 +129,9 @@ namespace IrtsBurtgel
             return list;
         }
 
-        public User Get(int id)
+        public T Get(int id)
         {
-            User user = null;
+            T obj = null;
             try
             {
                 using (SqlConnection conn = new SqlConnection())
@@ -148,17 +139,17 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    string sql = "SELECT TOP (1) * FROM \"user\" WHERE user_id = @user_id";
+                    string sql = "SELECT TOP (1) * FROM \"" + staticObj.TableName + "\" WHERE " + staticObj.IDName + " = @id";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
-                        selectCommand.Parameters.Add(new SqlParameter("@user_id", id));
+                        selectCommand.Parameters.Add(new SqlParameter("@id", id));
 
                         using (var reader = selectCommand.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                user = GetObj(reader);
+                                obj = (T)staticObj.GetObj(reader);
                                 break;
                             }
                         }
@@ -171,10 +162,47 @@ namespace IrtsBurtgel
                 MessageBox.Show(ex.ToString());
             }
 
-            return user;
+            return obj;
         }
 
-        public bool BulkAdd(List<User> users)
+        public T SelectBare(string sql, List<Object[]> parameters)
+        {
+            T obj = null;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection())
+                {
+                    conn.ConnectionString = connectionString;
+                    conn.Open();
+
+                    using (SqlCommand selectCommand = new SqlCommand(sql, conn))
+                    {
+                        foreach (Object[] item in parameters)
+                        {
+                            selectCommand.Parameters.Add(new SqlParameter("@" + (string)item[0], item[1]));
+                        }
+
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                obj = (T)staticObj.GetObj(reader);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+            return obj;
+        }
+
+        public bool BulkAdd(List<T> objs)
         {
             bool result = true;
             try
@@ -184,9 +212,9 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    foreach (User user in users)
+                    foreach (T obj in objs)
                     {
-                        List<Object[]> list = user.ToKVStringList();
+                        List<Object[]> list = obj.ToKVStringList();
                         List<string> columnnames = new List<string>();
                         List<string> paramnames = new List<string>();
 
@@ -197,7 +225,7 @@ namespace IrtsBurtgel
                         }
                         string sqlpart1 = String.Join(",", columnnames);
                         string sqlpart2 = String.Join(",", paramnames);
-                        string sql = "INSERT INTO \"user\"(" + sqlpart1 + ") VALUES (" + sqlpart2 + ") ";
+                        string sql = "INSERT INTO \"" + staticObj.TableName + "\"(" + sqlpart1 + ") VALUES (" + sqlpart2 + ") ";
 
                         using (SqlCommand insertCommand = new SqlCommand(sql, conn))
                         {
