@@ -80,6 +80,14 @@ namespace IrtsBurtgel
             Members.Height = 30;
             Members.Background = Brushes.White;
 
+            Button Group = new Button();
+            Group.Content = " Бүлгүүд";
+            Group.Margin = margin;
+            Group.Click += ShowGroups;
+            Group.Width = 210;
+            Group.Height = 30;
+            Group.Background = Brushes.White;
+
             Button Report = new Button();
             Report.Content = "Тайлан";
             Report.Margin = margin;
@@ -99,6 +107,7 @@ namespace IrtsBurtgel
 
             Menu.Children.Add(Calendar);
             Menu.Children.Add(Meetings);
+            Menu.Children.Add(Group);
             Menu.Children.Add(Members);
             Menu.Children.Add(Report);
             Menu.Children.Add(Org);
@@ -144,6 +153,24 @@ namespace IrtsBurtgel
             back.Width = 30;
 
             headerPanel.Children.Add(back);
+
+            Button status = new Button();
+
+            Image eyeImage = new Image();
+            eyeImage.Source = new BitmapImage(new Uri("images/eye.png", UriKind.Relative));
+            eyeImage.Width = 20;
+            eyeImage.Height = 20;
+
+            status.Content = eyeImage;
+
+            status.Click += showStatus;
+            status.Foreground = Brushes.White;
+            status.BorderBrush = Brushes.Transparent;
+            status.Background = Brushes.Transparent;
+            status.Height = 30;
+            status.Width = 30;
+            status.HorizontalAlignment = HorizontalAlignment.Right;
+
             DockPanel.SetDock(headerPanel, Dock.Left);
 
             if (controls != null)
@@ -195,6 +222,10 @@ namespace IrtsBurtgel
                     }
                 }
             }
+
+            DockPanel.SetDock(status, Dock.Right);
+            headerPanel.Children.Add(status);
+
             DockPanel.SetDock(headerPanel, Dock.Top);
             dockPanel.Children.Add(headerPanel);
 
@@ -302,85 +333,8 @@ namespace IrtsBurtgel
             dockPanel.Children.Add(listbox);
         }
 
-        void insertMeeting(object sender, RoutedEventArgs e)
-        {
-            List<Object> controls = (List<Object>)((Button)sender).Tag;
 
-            string name = ((TextBox)controls[0]).Text;
-            string st = ((TextBox)controls[1]).Text;
-            string sd = ((DateTime)((DatePicker)controls[2]).SelectedDate).ToShortDateString();
-            
-        }
-        void setMeeting(object sender, RoutedEventArgs e)
-        {
-           List<Object> controls= (List<Object>)((Button)sender).Tag;
-            TextBox name = (TextBox)controls[0];
-            TextBox st = (TextBox)controls[1];
-            DatePicker sd = (DatePicker)controls[2];
-
-            TextBox duration = (TextBox)controls[3];
-            DatePicker ed = (DatePicker)controls[4];
-            TextBox freq = (TextBox)controls[5];
-            Meeting meeting = (Meeting)controls[6];
-
-            meeting.name = name.Text;
-
-            string datetimeString = sd.Text +" "+ st.Text;
-            //check and set meeting startDateTime
-            try
-            {
-                meeting.startDatetime = DateTime.Parse(datetimeString);
-            }
-            catch( Exception ex )
-            {
-                MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!","Өөрчилсөнгүй");
-                return;
-            }
-            string endDateString = ed.Text + " " + meeting.endDate.ToShortTimeString();
-            //check and set meeting endDate
-            try
-            {
-                meeting.endDate = DateTime.Parse(endDateString);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
-                return;
-            }
-            //check and set meeting duration
-            try
-            {
-                meeting.duration = Int32.Parse(duration.Text);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
-            }
-            //check and set meeting intervalday
-            try
-            {
-                meeting.intervalDay = Int32.Parse(freq.Text);
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
-            }
-            //check and update meeting
-            try
-            {
-                meetingModel.Set(meeting);
-                MessageBox.Show("Амжилттай өөрчиллөө.","Өөрчлөгдлөө");
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show("Та программ ажиллуулж буй орчиноо шалгана уу","Өөрчилсөнгүй");
-            }
-            ShowMeetings(sender, null);
-        }
-        /** Is called when meeting time has to change only 1 time
-         * Gets data from meeting , modifies and inserts into Modified meeting
-         */
-        void ModifyMeeting(object sender, RoutedEventArgs e)
+        void onMeetingNameChanged(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
             Label label = new Label();
@@ -408,7 +362,7 @@ namespace IrtsBurtgel
             nameLabel.Width = 215;
             TextBox name = new TextBox();
             name.Width = 215;
-            name.Text = meeting.name;
+            name.Text = (string)meeting.name;
             controls.Add(name);
 
             nameStack.Children.Add(nameLabel);
@@ -427,106 +381,6 @@ namespace IrtsBurtgel
             stLabel.Width = 215;
             TextBox st = new TextBox();
             st.Width = 215;
-            st.Text = meeting.startDatetime.ToShortTimeString();
-            controls.Add(st);
-
-            stStack.Children.Add(stLabel);
-            stStack.Children.Add(st);
-
- 
-            /**
-                * Duration time Stack
-                */
-
-            StackPanel durationStack = new StackPanel();
-            durationStack.Orientation = Orientation.Horizontal;
-            durationStack.Margin = new Thickness(0, 5, 0, 5);
-
-            Label durationLabel = new Label();
-            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
-            durationLabel.Width = 215;
-            TextBox duration = new TextBox();
-            duration.Width = 215;
-            duration.Text = meeting.duration.ToString();
-            controls.Add(duration);
-
-            durationStack.Children.Add(durationLabel);
-            durationStack.Children.Add(duration);
-
-            /**
-            * Save button 
-            */
-            StackPanel saveStack = new StackPanel();
-            saveStack.HorizontalAlignment = HorizontalAlignment.Right;
-            saveStack.Margin = new Thickness(0, 5, 0, 5);
-
-            Button saveButton = new Button();
-            saveButton.Content = "Хадгалах";
-            saveButton.Background = Brushes.White;
-            saveButton.Height = 25;
-            saveButton.Width = 100;
-
-            controls.Add(meeting);
-
-            saveButton.Tag = controls;
-            saveButton.Click += setMeeting;
-
-            saveStack.Children.Add(saveButton);
-
-            stackPanel.Children.Add(nameStack);
-            stackPanel.Children.Add(stStack);
-            stackPanel.Children.Add(durationStack);
-            stackPanel.Children.Add(saveStack);
-
-            RightSide.Children.Add(stackPanel);
-        }
-        void onMeetingNameChanged(object sender, RoutedEventArgs e)
-        {
-            ListBox listBox = (ListBox)sender;
-            Label label = new Label();
-            string id = ((ListBoxItem)listBox.SelectedValue).Uid;
-
-            RightSide.Children.Clear();
-
-            Meeting meeting = meetingModel.Get( Int32.Parse(id) );
-            List<Object> controls = new List<Object>();
-            
-            StackPanel stackPanel = new StackPanel();
-            stackPanel.Orientation = Orientation.Vertical;
-            stackPanel.Margin = new Thickness(10);
-
-            /**
-                * Name stack
-                */
-
-            StackPanel nameStack = new StackPanel();
-            nameStack.Orientation = Orientation.Horizontal;
-            nameStack.Margin = new Thickness(0,5,0,5);
-
-            Label nameLabel = new Label();
-            nameLabel.Content = "Хурлын нэр:";
-            nameLabel.Width = 215;
-            TextBox name = new TextBox();
-            name.Width = 215;
-            name.Text =(string) meeting.name;
-            controls.Add(name);
-
-            nameStack.Children.Add(nameLabel);
-            nameStack.Children.Add(name);
-
-            /**
-                * Starting time stack
-                */
-
-            StackPanel stStack = new StackPanel();
-            stStack.Orientation = Orientation.Horizontal;
-            stStack.Margin = new Thickness(0,5,0,5);
-
-            Label stLabel = new Label();
-            stLabel.Content = "Хурал эхлэх цаг:";
-            stLabel.Width = 215;
-            TextBox st = new TextBox();
-            st.Width = 215;
             st.Text = ((DateTime)meeting.startDatetime).ToShortTimeString();
             controls.Add(st);
 
@@ -538,7 +392,7 @@ namespace IrtsBurtgel
                 */
             StackPanel sdStack = new StackPanel();
             sdStack.Orientation = Orientation.Horizontal;
-            sdStack.Margin = new Thickness(0,5,0,5);
+            sdStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label sdLabel = new Label();
             sdLabel.Content = "Хурал эхлэх өдөр:";
@@ -593,7 +447,7 @@ namespace IrtsBurtgel
                 */
             StackPanel fStack = new StackPanel();
             fStack.Orientation = Orientation.Horizontal;
-            fStack.Margin = new Thickness(0,5,0,5);
+            fStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label fLabel = new Label();
             fLabel.Content = "Хурал болох давтамж";
@@ -615,7 +469,8 @@ namespace IrtsBurtgel
             */
             StackPanel saveStack = new StackPanel();
             saveStack.HorizontalAlignment = HorizontalAlignment.Right;
-            saveStack.Margin = new Thickness(0,5,0,5);
+            saveStack.Orientation = Orientation.Horizontal;
+            saveStack.Margin = new Thickness(0, 5, 0, 5);
 
             Button saveButton = new Button();
             saveButton.Content = "Хадгалах";
@@ -623,11 +478,21 @@ namespace IrtsBurtgel
             saveButton.Height = 25;
             saveButton.Width = 100;
 
+            Button removeButton = new Button();
+            removeButton.Content = "Устгах";
+            removeButton.Background = Brushes.White;
+            removeButton.Height = 25;
+            removeButton.Width = 100;
+
             controls.Add(meeting);
 
             saveButton.Tag = controls;
             saveButton.Click += setMeeting;
 
+            removeButton.Tag = meeting;
+            removeButton.Click += removeMeeting;
+
+            saveStack.Children.Add(removeButton);
             saveStack.Children.Add(saveButton);
 
             stackPanel.Children.Add(nameStack);
@@ -640,6 +505,7 @@ namespace IrtsBurtgel
 
             RightSide.Children.Add(stackPanel);
         }
+
         void addMeeting(object sender, RoutedEventArgs e)
         {
             RightSide.Children.Clear();
@@ -784,7 +650,235 @@ namespace IrtsBurtgel
 
             RightSide.Children.Add(stackPanel);
         }
-        void ShowMeetings(object sender, RoutedEventArgs e)
+        void insertMeeting(object sender, RoutedEventArgs e)
+        {
+            List<Object> controls = (List<Object>)((Button)sender).Tag;
+
+            string name = ((TextBox)controls[0]).Text;
+            string st = ((TextBox)controls[1]).Text;
+            string sd = ((DateTime)((DatePicker)controls[2]).SelectedDate).ToShortDateString();
+            string duration = ((TextBox)controls[3]).Text;
+            string ed = ((DatePicker)controls[4]).Text;
+            string freq = ((TextBox)controls[5]).Text;
+
+            Meeting meeting = new Meeting();
+            meeting.name = name;
+            try
+            {
+                meeting.startDatetime = DateTime.Parse(sd + " " + st);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та хурал эхлэх цагаа цаг:минут гэсэн хэлбэртэйгээр оруулна уу!");
+                return;
+            }
+            try
+            {
+                meeting.duration = Int32.Parse(duration);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та үргэлжлэх хугацаагаа зөв оруулна уу!\n" +
+                      "Зөвхөн үргэлжлэх хугацааг минутаар илэхийлэх тоо байхыг анхаарна уу!");
+            }
+            meeting.endDate = DateTime.Parse(ed);
+            try
+            {
+                meeting.intervalDay = Int32.Parse(freq);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та давтамжаа зөв оруулна уу!");
+            }
+
+            if (meetingModel.Add(meeting) != -1)
+            {
+                MessageBox.Show("Амжилттай нэмлээ!");
+                ShowMeetings();
+            }
+            else
+            {
+                MessageBox.Show("Өгөгдлийн сантай холбоотой асуудал гарлаа.",
+                    "Бүтэлгүйтлээ!");
+            }
+
+        }
+
+        void ModifyMeeting(object sender, RoutedEventArgs e)
+        {
+            ListBox listBox = (ListBox)sender;
+            Label label = new Label();
+            string id = ((ListBoxItem)listBox.SelectedValue).Uid;
+
+            RightSide.Children.Clear();
+
+            Meeting meeting = meetingModel.Get(Int32.Parse(id));
+            List<Object> controls = new List<Object>();
+
+            StackPanel stackPanel = new StackPanel();
+            stackPanel.Orientation = Orientation.Vertical;
+            stackPanel.Margin = new Thickness(10);
+
+            /**
+                * Name stack
+                */
+
+            StackPanel nameStack = new StackPanel();
+            nameStack.Orientation = Orientation.Horizontal;
+            nameStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label nameLabel = new Label();
+            nameLabel.Content = "Хурлын нэр:";
+            nameLabel.Width = 215;
+            TextBox name = new TextBox();
+            name.Width = 215;
+            name.Text = meeting.name;
+            controls.Add(name);
+
+            nameStack.Children.Add(nameLabel);
+            nameStack.Children.Add(name);
+
+            /**
+                * Starting time stack
+                */
+
+            StackPanel stStack = new StackPanel();
+            stStack.Orientation = Orientation.Horizontal;
+            stStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label stLabel = new Label();
+            stLabel.Content = "Хурал эхлэх цаг:";
+            stLabel.Width = 215;
+            TextBox st = new TextBox();
+            st.Width = 215;
+            st.Text = meeting.startDatetime.ToShortTimeString();
+            controls.Add(st);
+
+            stStack.Children.Add(stLabel);
+            stStack.Children.Add(st);
+
+
+            /**
+                * Duration time Stack
+                */
+
+            StackPanel durationStack = new StackPanel();
+            durationStack.Orientation = Orientation.Horizontal;
+            durationStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label durationLabel = new Label();
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
+            durationLabel.Width = 215;
+            TextBox duration = new TextBox();
+            duration.Width = 215;
+            duration.Text = meeting.duration.ToString();
+            controls.Add(duration);
+
+            durationStack.Children.Add(durationLabel);
+            durationStack.Children.Add(duration);
+
+            /**
+            * Save button 
+            */
+            StackPanel saveStack = new StackPanel();
+            saveStack.HorizontalAlignment = HorizontalAlignment.Right;
+            saveStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Button saveButton = new Button();
+            saveButton.Content = "Хадгалах";
+            saveButton.Background = Brushes.White;
+            saveButton.Height = 25;
+            saveButton.Width = 100;
+
+            controls.Add(meeting);
+
+            saveButton.Tag = controls;
+            saveButton.Click += setMeeting;
+
+            saveStack.Children.Add(saveButton);
+
+            stackPanel.Children.Add(nameStack);
+            stackPanel.Children.Add(stStack);
+            stackPanel.Children.Add(durationStack);
+            stackPanel.Children.Add(saveStack);
+
+            RightSide.Children.Add(stackPanel);
+        }
+        void setMeeting(object sender, RoutedEventArgs e)
+        {
+            List<Object> controls = (List<Object>)((Button)sender).Tag;
+            TextBox name = (TextBox)controls[0];
+            TextBox st = (TextBox)controls[1];
+            DatePicker sd = (DatePicker)controls[2];
+
+            TextBox duration = (TextBox)controls[3];
+            DatePicker ed = (DatePicker)controls[4];
+            TextBox freq = (TextBox)controls[5];
+            Meeting meeting = (Meeting)controls[6];
+
+            meeting.name = name.Text;
+
+            string datetimeString = sd.Text + " " + st.Text;
+            //check and set meeting startDateTime
+            try
+            {
+                meeting.startDatetime = DateTime.Parse(datetimeString);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
+                return;
+            }
+            string endDateString = ed.Text + " " + meeting.endDate.ToShortTimeString();
+            //check and set meeting endDate
+            try
+            {
+                meeting.endDate = DateTime.Parse(endDateString);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
+                return;
+            }
+            //check and set meeting duration
+            try
+            {
+                meeting.duration = Int32.Parse(duration.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
+            }
+            //check and set meeting intervalday
+            try
+            {
+                meeting.intervalDay = Int32.Parse(freq.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
+            }
+            //check and update meeting
+            try
+            {
+                meetingModel.Set(meeting);
+                MessageBox.Show("Амжилттай өөрчиллөө.", "Өөрчлөгдлөө");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та программ ажиллуулж буй орчиноо шалгана уу", "Өөрчилсөнгүй");
+            }
+            ShowMeetings(sender, null);
+        }
+
+        void removeMeeting(object sender, RoutedEventArgs e)
+        {
+            Meeting meeting = (Meeting)((Button)sender).Tag;
+        }
+        /** Is called when meeting time has to change only 1 time
+         * Gets data from meeting , modifies and inserts into Modified meeting
+         */
+        void ShowMeetings(object sender=null, RoutedEventArgs e=null)
         {
             LeftSide.Children.Clear();
             Label label = new Label();
@@ -982,6 +1076,41 @@ namespace IrtsBurtgel
 
             dockPanel.Children.Add(listbox);
 
+        }
+
+        void ShowGroups(object sender, RoutedEventArgs e)
+        {
+            LeftSide.Children.Clear();
+
+            Label label = new Label();
+            label.Content = "Нийт бүлгүүд:";
+
+            Button add = new Button();
+            add.Content = "+";
+            //add.Click += addMeeting();
+
+            List<Object> buttons = new List<Object>();
+            buttons.Add(add);
+            buttons.Add(label);
+
+            DockPanel dockPanel = addHeader(buttons);
+
+            ListBox listbox = new ListBox();
+            listbox.Margin = new Thickness(10, 10, 10, 10);
+
+            List<User> users = userModel.GetAll();
+            foreach (User user in users)
+            {
+                ListBoxItem listBoxItem = new ListBoxItem();
+
+                listBoxItem.Content = user.lname + " " + user.fname;
+                listBoxItem.Uid = user.id.ToString();
+                listBoxItem.Height = 25;
+                listbox.Items.Add(listBoxItem);
+            }
+            listbox.SelectionChanged += onUserChanged;
+
+            dockPanel.Children.Add(listbox);
         }
 
         void ShowReport(object sender, RoutedEventArgs e)
