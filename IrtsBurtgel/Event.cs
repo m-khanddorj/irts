@@ -7,30 +7,28 @@ using System.Threading.Tasks;
 
 namespace IrtsBurtgel
 {
-    public class Meeting : Entity
+    public class Event : Entity
     {
-        public override string TableName => "meeting";
-        public override string IDName => "meeting_id";
+        public override string TableName => "event";
+        public override string IDName => "event_id";
 
         public int id;
-        public int duration;
         public byte intervalType;
         public byte week;
         public int intervalDay;
         public string name;
-        public DateTime startDatetime;
+        public DateTime startDate;
         public DateTime endDate;
         public bool isDeleted;
 
-        public Meeting()
+        public Event()
         {
             id = -1;
-            duration = 0;
             intervalDay = 0;
             intervalType = 0;
             week = 0;
             name = "";
-            startDatetime = new DateTime();
+            startDate = new DateTime();
             endDate = new DateTime();
             isDeleted = false;
         }
@@ -40,14 +38,13 @@ namespace IrtsBurtgel
             List<Object[]> list = new List<Object[]>();
             if (id != -1)
             {
-                list.Add(new Object[] { "meeting_id", id });
+                list.Add(new Object[] { "event_id", id });
             }
-            list.Add(new Object[] { "duration", duration });
             list.Add(new Object[] { "interval_type", intervalType });
             list.Add(new Object[] { "interval_day", intervalDay });
             list.Add(new Object[] { "week", week });
             list.Add(new Object[] { "is_deleted", isDeleted });
-            list.Add(new Object[] { "start_datetime", startDatetime });
+            list.Add(new Object[] { "start_date", startDate });
             if (DateTime.Compare(endDate, new DateTime()) != 0)
             {
                 list.Add(new Object[] { "end_date", endDate });
@@ -63,16 +60,15 @@ namespace IrtsBurtgel
 
         public override Entity GetObj(SqlDataReader reader)
         {
-            return new Meeting
+            return new Event
             {
-                id = (int)reader["meeting_id"],
+                id = (int)reader["event_id"],
                 name = (string)reader["name"],
-                startDatetime = (DateTime)reader["start_datetime"],
+                startDate = (DateTime)reader["start_date"],
                 endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"],
-                duration = (int)reader["duration"],
                 intervalType = (byte)reader["interval_type"],
                 intervalDay = (int)reader["interval_day"],
-                week = (byte)reader["Week"],
+                week = (byte)reader["week"],
                 isDeleted = (bool)reader["is_deleted"]
             };
         }
