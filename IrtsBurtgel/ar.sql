@@ -77,6 +77,20 @@ CREATE TABLE meeting (
                 CONSTRAINT meeting_id PRIMARY KEY (meeting_id)
 )
 
+CREATE TABLE meeting_and_position (
+                mpid INT IDENTITY NOT NULL,
+                position_id INT NOT NULL,
+                meeting_id INT NOT NULL,
+                CONSTRAINT mpid PRIMARY KEY (mpid)
+)
+
+CREATE TABLE meeting_and_department (
+                mdid INT IDENTITY NOT NULL,
+                department_id INT NOT NULL,
+                meeting_id INT NOT NULL,
+                CONSTRAINT mdid PRIMARY KEY (mdid)
+)
+
 CREATE TABLE modified_meeting (
                 m_meeting_id INT IDENTITY NOT NULL,
                 name VARCHAR(255) NOT NULL,
@@ -123,7 +137,19 @@ REFERENCES "position" (position_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 
+ALTER TABLE meeting_and_position ADD CONSTRAINT _position__meeting_and_position_fk
+FOREIGN KEY (position_id)
+REFERENCES "position" (position_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+
 ALTER TABLE "user" ADD CONSTRAINT department__user__fk
+FOREIGN KEY (department_id)
+REFERENCES department (department_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+
+ALTER TABLE meeting_and_department ADD CONSTRAINT department_meeting_and_department_fk
 FOREIGN KEY (department_id)
 REFERENCES department (department_id)
 ON DELETE NO ACTION
@@ -178,6 +204,18 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 
 ALTER TABLE archived_meeting ADD CONSTRAINT meeting_archived_meeting_fk
+FOREIGN KEY (meeting_id)
+REFERENCES meeting (meeting_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+
+ALTER TABLE meeting_and_department ADD CONSTRAINT meeting_meeting_and_department_fk
+FOREIGN KEY (meeting_id)
+REFERENCES meeting (meeting_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+
+ALTER TABLE meeting_and_position ADD CONSTRAINT meeting_meeting_and_position_fk
 FOREIGN KEY (meeting_id)
 REFERENCES meeting (meeting_id)
 ON DELETE NO ACTION

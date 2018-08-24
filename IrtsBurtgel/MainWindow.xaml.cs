@@ -48,7 +48,6 @@ namespace IrtsBurtgel
         {
             MeetingStatus meetingStatus = new MeetingStatus();
             meetingStatus.Visibility = Visibility.Visible;
-            meetingController.StartMeeting(meetingModel.Get(1));
         }
 
         private void showMenu(object sender, RoutedEventArgs e)
@@ -1397,14 +1396,13 @@ namespace IrtsBurtgel
             Button import = new Button();
             import.Content = "+";
             import.Click += addMeeting;
-
+            
             Button search = new Button();
             Image searchImage = new Image();
             searchImage.Source = new BitmapImage(new Uri("images/searchwhite.png", UriKind.Relative));
             searchImage.Width = 20;
             search.Content = searchImage;
             search.Click += Search;
-
             List<Object> controls = new List<Object>();
             List<Object> rcontrols = new List<Object>();
             controls.Add(import);
@@ -1528,11 +1526,19 @@ namespace IrtsBurtgel
                         break;
                     case 2:
                         nameLabel.Content = "Алба:";
+<<<<<<< HEAD
                         valueLabel.Content = depModel.Get(user.departmentId).name;
                         break;
                     case 3:
                         nameLabel.Content = "Тушаал:";
                         valueLabel.Content = posModel.Get(user.positionId).name;
+=======
+                        valueLabel.Content = user.departmentId != -1 ? meetingController.departmentModel.Get(user.departmentId).name : "";
+                        break;
+                    case 3:
+                        nameLabel.Content = "Тушаал:";
+                        valueLabel.Content = user.positionId != -1 ? meetingController.positionModel.Get(user.positionId).name : "";
+>>>>>>> 6be655ba3607941e4c5c2b71c06b326fb0be2d57
                         break;
                 }
                 grid.Children.Add(nameLabel);
