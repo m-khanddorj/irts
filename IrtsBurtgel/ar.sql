@@ -97,6 +97,7 @@ CREATE TABLE archived_meeting (
                 protocol VARCHAR(255),
                 meeting_datetime DATETIME NOT NULL,
                 duration INT NOT NULL,
+                name VARCHAR(255) NOT NULL,
                 CONSTRAINT a_meeting_id PRIMARY KEY (a_meeting_id)
 )
 

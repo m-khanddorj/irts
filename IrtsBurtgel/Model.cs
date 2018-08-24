@@ -268,6 +268,38 @@ namespace IrtsBurtgel
             return list;
         }
 
+        public List<T> SelectBare(string sql)
+        {
+            List<T> list = new List<T>();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection())
+                {
+                    conn.ConnectionString = connectionString;
+                    conn.Open();
+
+                    using (SqlCommand selectCommand = new SqlCommand(sql, conn))
+                    {
+
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                list.Add((T)staticObj.GetObj(reader));
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+            return list;
+        }
+
         public List<T> GetByFK(string fkName, int fkId)
         {
             List<T> list = new List<T>();
@@ -323,11 +355,56 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
-                    string sql = "SELECT * FROM \"" + staticObj.TableName + "\" WHERE " + fkNames + " = @id";
+                    string sql = "SELECT * FROM \"" + staticObj.TableName + "\" WHERE " + String.Join(",", fkNames) + " = @id";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
                         selectCommand.Parameters.Add(new SqlParameter("@id", fkIds));
+
+                        using (var reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                list.Add((T)staticObj.GetObj(reader));
+                            }
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+            return list;
+        }
+
+        public List<T> GetByFK(string fkName, int[] fkIds)
+        {
+            List<T> list = new List<T>();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection())
+                {
+                    conn.ConnectionString = connectionString;
+                    conn.Open();
+
+                    List<string> keyValueStr = new List<string>();
+                    for (int i = 0; i < fkIds.Length; i++)
+                    {
+                        keyValueStr.Add("@id" + i.ToString());
+                    }
+                    string sqlpart1 = String.Join(",", keyValueStr);
+
+                    string sql = "SELECT * FROM \"" + staticObj.TableName + "\" WHERE " + fkName + " = @id";
+
+                    using (SqlCommand selectCommand = new SqlCommand(sql, conn))
+                    {
+                        for (int i = 0; i < fkIds.Length; i++)
+                        {
+                            selectCommand.Parameters.Add(new SqlParameter("@id" + i.ToString(), list[i]));
+                        }
 
                         using (var reader = selectCommand.ExecuteReader())
                         {
@@ -419,6 +496,45 @@ namespace IrtsBurtgel
                     using (SqlCommand insertCommand = new SqlCommand(sql, conn))
                     {
                         insertCommand.Parameters.Add(new SqlParameter("@id", id));
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                result = false;
+            }
+            return result;
+        }
+
+        public bool Remove(int[] list)
+        {
+            bool result = true;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection())
+                {
+                    conn.ConnectionString = connectionString;
+                    conn.Open();
+
+                    List<string> keyValueStr = new List<string>();
+
+                    for (int i = 0; i < list.Length; i++)
+                    {
+                        keyValueStr.Add("@id" + i.ToString());
+                    }
+                    string sqlpart1 = String.Join(",", keyValueStr);
+
+                    string sql = "DELETE FROM \"" + staticObj.TableName + "\" WHERE \"" + staticObj.IDName + "\" = @id ";
+
+                    using (SqlCommand insertCommand = new SqlCommand(sql, conn))
+                    {
+                        for (int i = 0; i < list.Length; i++)
+                        {
+                            insertCommand.Parameters.Add(new SqlParameter("@id" + i.ToString(), list[i]));
+                        }
+
                         insertCommand.ExecuteNonQuery();
                     }
                 }
