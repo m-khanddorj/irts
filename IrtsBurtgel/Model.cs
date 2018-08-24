@@ -12,9 +12,17 @@ namespace IrtsBurtgel
     {
         string connectionString;
         T staticObj;
+        bool identityInsert = false;
 
         public Model()
         {
+            connectionString = Constants.GetConnectionString();
+            staticObj = new T();
+        }
+
+        public Model(bool identityInsert)
+        {
+            this.identityInsert = identityInsert;
             connectionString = Constants.GetConnectionString();
             staticObj = new T();
         }
@@ -41,13 +49,25 @@ namespace IrtsBurtgel
                     string sqlpart2 = String.Join(",", paramnames);
                     string sql = "INSERT INTO \"" + obj.TableName + "\"(" + sqlpart1 + ") OUTPUT INSERTED." + obj.IDName + " VALUES (" + sqlpart2 + ") ";
 
+                    if (identityInsert)
+                    {
+                        SetIdentityInsert(conn, true);
+                    }
+
                     using (SqlCommand insertCommand = new SqlCommand(sql, conn))
                     {
                         for (int i = 0; i < list.Count; i++)
                         {
                             insertCommand.Parameters.Add(new SqlParameter("@" + list[i][0], list[i][1]));
                         }
-                        return (int)insertCommand.ExecuteScalar();
+                        int id = (int)insertCommand.ExecuteScalar();
+
+                        if (identityInsert)
+                        {
+                            SetIdentityInsert(conn, false);
+                        }
+
+                        return id;
                     }
                 }
 
@@ -59,7 +79,7 @@ namespace IrtsBurtgel
             }
         }
 
-        public void Set(T obj)
+        public bool Set(T obj)
         {
             try
             {
@@ -85,7 +105,7 @@ namespace IrtsBurtgel
                         {
                             updateCommand.Parameters.Add(new SqlParameter("@" + list[i][0], list[i][1]));
                         }
-                        updateCommand.ExecuteNonQuery();
+                        return updateCommand.ExecuteNonQuery() > 0;
                     }
                 }
 
@@ -93,6 +113,7 @@ namespace IrtsBurtgel
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
+                return false;
             }
         }
 
@@ -174,20 +195,20 @@ namespace IrtsBurtgel
                 {
                     conn.ConnectionString = connectionString;
                     conn.Open();
-                    
+
                     List<string> keyValueStr = new List<string>();
 
-                    for (int i = 1; i < list.Length; i++)
+                    for (int i = 0; i < list.Length; i++)
                     {
                         keyValueStr.Add("@id" + i.ToString());
                     }
                     string sqlpart1 = String.Join(",", keyValueStr);
 
-                    string sql = "SELECT TOP (1) * FROM \"" + staticObj.TableName + "\" WHERE " + staticObj.IDName + " IN (" + sqlpart1 + ")";
+                    string sql = "SELECT * FROM \"" + staticObj.TableName + "\" WHERE " + staticObj.IDName + " IN (" + sqlpart1 + ")";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
-                        for(int i = 1; i < list.Length; i++)
+                        for (int i = 0; i < list.Length; i++)
                         {
                             selectCommand.Parameters.Add(new SqlParameter("@id" + i.ToString(), list[i]));
                         }
@@ -197,7 +218,6 @@ namespace IrtsBurtgel
                             while (reader.Read())
                             {
                                 result.Add((T)staticObj.GetObj(reader));
-                                break;
                             }
                         }
                     }
@@ -234,7 +254,6 @@ namespace IrtsBurtgel
                             while (reader.Read())
                             {
                                 list.Add((T)staticObj.GetObj(reader));
-                                break;
                             }
                         }
                     }
@@ -263,14 +282,13 @@ namespace IrtsBurtgel
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
-                            selectCommand.Parameters.Add(new SqlParameter("@id", fkId));
+                        selectCommand.Parameters.Add(new SqlParameter("@id", fkId));
 
                         using (var reader = selectCommand.ExecuteReader())
                         {
                             while (reader.Read())
                             {
                                 list.Add((T)staticObj.GetObj(reader));
-                                break;
                             }
                         }
                     }
@@ -285,6 +303,16 @@ namespace IrtsBurtgel
             return list;
         }
 
+        //public List<T> GetByFilter()
+        //{
+
+        //}
+
+        //public List<Object> GetByJoin<U>() where U : Entity
+        //{
+
+        //}
+
         public List<T> GetByFK(string[] fkNames, int[] fkIds)
         {
             List<T> list = new List<T>();
@@ -294,7 +322,7 @@ namespace IrtsBurtgel
                 {
                     conn.ConnectionString = connectionString;
                     conn.Open();
-                    
+
                     string sql = "SELECT * FROM \"" + staticObj.TableName + "\" WHERE " + fkNames + " = @id";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
@@ -306,7 +334,6 @@ namespace IrtsBurtgel
                             while (reader.Read())
                             {
                                 list.Add((T)staticObj.GetObj(reader));
-                                break;
                             }
                         }
                     }
@@ -331,6 +358,11 @@ namespace IrtsBurtgel
                     conn.ConnectionString = connectionString;
                     conn.Open();
 
+                    if (identityInsert)
+                    {
+                        SetIdentityInsert(conn, true);
+                    }
+
                     foreach (T obj in objs)
                     {
                         List<Object[]> list = obj.ToKVStringList();
@@ -354,6 +386,11 @@ namespace IrtsBurtgel
                             }
                             insertCommand.ExecuteNonQuery();
                         }
+                    }
+
+                    if (identityInsert)
+                    {
+                        SetIdentityInsert(conn, false);
                     }
                 }
 
@@ -394,6 +431,32 @@ namespace IrtsBurtgel
             return result;
         }
 
+        public bool RemoveAll()
+        {
+            bool result = true;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection())
+                {
+                    conn.ConnectionString = connectionString;
+                    conn.Open();
+
+                    string sql = "DELETE FROM \"" + staticObj.TableName + "\"; DBCC CHECKIDENT (\"" + staticObj.TableName + "\", RESEED, 0);";
+
+                    using (SqlCommand insertCommand = new SqlCommand(sql, conn))
+                    {
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                result = false;
+            }
+            return result;
+        }
+
         public bool MarkAsDeleted(int id)
         {
             bool result = true;
@@ -411,6 +474,27 @@ namespace IrtsBurtgel
                         insertCommand.Parameters.Add(new SqlParameter("@id", id));
                         insertCommand.ExecuteNonQuery();
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                result = false;
+            }
+            return result;
+        }
+
+        // Set connection identity insert
+        private bool SetIdentityInsert(SqlConnection connection, bool onoff)
+        {
+            bool result = true;
+            try
+            {
+                string sql = "SET IDENTITY_INSERT \"" + staticObj.TableName + "\" " + (onoff ? "ON" : "OFF");
+
+                using (SqlCommand insertCommand = new SqlCommand(sql, connection))
+                {
+                    result = -1 != insertCommand.ExecuteNonQuery();
                 }
             }
             catch (Exception ex)

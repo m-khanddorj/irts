@@ -40,10 +40,12 @@ namespace IrtsBurtgel
         {
             MeetingStatus meetingStatus = new MeetingStatus();
             meetingStatus.Visibility = Visibility.Visible;
+            meetingController.StartMeeting(meetingModel.Get(1));
         }
 
         private void showMenu(object sender, RoutedEventArgs e)
         {
+            meetingController.StopMeeting();
             LeftSide.Children.Clear();
             LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
             LeftSide.VerticalAlignment = VerticalAlignment.Center;

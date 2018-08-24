@@ -32,17 +32,17 @@ namespace IrtsBurtgel
         private int mfpWidth = 0;
         private int mfpHeight = 0;
         private int mfpDpi = 0;
-
-        private List<User> users;
+        
+        private MeetingController meetingController;
 
         const int MESSAGE_CAPTURED_OK = 0x0400 + 6;
 
         [DllImport("user32.dll", EntryPoint = "SendMessageA")]
         public static extern int SendMessage(IntPtr hwnd, int wMsg, IntPtr wParam, IntPtr lParam);
 
-        public ScannerHandler(List<User> users)
+        public ScannerHandler(MeetingController mc)
         {
-            this.users = users;
+            this.meetingController = mc;
         }
 
         public bool InitializeDevice()
@@ -53,7 +53,6 @@ namespace IrtsBurtgel
                 int nCount = zkfp2.GetDeviceCount() - 1;
                 if (nCount > 0)
                 {
-                    MessageBox.Show(nCount.ToString() + " device connected!");
                     return true;
                 }
                 else
@@ -126,6 +125,10 @@ namespace IrtsBurtgel
             }
         }
 
+        public void StopThread()
+        {
+            bIsTimeToDie = true;
+        }
 
         private bool ReadFPCapture(int msg)
         {
@@ -135,13 +138,14 @@ namespace IrtsBurtgel
                 String strShow = zkfp2.BlobToBase64(CapTmp, cbCapTmp);
                 Console.WriteLine("capture template data:" + strShow + "\n");
 
-                User identifiedUser = null;
+                Object[] identifiedAttendance = null;
                 int maxRet = -100;
 
                 byte[] blob1 = CapTmp;
 
-                foreach (User user in users)
+                foreach (Object[] userAttendance in meetingController.onGoingMeetingUserAttendance)
                 {
+                    User user = (User) userAttendance[0];
                     byte[] blob3 = Convert.FromBase64String(user.fingerprint0.Trim());
 
                     //0x0f309420
@@ -150,14 +154,14 @@ namespace IrtsBurtgel
                     if (ret > 80)
                     {
                         maxRet = ret;
-                        identifiedUser = user;
+                        identifiedAttendance = userAttendance;
                         break;
                     }
 
                     if (ret > maxRet)
                     {
                         maxRet = ret;
-                        identifiedUser = user;
+                        identifiedAttendance = userAttendance;
                     }
                     if (user.fingerprint1 != "")
                     {
@@ -167,19 +171,26 @@ namespace IrtsBurtgel
                         if (ret > 80)
                         {
                             maxRet = ret;
-                            identifiedUser = user;
+                            identifiedAttendance = userAttendance;
                             break;
                         }
 
                         if (ret > maxRet)
                         {
                             maxRet = ret;
-                            identifiedUser = user;
+                            identifiedAttendance = userAttendance;
                         }
                     }
                 }
 
-                // Add attendance
+                if(identifiedAttendance == null)
+                {
+                    return false;
+                }
+
+                ((Attendance)identifiedAttendance[1]).statusId = 1;
+                ((Attendance)identifiedAttendance[1]).regTime = DateTime.Now;
+                meetingController.attendanceModel.Set(((Attendance)identifiedAttendance[1]));
 
             }
             else

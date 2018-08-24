@@ -10,7 +10,7 @@ namespace IrtsBurtgel
     public class UserStatus : Entity
     {
         public override string TableName => "user_status";
-        public override string IDName => "u_status_id";
+        public override string IDName => "user_status_id";
 
         public int id;
         public int statusId;
@@ -34,7 +34,7 @@ namespace IrtsBurtgel
             List<Object[]> list = new List<Object[]>();
             if (id != -1)
             {
-                list.Add(new Object[] { "u_status_id", id });
+                list.Add(new Object[] { "user_status_id", id });
             }
             list.Add(new Object[] { "user_id", userId });
             list.Add(new Object[] { "status_id", statusId });
@@ -48,7 +48,7 @@ namespace IrtsBurtgel
         {
             return new UserStatus
             {
-                id = (int)reader["u_status_id"],
+                id = (int)reader["user_status_id"],
                 userId = (int)reader["user_id"],
                 statusId = (int)reader["status_id"],
                 startDate = (DateTime)reader["start_date"],

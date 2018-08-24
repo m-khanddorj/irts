@@ -44,10 +44,6 @@ namespace IrtsBurtgel
             {
                 list.Add(new Object[] { "m_meeting_id", modifiedMeeting_id });
             }
-            else
-            {
-                list.Add(new Object[] { "m_meeting_id", null });
-            }
             return list;
         }
 

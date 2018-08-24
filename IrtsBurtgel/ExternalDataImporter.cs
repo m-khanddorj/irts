@@ -6,21 +6,65 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace IrtsBurtgel
 {
     class ExternalDataImporter
     {
-        public bool ImportUserData(string excelpath, string datpath)
+        private Model<User> userModel;
+        private Model<Department> departmentModel;
+        private Model<Position> positionModel;
+
+        public ExternalDataImporter()
         {
-            Model<User> model = new Model<User>();
-            return model.BulkAdd(ImportFromExcel(excelpath, ImportDat(datpath)));
+            userModel = new Model<User>();
+            departmentModel = new Model<Department>(true);
+            positionModel = new Model<Position>(true);
         }
 
-        public List<User> ImportFromExcel(string filename, Dictionary<int, Dictionary<int, string>> fingerprints)
+        public bool ImportUserData(string excelpath, string datpath)
         {
+            bool result;
+            try
+            {
+                result = ImportFromExcel(excelpath, ImportDat(datpath));
+                return result;
+            }
+            catch (Exception ex)
+            {
+                if (ex is FileNotFoundException)
+                {
+                    MessageBox.Show(excelpath + " файл олдсонгүй.");
+                }
+                else if (ex is ArgumentNullException)
+                {
+                    MessageBox.Show("Файл сонгогдоогүй байна.");
+                }
+                else
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+                return false;
+            }
+        }
+
+
+        // To import department, position and user excel file must be formatted by following rule.
+        // First row of all sheets are assumed to be header so it will be ignored.
+        // First sheet must contain department id and department name pairs in first two column.
+        // Second sheet must contain position id and position name pairs in first two column.
+        // Third sheet must contain user data. User id -> first row 
+        //                                     User name -> second row
+        //                                     User department id -> third row
+        //                                     User position id -> fourth row
+        public bool ImportFromExcel(string filename, Dictionary<int, Dictionary<int, string>> fingerprints)
+        {
+            bool result = true;
+
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-            List<User> tempUsers = new List<User>();
+
+
             using (var stream = File.Open(filename, FileMode.Open, FileAccess.Read))
             {
 
@@ -29,41 +73,209 @@ namespace IrtsBurtgel
                 //  - OpenXml Excel files (2007 format; *.xlsx)
                 using (var reader = ExcelReaderFactory.CreateReader(stream))
                 {
-
-                    // Choose one of either 1 or 2:
-
-                    // 1. Use the reader methods
-                    do
-                    {
-                        while (reader.Read())
-                        {
-                            if (typeof(string) == reader.GetFieldType(0))
-                            {
-                                continue;
-                            }
-                            else
-                            {
-                                int pin = (int)reader.GetDouble(0);
-
-                                Dictionary<int, string> fingerprint = fingerprints[pin];
-                                string fingerprint0 = fingerprint.ContainsKey(0)? fingerprint[0]:"";
-                                string fingerprint1 = fingerprint.ContainsKey(1) ? fingerprint[1] : "";
-
-                                tempUsers.Add(new User
-                                {
-                                    fname = reader.GetString(1),
-                                    lname = reader.GetString(2),
-                                    fingerprint0 = fingerprint0,
-                                    fingerprint1 = fingerprint1,
-                                    department = reader.GetString(3),
-                                    position = reader.GetString(4)
-                                });
-                            }
-                        }
-                    } while (reader.NextResult());
+                    reader.Read(); // Ignoring header
+                    ImportDepartmentFromReader(reader);
+                    reader.NextResult(); // Next sheet
+                    reader.Read(); //Ignoring header
+                    ImportPositionFromReader(reader);
+                    reader.NextResult(); // Next sheet
+                    reader.Read(); // Ignoring header
+                    ImportUserFromReader(reader, fingerprints);
                 }
             }
-            return tempUsers;
+
+            return result;
+        }
+
+        //Reader should be selected department sheet
+        private bool ImportPositionFromReader(IExcelDataReader reader)
+        {
+            bool result = true;
+
+            List<Position> positions = positionModel.GetAll();
+
+            while (reader.Read())
+            {
+                int posid = GetInt(reader, 0);
+                if (posid == -1)
+                {
+                    continue;
+                }
+                string posname = (string)reader.GetString(1);
+                Position position = positions.Find(x => x.id == posid);
+
+                if (position == null)
+                {
+                    result = result && -1 != positionModel.Add(new Position
+                    {
+                        id = posid,
+                        name = posname,
+                        isDeleted = false
+                    });
+                }
+                else
+                {
+                    result = result && positionModel.Set(new Position
+                    {
+                        id = posid,
+                        name = posname,
+                        isDeleted = false
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        //Reader should be selected department sheet
+        private bool ImportDepartmentFromReader(IExcelDataReader reader)
+        {
+            bool result = true;
+
+            List<Department> departments = departmentModel.GetAll();
+
+            while (reader.Read())
+            {
+                int depid = GetInt(reader, 0);
+                if (depid == -1)
+                {
+                    continue;
+                }
+                string depname = (string)reader.GetString(1);
+                Department dep = departments.Find(x => x.id == depid);
+
+                if (dep == null)
+                {
+                    result = result && -1 != departmentModel.Add(new Department
+                    {
+                        id = depid,
+                        name = depname,
+                        isDeleted = false
+                    });
+                }
+                else
+                {
+                    result = result && departmentModel.Set(new Department
+                    {
+                        id = depid,
+                        name = depname,
+                        isDeleted = false
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        //Reader should be selected user sheet
+        private bool ImportUserFromReader(IExcelDataReader reader, Dictionary<int, Dictionary<int, string>> fingerprints)
+        {
+            List<Department> departments = departmentModel.GetAll();
+            List<Position> positions = positionModel.GetAll();
+            List<User> users = userModel.GetAll();
+            List<User> tempUsers = new List<User>();
+
+            bool result = true;
+
+            while (reader.Read())
+            {
+                int pinnum = GetInt(reader, 0);
+                if (pinnum == -1)
+                {
+                    continue;
+                }
+                Dictionary<int, string> fingerprint;
+
+                if (fingerprints.ContainsKey(pinnum))
+                {
+                    fingerprint = fingerprints[pinnum];
+                }
+                else
+                {
+                    continue;
+                }
+
+                string fingerprint0 = fingerprint.ContainsKey(0) ? fingerprint[0] : "";
+                string fingerprint1 = fingerprint.ContainsKey(1) ? fingerprint[1] : "";
+
+                int depid = GetInt(reader, 2);
+                int posid = GetInt(reader, 3);
+
+                posid = posid == -1 ? 0 : posid;
+
+                if (depid != -1 && departments.Find(x => x.id == depid) == null)
+                {
+                    throw new Exception("Мэдээлэл шинэчилэлт амжилтгүй боллоо. Хэлтсийн жагсаалтанд байхгүй дугаар хэрэглэгчийн мэдээлэлд байна.");
+                }
+
+                if (positions.Find(x => x.id == posid) == null)
+                {
+                    throw new Exception("Мэдээлэл шинэчилэлт амжилтгүй боллоо. Албан тушаалын жагсаалтанд байхгүй дугаар хэрэглэгчийн мэдээлэлд байна.");
+                }
+                User u = users.Find(x => x.pin == pinnum);
+
+                if (u != null)
+                {
+                    result = result && userModel.Set(new User
+                    {
+                        id = u.id,
+                        pin = pinnum,
+                        fname = reader.GetString(1) ?? "",
+                        lname = "",
+                        fingerprint0 = fingerprint0,
+                        fingerprint1 = fingerprint1,
+                        departmentId = depid,
+                        positionId = posid,
+                        isDeleted = false
+                    });
+                }
+                else
+                {
+                    result = result && 0 <= userModel.Add(new User
+                    {
+                        pin = pinnum,
+                        fname = reader.GetString(1) ?? "",
+                        lname = "",
+                        fingerprint0 = fingerprint0,
+                        fingerprint1 = fingerprint1,
+                        departmentId = depid,
+                        positionId = posid,
+                        isDeleted = false
+                    });
+                }
+            }
+            return result;
+        }
+
+        private int GetInt(IExcelDataReader reader, int index)
+        {
+            if (typeof(string) == reader.GetFieldType(index))
+            {
+                string str = reader.GetString(index);
+                bool isNumeric = int.TryParse(str, out int pin);
+                if (!isNumeric && str != null)
+                {
+                    throw new Exception("Excel файлын тоо агуулах ёстой баганад өөр төрлийн мэдээлэл орсон байна.");
+                }
+                else if (str == null)
+                {
+                    return -1;
+                }
+
+                return pin;
+            }
+            else if (typeof(double) == reader.GetFieldType(index))
+            {
+                return (int)reader.GetDouble(index);
+            }
+            else if (reader.GetFieldType(index) == null)
+            {
+                return -1;
+            }
+            else
+            {
+                throw new Exception("Excel файлын тоо агуулах ёстой баганад өөр төрлийн мэдээлэл орсон байна.");
+            }
         }
 
         public Dictionary<int, Dictionary<int, string>> ImportDat(string filename)
@@ -101,7 +313,7 @@ namespace IrtsBurtgel
                     i = iStartIndex - 1;
 
                     udisk.GetTmp10FromFp10(byTmpInfo, iSize, out iPIN, out fid, out iValid, out sTemplate);
-                    if(!dict.ContainsKey(iPIN))
+                    if (!dict.ContainsKey(iPIN))
                     {
                         Dictionary<int, string> fps = new Dictionary<int, string>();
                         fps.Add(fid, sTemplate);

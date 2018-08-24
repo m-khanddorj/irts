@@ -13,6 +13,7 @@ namespace IrtsBurtgel
         public override string IDName => "user_id";
 
         public int id;
+        public int pin;
         public string fname;
         public string lname;
         public string fingerprint0;
@@ -26,6 +27,7 @@ namespace IrtsBurtgel
         public User()
         {
             id = -1;
+            pin = -1;
             fname = "";
             lname = "";
             fingerprint0 = "";
@@ -43,6 +45,10 @@ namespace IrtsBurtgel
             if (id != -1)
             {
                 list.Add(new Object[] { "user_id", id });
+            }
+            if (pin != -1)
+            {
+                list.Add(new Object[] { "pin", pin });
             }
             list.Add(new Object[] { "fname", fname });
             list.Add(new Object[] { "lname", lname });
@@ -67,6 +73,7 @@ namespace IrtsBurtgel
             return new User
             {
                 id = (int)reader["user_id"],
+                pin = reader["pin"].GetType() != typeof(int) ? -1 : (int)reader["pin"],
                 fname = (string)reader["fname"],
                 lname = (string)reader["lname"],
                 fingerprint0 = (string)reader["fingerprint_0"],
