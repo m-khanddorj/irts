@@ -285,7 +285,7 @@ namespace IrtsBurtgel
             listbox.Margin = new Thickness(10, 10, 10, 10);
             if ((DateTime)calendar.SelectedDate < DateTime.Today)
             {
-                List<ArchivedMeeting> meetings =  meetingController.FindArchivesByDate((DateTime)calendar.SelectedDate);
+                List<ArchivedMeeting> meetings =  meetingController.GetArchivedMeetingByDate((DateTime)calendar.SelectedDate);
                 foreach (ArchivedMeeting meeting in meetings)
                 {
                     ListBoxItem listBoxItem = new ListBoxItem();
@@ -1526,19 +1526,11 @@ namespace IrtsBurtgel
                         break;
                     case 2:
                         nameLabel.Content = "Алба:";
-<<<<<<< HEAD
-                        valueLabel.Content = depModel.Get(user.departmentId).name;
-                        break;
-                    case 3:
-                        nameLabel.Content = "Тушаал:";
-                        valueLabel.Content = posModel.Get(user.positionId).name;
-=======
                         valueLabel.Content = user.departmentId != -1 ? meetingController.departmentModel.Get(user.departmentId).name : "";
                         break;
                     case 3:
                         nameLabel.Content = "Тушаал:";
                         valueLabel.Content = user.positionId != -1 ? meetingController.positionModel.Get(user.positionId).name : "";
->>>>>>> 6be655ba3607941e4c5c2b71c06b326fb0be2d57
                         break;
                 }
                 grid.Children.Add(nameLabel);
