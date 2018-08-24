@@ -114,7 +114,7 @@ namespace IrtsBurtgel
         public List<ArchivedMeeting> GetArchivedMeetingByDate(DateTime date)
         {
             // TODO: Hardcoded. Improvement needed.
-            string sql = "SELECT * FROM archived_meeting WHERE (cast(meeting_datetime as date) ='" + date.Date.ToString("yyyyMMdd") + ")";
+            string sql = "SELECT * FROM archived_meeting WHERE (cast(meeting_datetime as date) ='" + date.Date.ToString("yyyyMMdd") + "')";
             List<Object[]> parms = new List<Object[]>();
 
             return archivedMeetingModel.SelectBare(sql);
@@ -134,25 +134,27 @@ namespace IrtsBurtgel
             // Every week
             else if (intervalType == 1)
             {
-                int weekNum = ((int)date.DayOfWeek == 0) ? 7 : (int)date.DayOfWeek;
-                string binary = Convert.ToString(week, 2);
-                while (binary.Length < 7)
-                {
-                    binary = "0" + binary;
-                }
-                return binary[weekNum - 1] == '1';
+                //int weekNum = ((int)date.DayOfWeek == 0) ? 7 : (int)date.DayOfWeek;
+                //string binary = Convert.ToString(week, 2);
+                //while (binary.Length < 7)
+                //{
+                //    binary = "0" + binary;
+                //}
+                //return binary[weekNum - 1] == '1';
+                return (int)((date.Date - startdate.Date).TotalDays) % 7 == 0;
             }
             // Every 2 week
             else if (intervalType == 2)
             {
-                bool in2Week = GetIso8601WeekOfYear(date.Date) % 2 == GetIso8601WeekOfYear(startdate) % 2;
-                int weekNum = ((int)date.DayOfWeek == 0) ? 7 : (int)date.DayOfWeek;
-                string binary = Convert.ToString(week, 2);
-                while (binary.Length < 7)
-                {
-                    binary = "0" + binary;
-                }
-                return (binary[weekNum - 1] == '1') && in2Week;
+                //bool in2Week = GetIso8601WeekOfYear(date.Date) % 2 == GetIso8601WeekOfYear(startdate) % 2;
+                //int weekNum = ((int)date.DayOfWeek == 0) ? 7 : (int)date.DayOfWeek;
+                //string binary = Convert.ToString(week, 2);
+                //while (binary.Length < 7)
+                //{
+                //    binary = "0" + binary;
+                //}
+                //return (binary[weekNum - 1] == '1') && in2Week;
+                return (int)((date.Date - startdate.Date).TotalDays) % 14 == 0;
             }
             // Every month
             else if (intervalType == 3)
