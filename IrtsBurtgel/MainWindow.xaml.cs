@@ -28,6 +28,8 @@ namespace IrtsBurtgel
         MeetingController meetingController;
         Model<Department> depModel;
         Model<Position> posModel;
+        Model<MeetingAndUser> mauModel;
+        Model<ModifiedMeeting> modifiedMeetingModel;
         public MainWindow()
         {
             InitializeComponent();
@@ -37,6 +39,9 @@ namespace IrtsBurtgel
             userModel = new Model<User>();
             depModel = new Model<Department>();
             posModel = new Model<Position>();
+            mauModel = new Model<MeetingAndUser>();
+            modifiedMeetingModel = new Model<ModifiedMeeting>();
+            
         }
         
         private void showStatus(object sender, RoutedEventArgs e)
@@ -275,30 +280,36 @@ namespace IrtsBurtgel
             List<Object> rControls = new List<Object>();
             rControls.Add(rButton);
             rControls.Add(xButton);
-
             DockPanel dockPanel = addHeader(list, rControls);
-            if((DateTime)calendar.SelectedDate < DateTime.Today)
+
+            ListBox listbox = new ListBox();
+            listbox.Margin = new Thickness(10, 10, 10, 10);
+            if ((DateTime)calendar.SelectedDate < DateTime.Today)
             {
+                List<ArchivedMeeting> meetings =  meetingController.FindArchivesByDate((DateTime)calendar.SelectedDate);
+                foreach (ArchivedMeeting meeting in meetings)
+                {
+                    ListBoxItem listBoxItem = new ListBoxItem();
+                    listBoxItem.Content = meeting.name;
+                    listBoxItem.Uid = meeting.id.ToString();
+                    listBoxItem.Height = 25;
+                    listbox.Items.Add(listBoxItem);
+                }
             }
             else
             {
                 List<Meeting> meetings = meetingController.FindByDate((DateTime)calendar.SelectedDate);
+                foreach (Meeting meeting in meetings)
+                {
+                    if (meeting.isDeleted) continue;
+                    ListBoxItem listBoxItem = new ListBoxItem();
+                    listBoxItem.Content = meeting.name;
+                    listBoxItem.Uid = meeting.id.ToString();
+                    listBoxItem.Height = 25;
+                    listbox.Items.Add(listBoxItem);
+                }
+                listbox.SelectionChanged += ModifyMeeting;
             }
-
-            ListBox listbox = new ListBox();
-            listbox.Margin = new Thickness(10, 10, 10, 10);
-           
-
-            foreach (Meeting meeting in meetings)
-            {
-                if (meeting.isDeleted) continue;
-                ListBoxItem listBoxItem = new ListBoxItem();
-                listBoxItem.Content = meeting.name;
-                listBoxItem.Uid = meeting.id.ToString();
-                listBoxItem.Height = 25;
-                listbox.Items.Add(listBoxItem);
-            }
-            listbox.SelectionChanged +=ModifyMeeting;
 
             dockPanel.Children.Add(listbox);
 
@@ -597,7 +608,14 @@ namespace IrtsBurtgel
             participantsLabel.Content = "Оролцогч гишүүд:";
             ListBox pUserList = new ListBox();
             pUserList.Margin = new Thickness(0, 0, 0, 10);
-            
+            List<MeetingAndUser> maus = mauModel.GetByFK(meeting.IDName, meeting.id);
+            foreach(MeetingAndUser mau in maus)
+            {
+                ListBoxItem listBoxItem = new ListBoxItem();
+                listBoxItem.Content = userModel.Get(mau.id).fname + " " + userModel.Get(mau.id).lname;
+                listBoxItem.Tag = userModel.Get(mau.id).id;
+                pUserList.Items.Add(listBoxItem);
+            }
             try
             {
                 RegisterName("Users", pUserList);
@@ -826,7 +844,7 @@ namespace IrtsBurtgel
             fLabel.Content = "Хурал болох давтамж";
             fLabel.Width = 215;
             ComboBox freqType = new ComboBox();
-            for (int i = 0; i < 8; i++)
+            for (int i = 0; i < 7; i++)
             {
                 ComboBoxItem item = new ComboBoxItem();
                 switch (i)
@@ -874,6 +892,7 @@ namespace IrtsBurtgel
             Label pGroupsLabel = new Label();
             pGroupsLabel.Content = "Оролцогч албууд";
             ListBox pGroupList = new ListBox();
+            controls.Add(pGroupList);
             pGroupList.Margin = new Thickness(0, 0, 0, 10);
             try
             {
@@ -917,6 +936,7 @@ namespace IrtsBurtgel
             Label participantsLabel = new Label();
             participantsLabel.Content = "Оролцогч гишүүд:";
             ListBox pUserList = new ListBox();
+            controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
             try
             {
@@ -961,6 +981,7 @@ namespace IrtsBurtgel
             Label pPositionLabel = new Label();
             pPositionLabel.Content = "Оролцогч албан тушаалтнууд:";
             ListBox pPositionList = new ListBox();
+            controls.Add(pPositionList);
             pPositionList.Margin = new Thickness(0, 0, 0, 10);
             try
             {
@@ -1033,16 +1054,27 @@ namespace IrtsBurtgel
         void insertMeeting(object sender, RoutedEventArgs e)
         {
             List<Object> controls = (List<Object>)((Button)sender).Tag;
-
+            for(int i=0;i<9;i++)
+            {
+                if (controls[i] == null)
+                {
+                    MessageBox.Show("Та бүрэн бөглөнө үү", "Амжилтгүй");
+                    return;
+                }
+            }
             string name = ((TextBox)controls[0]).Text;
             string st = ((TextBox)controls[1]).Text;
             string sd = ((DateTime)((DatePicker)controls[2]).SelectedDate).ToShortDateString();
             string duration = ((TextBox)controls[3]).Text;
             string ed = ((DatePicker)controls[4]).Text;
             ComboBox freqType = (ComboBox)controls[5];
+            ListBox pDeps = (ListBox)controls[6];
+            ListBox pUsers = (ListBox)controls[7];
+            ListBox pPositions = (ListBox)controls[8];
 
             Meeting meeting = new Meeting();
             meeting.name = name;
+            /**checking time and inserting*/
             try
             {
                 meeting.startDatetime = DateTime.Parse(sd + " " + st);
@@ -1052,6 +1084,7 @@ namespace IrtsBurtgel
                 MessageBox.Show("Та хурал эхлэх цагаа цаг:минут гэсэн хэлбэртэйгээр оруулна уу!");
                 return;
             }
+            /** checking and inserting duration*/
             try
             {
                 meeting.duration = Int32.Parse(duration);
@@ -1060,9 +1093,10 @@ namespace IrtsBurtgel
             {
                 MessageBox.Show("Та үргэлжлэх хугацаагаа зөв оруулна уу!\n" +
                       "Зөвхөн үргэлжлэх хугацааг минутаар илэхийлэх тоо байхыг анхаарна уу!");
+                return;
             }
             meeting.endDate = DateTime.Parse(ed);
-
+            /** checking and inserting interval()freq*/
             try
             {
                 int type = Byte.Parse(((ComboBoxItem)freqType.SelectedItem).Tag.ToString());
@@ -1086,10 +1120,27 @@ namespace IrtsBurtgel
                 MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
                 return;
             }
-
-            if (meetingModel.Add(meeting) != -1)
+            /** checking and inserting meeting itself*/
+            int meetingid = meetingModel.Add(meeting);
+            if (meetingid != -1)
             {
                 MessageBox.Show("Амжилттай нэмлээ!");
+
+                /**Checking and inserting ppositions*/
+                try
+                {
+                    foreach (ListBoxItem listBoxItem in pUsers.Items)
+                    {
+                        MeetingAndUser mau = new MeetingAndUser();
+                        mau.meetingId = meetingid;
+                        mau.userId = (Int32)listBoxItem.Tag;
+                        mauModel.Add(mau);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Бүтэлгүйтлээ.");
+                }
                 ShowMeetings();
             }
             else
@@ -1260,7 +1311,15 @@ namespace IrtsBurtgel
             //check and update meeting
             try
             {
-                meetingModel.Set(meeting);
+                ModifiedMeeting mm = new ModifiedMeeting();
+                mm.intervalDay = meeting.intervalDay;
+                mm.intervalType = meeting.intervalType;
+                mm.name = meeting.name;
+                mm.meeting_id = meeting.id;
+                mm.startDatetime = meeting.startDatetime;
+                mm.endDate = meeting.endDate;
+                mm.duration = meeting.duration;
+                modifiedMeetingModel.Add(mm);
                 MessageBox.Show("Амжилттай өөрчиллөө.", "Өөрчлөгдлөө");
             }
             catch (Exception ex)
@@ -1464,16 +1523,16 @@ namespace IrtsBurtgel
                         valueLabel.Content = user.lname;
                         break;
                     case 1:
-                        nameLabel.Content = "Yэр:";
+                        nameLabel.Content = "Нэр:";
                         valueLabel.Content = user.fname;
                         break;
                     case 2:
                         nameLabel.Content = "Алба:";
-                        valueLabel.Content = user.department;
+                        valueLabel.Content = depModel.Get(user.departmentId).name;
                         break;
                     case 3:
                         nameLabel.Content = "Тушаал:";
-                        valueLabel.Content = user.position;
+                        valueLabel.Content = posModel.Get(user.positionId).name;
                         break;
                 }
                 grid.Children.Add(nameLabel);
