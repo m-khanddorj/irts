@@ -250,7 +250,7 @@ namespace IrtsBurtgel
             listbox.Items.Clear();
 
             TextBox textBox = new TextBox();
-            ((DockPanel)FindName("headerPanel")).Children.Add(textBox);
+
         }
 
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
