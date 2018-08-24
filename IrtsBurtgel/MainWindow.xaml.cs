@@ -686,9 +686,9 @@ namespace IrtsBurtgel
             foreach (MeetingAndPosition map in maps)
             {
                 ListBoxItem listBoxItem = new ListBoxItem();
-                listBoxItem.Content = depModel.Get(map.positionId).name;
+                listBoxItem.Content = posModel.Get(map.positionId).name;
                 listBoxItem.Tag = map.positionId;
-                pGroupList.Items.Add(listBoxItem);
+                pPositionList.Items.Add(listBoxItem);
             }
             controls.Add(pPositionList);
             pPositionList.Margin = new Thickness(0, 0, 0, 10);
