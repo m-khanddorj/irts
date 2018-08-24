@@ -9,8 +9,8 @@ namespace IrtsBurtgel
 {
     public class MeetingAndPosition : Entity
     {
-        public override string TableName => "meeting_and_department";
-        public override string IDName => "mdid";
+        public override string TableName => "meeting_and_position";
+        public override string IDName => "mpid";
 
         public int id;
         public int meetingId;

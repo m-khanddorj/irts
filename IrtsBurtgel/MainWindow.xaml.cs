@@ -253,6 +253,13 @@ namespace IrtsBurtgel
 
         }
 
+        void MarkDayAsIncative(object sender, RoutedEventArgs e)
+        {
+            Calendar calendar = (Calendar)((Button)sender).Tag;
+            AskTheReason ask = new AskTheReason();
+            ask.ShowDialog();
+            //meetingController.CancelMeetingsByDate(calendar.SelectedDate);
+        }
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
         {
             Calendar calendar = (Calendar)sender;
@@ -278,8 +285,10 @@ namespace IrtsBurtgel
             xImage.Source = new BitmapImage(new Uri("images/x.png", UriKind.Relative));
             xImage.Width = 20;
             xImage.Height = 20;
+            xImage.Tag = calendar;
 
             xButton.Content = xImage;
+            xButton.Click += MarkDayAsIncative;
             List<Object> rControls = new List<Object>();
             rControls.Add(rButton);
             rControls.Add(xButton);
@@ -1378,6 +1387,31 @@ namespace IrtsBurtgel
                     newMau.meetingId = meeting.id;
                     newMau.userId = (int)user.Tag;
                     mauModel.Add(newMau);
+                }
+                List<MeetingAndDepartment> oldMads = madModel.GetByFK(meeting.IDName, meeting.id);
+                foreach (MeetingAndDepartment mad in oldMads)
+                {
+                    madModel.Remove(mad.id);
+                }
+                foreach (ListBoxItem user in deps.Items)
+                {
+                    MeetingAndDepartment newMad = new MeetingAndDepartment();
+                    newMad.meetingId = meeting.id;
+                    newMad.departmentId = (int)user.Tag;
+                    madModel.Add(newMad);
+                }
+
+                List<MeetingAndPosition> oldMaps = mapModel.GetByFK(meeting.IDName, meeting.id);
+                foreach (MeetingAndPosition map in oldMaps)
+                {
+                    mapModel.Remove(map.id);
+                }
+                foreach (ListBoxItem user in positions.Items)
+                {
+                    MeetingAndPosition newMap = new MeetingAndPosition();
+                    newMap.meetingId = meeting.id;
+                    newMap.positionId = (int)user.Tag;
+                    mapModel.Add(newMap);
                 }
                 meetingModel.Set(meeting);
                 MessageBox.Show("Амжилттай өөрчиллөө.", "Өөрчлөгдлөө");

@@ -121,6 +121,9 @@
       <DependentUpon>MeetingStatus.xaml</DependentUpon>
     </Compile>
     <Compile Include="Userstatus.cs" />
+    <Compile Include="AskTheReason.xaml.cs">
+      <DependentUpon>AskTheReason.xaml</DependentUpon>
+    </Compile>
     <Page Include="AddParticipantToMeeting.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -145,6 +148,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="MeetingStatus.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AskTheReason.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
