@@ -48,7 +48,6 @@ namespace IrtsBurtgel
 
         private void showMenu(object sender, RoutedEventArgs e)
         {
-            meetingController.StopMeeting();
             LeftSide.Children.Clear();
             LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
             LeftSide.VerticalAlignment = VerticalAlignment.Center;
@@ -215,9 +214,35 @@ namespace IrtsBurtgel
 
             DockPanel.SetDock(headerPanel, Dock.Top);
             dockPanel.Children.Add(headerPanel);
+            try
+            {
+                RegisterName("headerPanel", headerPanel);
+            }
+            catch(Exception ex)
+            {
+                UnregisterName("headerPanel");
+                RegisterName("headerPanel", headerPanel);
+            }
 
             LeftSide.Children.Add(dockPanel);
             return dockPanel;
+        }
+        void Search(object sender, RoutedEventArgs e)
+        {
+            ListBox listbox;
+            try
+            {
+                listbox = (ListBox)FindName("listbox");
+            }
+            catch(Exception ex)
+            {
+                UnregisterName("listbox");
+                listbox = (ListBox)FindName("listbox");
+            }
+            listbox.Items.Clear();
+
+            TextBox textBox = new TextBox();
+            ((DockPanel)FindName("headerPanel")).Children.Add(textBox);
         }
 
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
@@ -252,8 +277,13 @@ namespace IrtsBurtgel
             rControls.Add(xButton);
 
             DockPanel dockPanel = addHeader(list, rControls);
-
-            List<Meeting> meetings = meetingController.FindByDate( (DateTime)calendar.SelectedDate );
+            if((DateTime)calendar.SelectedDate < DateTime.Today)
+            {
+            }
+            else
+            {
+                List<Meeting> meetings = meetingController.FindByDate((DateTime)calendar.SelectedDate);
+            }
 
             ListBox listbox = new ListBox();
             listbox.Margin = new Thickness(10, 10, 10, 10);
@@ -521,7 +551,7 @@ namespace IrtsBurtgel
             /**Participating groups
              */
             Label pGroupsLabel = new Label();
-            pGroupsLabel.Content = "Оролцогч албууд";
+            pGroupsLabel.Content = "Оролцогч албууд:";
             ListBox pGroupList = new ListBox();
             pGroupList.Margin = new Thickness(0, 0, 0, 10);
             try
@@ -915,7 +945,7 @@ namespace IrtsBurtgel
             uAddButton.HorizontalAlignment = HorizontalAlignment.Right;
             List<Object> utypeAndList = new List<Object>();
 
-            utypeAndList.Add("Users");
+            utypeAndList.Add("user");
             utypeAndList.Add(pUserList);
 
             uAddButton.Tag = utypeAndList;
@@ -927,6 +957,49 @@ namespace IrtsBurtgel
             pStack.Children.Add(participantsLabel);
             pStack.Children.Add(pUserList);
             pStack.Children.Add(uButtonPanel);
+
+            Label pPositionLabel = new Label();
+            pPositionLabel.Content = "Оролцогч албан тушаалтнууд:";
+            ListBox pPositionList = new ListBox();
+            pPositionList.Margin = new Thickness(0, 0, 0, 10);
+            try
+            {
+                RegisterName("Positions", pPositionList);
+            }
+            catch
+            {
+                UnregisterName("Positions");
+                RegisterName("Positions", pPositionList);
+            }
+
+            DockPanel posButtonPanel = new DockPanel();
+            posButtonPanel.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+            Button posRemoveButton = new Button();
+            posRemoveButton.Content = "Хасах";
+            posRemoveButton.Background = Brushes.White;
+            posRemoveButton.Width = 50;
+
+            Button posAddButton = new Button();
+            posAddButton.Content = "Нэмэх";
+            posAddButton.Background = Brushes.White;
+            posAddButton.Width = 50;
+            DockPanel.SetDock(posAddButton, Dock.Right);
+            posAddButton.HorizontalAlignment = HorizontalAlignment.Right;
+            List<Object> ptypeAndList = new List<Object>();
+
+            ptypeAndList.Add("position");
+            ptypeAndList.Add(pPositionList);
+
+            posAddButton.Tag = ptypeAndList;
+            posAddButton.Click += addParticipantsToMeeting;
+
+            posButtonPanel.Children.Add(posRemoveButton);
+            posButtonPanel.Children.Add(posAddButton);
+
+            pStack.Children.Add(pPositionLabel);
+            pStack.Children.Add(pPositionList);
+            pStack.Children.Add(posButtonPanel);
 
             /**
              * Save button 
@@ -1227,7 +1300,7 @@ namespace IrtsBurtgel
             }
             else
             {
-                ListBox pGroupList = (ListBox)this.FindName("Positions");
+                ListBox pGroupList = (ListBox)FindName("Positions");
                 ListBoxItem newGroup = new ListBoxItem();
                 if (posModel.Get(addWindow.id) != null)
                 {
@@ -1266,16 +1339,31 @@ namespace IrtsBurtgel
             import.Content = "+";
             import.Click += addMeeting;
 
-            Button import = new Button();
-            import.Content = "+";
-            import.Click += addMeeting;
+            Button search = new Button();
+            Image searchImage = new Image();
+            searchImage.Source = new BitmapImage(new Uri("images/searchwhite.png", UriKind.Relative));
+            searchImage.Width = 20;
+            search.Content = searchImage;
+            search.Click += Search;
 
             List<Object> controls = new List<Object>();
+            List<Object> rcontrols = new List<Object>();
             controls.Add(import);
             controls.Add(label);
-            DockPanel dockPanel = addHeader(controls);
+
+            rcontrols.Add(search);
+            DockPanel dockPanel = addHeader(controls,rcontrols);
 
             ListBox listbox = new ListBox();
+            try
+            {
+                RegisterName("listbox", listbox);
+            }
+            catch (Exception ex)
+            {
+                UnregisterName("listbox");
+                RegisterName("listbox", listbox);
+            }
             listbox.Margin = new Thickness(10, 10, 10, 10);
             listbox.HorizontalAlignment = HorizontalAlignment.Stretch;
 
@@ -1419,13 +1507,31 @@ namespace IrtsBurtgel
             import.Content = "+";
             import.Click += importData;
 
+            Button search = new Button();
+            Image searchImage = new Image();
+            searchImage.Source = new BitmapImage(new Uri("images/searchwhite.png", UriKind.Relative));
+            searchImage.Width = 20;
+            search.Content = searchImage;
+            search.Click += Search;
+
             List<Object> buttons = new List<Object>();
+            List<Object> rbuttons = new List<Object>();
             buttons.Add(import);
             buttons.Add(label);
+            rbuttons.Add(search);
 
-            DockPanel dockPanel = addHeader(buttons);
+            DockPanel dockPanel = addHeader(buttons,rbuttons);
 
             ListBox listbox = new ListBox();
+            try
+            {
+                RegisterName("listbox", listbox);
+            }
+            catch(Exception ex)
+            {
+                UnregisterName("listbox");
+                RegisterName("listbox", listbox);
+            }
             listbox.Margin = new Thickness(10, 10, 10, 10);
             
             List<User> users = userModel.GetAll();
@@ -1448,38 +1554,6 @@ namespace IrtsBurtgel
         void ShowReport(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("h");
-        }
-        
-        void ShowOrg(object sender, RoutedEventArgs e)
-        {
-            LeftSide.Children.Clear();
-            List<Object> list = new List<Object>();
-            Label label = new Label();
-            label.Content = "Байгууллагын мэдээлэл";
-            list.Add(label);
-            DockPanel dockPanel = addHeader(list);
-
-            StackPanel stackPanel = new StackPanel();
-
-            StackPanel nameStack = new StackPanel();
-            nameStack.Orientation = Orientation.Horizontal;
-            nameStack.Margin = new Thickness(0,5,0,5);
-
-            Label orgNameLabel = new Label();
-            orgNameLabel.Width = 215;
-            orgNameLabel.Foreground = Brushes.White;
-            orgNameLabel.Content = "Байгууллагын нэр:";
-            TextBox name = new TextBox();
-            name.Width = 215;
-
-            nameStack.Children.Add(orgNameLabel);
-            nameStack.Children.Add(name);
-
-            stackPanel.Children.Add(nameStack);
-            stackPanel.HorizontalAlignment = HorizontalAlignment.Stretch;
-
-            dockPanel.Children.Add(stackPanel);
-   
         }
     }
 }

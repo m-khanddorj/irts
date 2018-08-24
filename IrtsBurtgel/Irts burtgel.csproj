@@ -210,6 +210,7 @@
     <Resource Include="images\x.png" />
     <Resource Include="images\tick.png" />
     <Resource Include="images\search.png" />
+    <Resource Include="images\searchwhite.png" />
     <Content Include="libzkfpcsharp.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

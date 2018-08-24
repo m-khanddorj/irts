@@ -102,8 +102,8 @@ namespace IrtsBurtgel
         }
         void Add(object sender,RoutedEventArgs e)
         {
-            id = (Int32)((ListBoxItem)listbox.SelectedItem).Tag;
-            this.DialogResult = true;
+            DialogResult = listbox.SelectedItem !=null;
+            if((bool)DialogResult) id = (Int32)((ListBoxItem)listbox.SelectedItem).Tag;
         }
         void Search(object sender, RoutedEventArgs e)
         {
