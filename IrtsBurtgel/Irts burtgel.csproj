@@ -101,6 +101,8 @@
     <Compile Include="ImportUser.xaml.cs">
       <DependentUpon>ImportUser.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MeetingAndDepartment.cs" />
+    <Compile Include="MeetingAndPosition.cs" />
     <Compile Include="MeetingAndUser.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Position.cs" />

@@ -29,6 +29,8 @@ namespace IrtsBurtgel
         Model<Department> depModel;
         Model<Position> posModel;
         Model<MeetingAndUser> mauModel;
+        Model<MeetingAndDepartment> madModel;
+        Model<MeetingAndPosition> mapModel;
         Model<ModifiedMeeting> modifiedMeetingModel;
         public MainWindow()
         {
@@ -40,6 +42,8 @@ namespace IrtsBurtgel
             depModel = new Model<Department>();
             posModel = new Model<Position>();
             mauModel = new Model<MeetingAndUser>();
+            madModel = new Model<MeetingAndDepartment>();
+            mapModel = new Model<MeetingAndPosition>();
             modifiedMeetingModel = new Model<ModifiedMeeting>();
             
         }
@@ -285,7 +289,7 @@ namespace IrtsBurtgel
             listbox.Margin = new Thickness(10, 10, 10, 10);
             if ((DateTime)calendar.SelectedDate < DateTime.Today)
             {
-                List<ArchivedMeeting> meetings =  meetingController.FindArchivesByDate((DateTime)calendar.SelectedDate);
+                List<ArchivedMeeting> meetings =  meetingController.GetArchivedMeetingByDate((DateTime)calendar.SelectedDate);
                 foreach (ArchivedMeeting meeting in meetings)
                 {
                     ListBoxItem listBoxItem = new ListBoxItem();
@@ -563,6 +567,15 @@ namespace IrtsBurtgel
             Label pGroupsLabel = new Label();
             pGroupsLabel.Content = "Оролцогч албууд:";
             ListBox pGroupList = new ListBox();
+            List<MeetingAndDepartment> mads = madModel.GetByFK(meeting.IDName, meeting.id);
+            foreach (MeetingAndDepartment mad in mads)
+            {
+                ListBoxItem listBoxItem = new ListBoxItem();
+                listBoxItem.Content = depModel.Get(mad.departmentId).name;
+                listBoxItem.Tag = mad.departmentId;
+                pGroupList.Items.Add(listBoxItem);
+            }
+            controls.Add(pGroupList);
             pGroupList.Margin = new Thickness(0, 0, 0, 10);
             try
             {
@@ -606,15 +619,18 @@ namespace IrtsBurtgel
             Label participantsLabel = new Label();
             participantsLabel.Content = "Оролцогч гишүүд:";
             ListBox pUserList = new ListBox();
+            controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
             List<MeetingAndUser> maus = mauModel.GetByFK(meeting.IDName, meeting.id);
-            foreach(MeetingAndUser mau in maus)
+            foreach (MeetingAndUser mau in maus)
             {
                 ListBoxItem listBoxItem = new ListBoxItem();
-                listBoxItem.Content = userModel.Get(mau.id).fname + " " + userModel.Get(mau.id).lname;
-                listBoxItem.Tag = userModel.Get(mau.id).id;
+                listBoxItem.Content = userModel.Get(mau.userId).fname + " " + userModel.Get(mau.userId).lname;
+                listBoxItem.Tag = userModel.Get(mau.userId
+).id;
                 pUserList.Items.Add(listBoxItem);
             }
+            //Registering the name
             try
             {
                 RegisterName("Users", pUserList);
@@ -656,6 +672,16 @@ namespace IrtsBurtgel
             Label pPositionLabel = new Label();
             pPositionLabel.Content = "Оролцогч албан тушаалтнууд:";
             ListBox pPositionList = new ListBox();
+
+            List<MeetingAndPosition> maps = mapModel.GetByFK(meeting.IDName, meeting.id);
+            foreach (MeetingAndPosition map in maps)
+            {
+                ListBoxItem listBoxItem = new ListBoxItem();
+                listBoxItem.Content = depModel.Get(map.positionId).name;
+                listBoxItem.Tag = map.positionId;
+                pGroupList.Items.Add(listBoxItem);
+            }
+            controls.Add(pPositionList);
             pPositionList.Margin = new Thickness(0, 0, 0, 10);
             try
             {
@@ -1140,6 +1166,34 @@ namespace IrtsBurtgel
                 {
                     MessageBox.Show("Бүтэлгүйтлээ.");
                 }
+                try
+                {
+                    foreach (ListBoxItem listBoxItem in pDeps.Items)
+                    {
+                        MeetingAndDepartment mad = new MeetingAndDepartment();
+                        mad.meetingId = meetingid;
+                        mad.departmentId = (Int32)listBoxItem.Tag;
+                        madModel.Add(mad);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Бүтэлгүйтлээ.");
+                }
+                try
+                {
+                    foreach (ListBoxItem listBoxItem in pPositions.Items)
+                    {
+                        MeetingAndPosition map = new MeetingAndPosition();
+                        map.meetingId = meetingid;
+                        map.positionId = (Int32)listBoxItem.Tag;
+                        mapModel.Add(map);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Бүтэлгүйтлээ.");
+                }
                 ShowMeetings();
             }
             else
@@ -1261,7 +1315,10 @@ namespace IrtsBurtgel
             TextBox duration = (TextBox)controls[3];
             DatePicker ed = (DatePicker)controls[4];
             ComboBox freqType = (ComboBox)controls[5];
-            Meeting meeting = (Meeting)controls[6];
+            ListBox deps = (ListBox)controls[6];
+            ListBox users = (ListBox)controls[7];
+            ListBox positions = (ListBox)controls[8];
+            Meeting meeting = (Meeting)controls[9];
 
             meeting.name = name.Text;
 
@@ -1297,7 +1354,7 @@ namespace IrtsBurtgel
                 MessageBox.Show("Та хурал болох хугацаагаа шалгана уу", "Өөрчилсөнгүй");
                 return;
             }
-            //check and set meeting intervalType
+            //check and set meeting intervalType(frq)
             try
             {
                 meeting.intervalType = Byte.Parse( ((ComboBoxItem)freqType.SelectedItem).Tag.ToString() );
@@ -1310,15 +1367,19 @@ namespace IrtsBurtgel
             //check and update meeting
             try
             {
-                ModifiedMeeting mm = new ModifiedMeeting();
-                mm.intervalDay = meeting.intervalDay;
-                mm.intervalType = meeting.intervalType;
-                mm.name = meeting.name;
-                mm.meeting_id = meeting.id;
-                mm.startDatetime = meeting.startDatetime;
-                mm.endDate = meeting.endDate;
-                mm.duration = meeting.duration;
-                modifiedMeetingModel.Add(mm);
+                List<MeetingAndUser> oldMaus = mauModel.GetByFK(meeting.IDName, meeting.id);
+                foreach(MeetingAndUser mau in oldMaus)
+                {
+                    mauModel.Remove(mau.id);
+                }
+                foreach(ListBoxItem user in users.Items)
+                {
+                    MeetingAndUser newMau = new MeetingAndUser();
+                    newMau.meetingId = meeting.id;
+                    newMau.userId = (int)user.Tag;
+                    mauModel.Add(newMau);
+                }
+                meetingModel.Set(meeting);
                 MessageBox.Show("Амжилттай өөрчиллөө.", "Өөрчлөгдлөө");
             }
             catch (Exception ex)
@@ -1526,19 +1587,11 @@ namespace IrtsBurtgel
                         break;
                     case 2:
                         nameLabel.Content = "Алба:";
-<<<<<<< HEAD
-                        valueLabel.Content = depModel.Get(user.departmentId).name;
-                        break;
-                    case 3:
-                        nameLabel.Content = "Тушаал:";
-                        valueLabel.Content = posModel.Get(user.positionId).name;
-=======
                         valueLabel.Content = user.departmentId != -1 ? meetingController.departmentModel.Get(user.departmentId).name : "";
                         break;
                     case 3:
                         nameLabel.Content = "Тушаал:";
                         valueLabel.Content = user.positionId != -1 ? meetingController.positionModel.Get(user.positionId).name : "";
->>>>>>> 6be655ba3607941e4c5c2b71c06b326fb0be2d57
                         break;
                 }
                 grid.Children.Add(nameLabel);
