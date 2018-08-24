@@ -43,12 +43,10 @@ namespace IrtsBurtgel
         {
             MeetingStatus meetingStatus = new MeetingStatus();
             meetingStatus.Visibility = Visibility.Visible;
-            meetingController.StartMeeting(meetingModel.Get(1));
         }
 
         private void showMenu(object sender, RoutedEventArgs e)
         {
-            meetingController.StopMeeting();
             LeftSide.Children.Clear();
             LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
             LeftSide.VerticalAlignment = VerticalAlignment.Center;
@@ -1266,10 +1264,6 @@ namespace IrtsBurtgel
             import.Content = "+";
             import.Click += addMeeting;
 
-            Button import = new Button();
-            import.Content = "+";
-            import.Click += addMeeting;
-
             List<Object> controls = new List<Object>();
             controls.Add(import);
             controls.Add(label);
@@ -1381,11 +1375,11 @@ namespace IrtsBurtgel
                         break;
                     case 2:
                         nameLabel.Content = "Алба:";
-                        valueLabel.Content = user.department;
+                        valueLabel.Content = user.departmentId != -1 ? meetingController.departmentModel.Get(user.departmentId).name : "";
                         break;
                     case 3:
                         nameLabel.Content = "Тушаал:";
-                        valueLabel.Content = user.position;
+                        valueLabel.Content = user.positionId != -1 ? meetingController.positionModel.Get(user.positionId).name : "";
                         break;
                 }
                 grid.Children.Add(nameLabel);

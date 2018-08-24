@@ -12,7 +12,7 @@ namespace IrtsBurtgel
         public static int WINDOWS_AUTH = 0, SQL_AUTH = 1;
 
         public static int dbauthtype = WINDOWS_AUTH;
-        public static string servername = "DESKTOP-VO0FPQH\\SQLEXPRESS";
+        public static string servername = "DESKTOP-RQUPRK9\\SQLEXPRESS";
         public static string dbname = "IrtsBurtgel";
         public static string username = "TESTROLE";
         public static string password = "password";

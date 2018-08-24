@@ -13,12 +13,15 @@ namespace IrtsBurtgel
         public Model<ModifiedMeeting> modifiedMeetingModel;
         public Model<ArchivedMeeting> archivedMeetingModel;
         public Model<Event> eventModel;
-        public Model<MeetingAndUser> muModel;
         public Model<User> userModel;
         public Model<UserStatus> userStatusModel;
         public Model<Attendance> attendanceModel;
         public Model<Department> departmentModel;
         public Model<Position> positionModel;
+
+        public Model<MeetingAndUser> muModel;
+        public Model<MeetingAndDepartment> mdModel;
+        public Model<MeetingAndPosition> mpModel;
 
         public List<Object[]> onGoingMeetingUserAttendance;
         public ArchivedMeeting onGoingArchivedMeeting;
@@ -31,12 +34,16 @@ namespace IrtsBurtgel
             modifiedMeetingModel = new Model<ModifiedMeeting>();
             archivedMeetingModel = new Model<ArchivedMeeting>();
             eventModel = new Model<Event>();
-            muModel = new Model<MeetingAndUser>();
             userModel = new Model<User>();
             userStatusModel = new Model<UserStatus>();
             attendanceModel = new Model<Attendance>();
             departmentModel = new Model<Department>();
             positionModel = new Model<Position>();
+
+            muModel = new Model<MeetingAndUser>();
+            mdModel = new Model<MeetingAndDepartment>();
+            mpModel = new Model<MeetingAndPosition>();
+
             scannerHandler = new ScannerHandler(mc: this);
         }
 
@@ -104,7 +111,7 @@ namespace IrtsBurtgel
             return result;
         }
 
-        public List<ArchivedMeeting> FindArchivesByDate(DateTime date)
+        public List<ArchivedMeeting> GetArchivedMeetingByDate(DateTime date)
         {
             // TODO: Hardcoded. Improvement needed.
             string sql = "SELECT * FROM archived_meeting WHERE (cast(meeting_datetime as date) ='" + date.Date.ToString("yyyyMMdd") + ")";
@@ -187,14 +194,8 @@ namespace IrtsBurtgel
             List<Object[]> userAttendance = new List<Object[]>();
 
             List<MeetingAndUser> mulist = muModel.GetByFK("meeting_id", archivedMeeting.meeting_id);
-            List<int> uids = new List<int>();
 
-            foreach (MeetingAndUser mu in mulist)
-            {
-                uids.Add(mu.userId);
-            }
-
-            List<User> users = userModel.Get(uids.ToArray());
+            List<User> users = GetMeetingUser(meetingModel.Get(archivedMeeting.meeting_id));
 
             foreach (User user in users)
             {
@@ -317,34 +318,18 @@ namespace IrtsBurtgel
         {
             try
             {
-                List<User> tempUsers = new List<User>();
-                List<User> depUsers = new List<User>();
-                List<User> posUsers = new List<User>();
-
-                if (users != null)
-                {
-                    tempUsers.AddRange(users);
-                }
-
-                if (departments != null && departments.Any())
-                {
-                    depUsers.AddRange(userModel.GetByFK(departments.First().IDName, departments.Select(x => x.id).ToArray()));
-                }
-
-                if (positions != null && positions.Any())
-                {
-                    posUsers.AddRange(userModel.GetByFK(positions.First().IDName, positions.Select(x => x.id).ToArray()));
-                }
-
-                tempUsers.Union(depUsers, new UserComparer());
-                tempUsers.Union(posUsers, new UserComparer());
-
                 List<MeetingAndUser> mus = muModel.GetByFK(meeting.IDName, meeting.id);
+                List<MeetingAndDepartment> mds = mdModel.GetByFK(meeting.IDName, meeting.id);
+                List<MeetingAndPosition> mps = mpModel.GetByFK(meeting.IDName, meeting.id);
+                List<int> toInsert = new List<int>();
+                List<int> toDelete = new List<int>();
+                Object[] result;
 
-                Object[] result = GetDifference(mus.Select(x => x.userId).ToArray(), tempUsers.Select(x => x.id).ToArray());
+                // Set users
+                result = GetDifference(mus.Select(x => x.userId).ToArray(), users.Select(x => x.id).ToArray());
 
-                List<int> toInsert = (List<int>)result[1];
-                List<int> toDelete = (List<int>)result[2];
+                toInsert = (List<int>)result[1];
+                toDelete = (List<int>)result[2];
 
                 muModel.Remove(mus.FindAll(x => toDelete.Contains(x.userId)).Select(x => x.id).ToArray());
 
@@ -360,12 +345,91 @@ namespace IrtsBurtgel
                     toInsert.Remove(0);
                 }
                 muModel.BulkAdd(insertMus);
+
+                // Set departments
+                result = GetDifference(mds.Select(x => x.departmentId).ToArray(), departments.Select(x => x.id).ToArray());
+
+                toInsert = (List<int>)result[1];
+                toDelete = (List<int>)result[2];
+
+                mdModel.Remove(mds.FindAll(x => toDelete.Contains(x.departmentId)).Select(x => x.id).ToArray());
+
+                List<MeetingAndDepartment> insertMds = new List<MeetingAndDepartment>();
+                while (toInsert.Count > 0)
+                {
+                    int first = toInsert.First();
+                    insertMds.Add(new MeetingAndDepartment
+                    {
+                        departmentId = first,
+                        meetingId = meeting.id
+                    });
+                    toInsert.Remove(0);
+                }
+                mdModel.BulkAdd(insertMds);
+
+                // Set positions
+                result = GetDifference(mps.Select(x => x.positionId).ToArray(), positions.Select(x => x.id).ToArray());
+
+                toInsert = (List<int>)result[1];
+                toDelete = (List<int>)result[2];
+
+                mpModel.Remove(mps.FindAll(x => toDelete.Contains(x.positionId)).Select(x => x.id).ToArray());
+
+                List<MeetingAndPosition> insertMps = new List<MeetingAndPosition>();
+                while (toInsert.Count > 0)
+                {
+                    int first = toInsert.First();
+                    insertMps.Add(new MeetingAndPosition
+                    {
+                        positionId = first,
+                        meetingId = meeting.id
+                    });
+                    toInsert.Remove(0);
+                }
+                mpModel.BulkAdd(insertMps);
             }
             catch (Exception ex)
             {
                 return false;
             }
             return true;
+        }
+
+        public List<User> GetMeetingUser(Meeting meeting)
+        {
+            try
+            {
+                List<MeetingAndUser> mus = muModel.GetByFK(meeting.IDName, meeting.id);
+                List<MeetingAndDepartment> mds = mdModel.GetByFK(meeting.IDName, meeting.id);
+                List<MeetingAndPosition> mps = mpModel.GetByFK(meeting.IDName, meeting.id);
+                List<User> tempUsers = new List<User>();
+                List<User> depUsers = new List<User>();
+                List<User> posUsers = new List<User>();
+
+                if (mus != null && mus.Any())
+                {
+                    tempUsers.AddRange(userModel.Get(mus.Select(x => x.userId).ToArray()));
+                }
+
+                if (mds != null && mds.Any())
+                {
+                    depUsers.AddRange(userModel.GetByFK(departmentModel.staticObj.IDName, mds.Select(x => x.departmentId).ToArray()));
+                }
+
+                if (mps != null && mps.Any())
+                {
+                    posUsers.AddRange(userModel.GetByFK(positionModel.staticObj.IDName, mps.Select(x => x.positionId).ToArray()));
+                }
+
+                tempUsers.Union(depUsers, new UserComparer());
+                tempUsers.Union(posUsers, new UserComparer());
+
+                return tempUsers;
+            }
+            catch (Exception ex)
+            {
+                return new List<User>();
+            }
         }
 
         public List<UserStatus> GetUserStatuses(User user)

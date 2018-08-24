@@ -11,7 +11,7 @@ namespace IrtsBurtgel
     public class Model<T> where T : Entity, new()
     {
         string connectionString;
-        T staticObj;
+        public T staticObj;
         bool identityInsert = false;
 
         public Model()
