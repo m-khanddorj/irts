@@ -18,8 +18,6 @@ namespace IrtsBurtgel
         public string lname;
         public string fingerprint0;
         public string fingerprint1;
-        public string position;
-        public string department;
         public bool isDeleted;
         public int positionId;
         public int departmentId;
@@ -32,8 +30,6 @@ namespace IrtsBurtgel
             lname = "";
             fingerprint0 = "";
             fingerprint1 = "";
-            position = "";
-            department = "";
             isDeleted = false;
             positionId = -1;
             departmentId = -1;
@@ -54,8 +50,6 @@ namespace IrtsBurtgel
             list.Add(new Object[] { "lname", lname });
             list.Add(new Object[] { "fingerprint_0", fingerprint0 });
             list.Add(new Object[] { "fingerprint_1", fingerprint1 });
-            list.Add(new Object[] { "position", position });
-            list.Add(new Object[] { "department", department });
             list.Add(new Object[] { "is_deleted", isDeleted });
             if (positionId != -1)
             {
@@ -78,12 +72,34 @@ namespace IrtsBurtgel
                 lname = (string)reader["lname"],
                 fingerprint0 = (string)reader["fingerprint_0"],
                 fingerprint1 = (string)reader["fingerprint_1"],
-                position = (string)reader["position"],
-                department = (string)reader["department"],
                 isDeleted = (bool)reader["is_deleted"],
                 positionId = reader["position_id"].GetType() != typeof(int) ? -1 : (int)reader["position_id"],
                 departmentId = reader["department_id"].GetType() != typeof(int) ? -1 : (int)reader["department_id"]
             };
+        }
+    }
+
+    public class UserComparer : IEqualityComparer<User>
+    {
+        public bool Equals(User x, User y)
+        {
+            //Check whether the objects are the same object. 
+            if (Object.ReferenceEquals(x, y)) return true;
+
+            //Check whether the products' properties are equal. 
+            return x != null && y != null && x.id.Equals(y.id);
+        }
+
+        public int GetHashCode(User obj)
+        {
+            //Get hash code for the Name field if it is not null. 
+            int hashProductName = obj.fname == null ? 0 : obj.fname.GetHashCode();
+
+            //Get hash code for the Code field. 
+            int hashProductCode = obj.id.GetHashCode();
+
+            //Calculate the hash code for the product. 
+            return hashProductName ^ hashProductCode;
         }
     }
 }

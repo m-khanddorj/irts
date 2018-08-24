@@ -119,7 +119,11 @@ namespace IrtsBurtgel
                 int ret = zkfp2.AcquireFingerprint(mDevHandle, FPBuffer, CapTmp, ref cbCapTmp);
                 if (ret == zkfp.ZKFP_ERR_OK)
                 {
-                    ReadFPCapture(MESSAGE_CAPTURED_OK);
+                    Console.Beep();
+                    if (ReadFPCapture(MESSAGE_CAPTURED_OK))
+                    {
+                        Console.Beep();
+                    }
                 }
                 Thread.Sleep(200);
             }
