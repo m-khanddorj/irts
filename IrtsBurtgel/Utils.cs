@@ -8,7 +8,7 @@ namespace IrtsBurtgel
 {
     public class Utils
     {
-        static DirectoryInfo _outputDir = null;
+        static DirectoryInfo _outputDir = new DirectoryInfo("./");
         public static DirectoryInfo OutputDir
         {
             get
