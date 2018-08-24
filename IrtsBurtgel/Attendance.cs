@@ -38,10 +38,6 @@ namespace IrtsBurtgel
             {
                 list.Add(new Object[] { "reg_time", regTime });
             }
-            else
-            {
-                list.Add(new Object[] { "reg_time", null });
-            }
             return list;
         }
 
@@ -50,10 +46,10 @@ namespace IrtsBurtgel
             return new Attendance
             {
                 id = (int)reader["attendance_id"],
-                userId = (int)reader["attendance_id"],
-                archivedMeetingId = (int)reader["attendance_id"],
-                statusId = (int)reader["attendance_id"],
-                regTime = (DateTime)reader["attendance_id"]
+                userId = (int)reader["user_id"],
+                archivedMeetingId = (int)reader["a_meeting_id"],
+                statusId = (int)reader["status_id"],
+                regTime = (DateTime)reader["reg_time"]
             };
         }
     }

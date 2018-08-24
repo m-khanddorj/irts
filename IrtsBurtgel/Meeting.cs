@@ -52,10 +52,6 @@ namespace IrtsBurtgel
             {
                 list.Add(new Object[] { "end_date", endDate });
             }
-            else
-            {
-                list.Add(new Object[] { "end_date", null });
-            }
             list.Add(new Object[] { "name", name });
             return list;
         }

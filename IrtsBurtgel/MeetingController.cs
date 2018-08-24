@@ -11,19 +11,29 @@ namespace IrtsBurtgel
     {
         public Model<Meeting> meetingModel;
         public Model<ModifiedMeeting> modifiedMeetingModel;
+        public Model<ArchivedMeeting> archivedMeetingModel;
         public Model<Event> eventModel;
         public Model<MeetingAndUser> muModel;
         public Model<User> userModel;
         public Model<UserStatus> userStatusModel;
+        public Model<Attendance> attendanceModel;
+
+        public List<Object[]> onGoingMeetingUserAttendance;
+        public ArchivedMeeting onGoingArchivedMeeting;
+        public Meeting onGoingMeeting;
+        public ScannerHandler scannerHandler;
 
         public MeetingController()
         {
             meetingModel = new Model<Meeting>();
             modifiedMeetingModel = new Model<ModifiedMeeting>();
+            archivedMeetingModel = new Model<ArchivedMeeting>();
             eventModel = new Model<Event>();
             muModel = new Model<MeetingAndUser>();
             userModel = new Model<User>();
             userStatusModel = new Model<UserStatus>();
+            attendanceModel = new Model<Attendance>();
+            scannerHandler = new ScannerHandler(mc: this);
         }
         
         public List<Meeting> FindByDate(DateTime date)
@@ -156,11 +166,12 @@ namespace IrtsBurtgel
 
         // This function creates and drops lot of connection because model has no function to get data from joined table.
         // TODO: Needs to be improved
-        public List<Object[]> GetMeetingUserAttendances(ArchivedMeeting archivedMeeting, DateTime date)
+        public List<Object[]> GetMeetingUserAttendances(ArchivedMeeting archivedMeeting)
         {
-            List<Object[]> attendances = new List<Object[]>();
+            List<Attendance> attendances = attendanceModel.GetByFK(archivedMeeting.IDName, archivedMeeting.meeting_id);
+            List<Object[]> userAttendance = new List<Object[]>();
 
-            List<MeetingAndUser> mulist =  muModel.GetByFK("meeting_id", archivedMeeting.meeting_id);
+            List<MeetingAndUser> mulist = muModel.GetByFK("meeting_id", archivedMeeting.meeting_id);
             List<int> uids = new List<int>();
 
             foreach (MeetingAndUser mu in mulist)
@@ -170,25 +181,88 @@ namespace IrtsBurtgel
 
             List<User> users = userModel.Get(uids.ToArray());
 
-            foreach(User user in users)
+            foreach (User user in users)
             {
-                Attendance attendance = new Attendance();
-                attendance.archivedMeetingId = archivedMeeting.id;
-
-                List<UserStatus> userStatusHistory = userStatusModel.GetByFK(user.IDName, user.id);
-                foreach (UserStatus userStatus in userStatusHistory)
+                Attendance attendance = attendances.Find(x => x.userId == user.id);
+                if (attendance == null)
                 {
-                    if(userStatus.startDate.Date <= date.Date && userStatus.endDate.Date >= date.Date)
+                    attendance = new Attendance();
+                    attendance.archivedMeetingId = archivedMeeting.id;
+                    attendance.statusId = 14;
+                    attendance.regTime = DateTime.Parse("1997-10-21");
+                    attendance.userId = user.id;
+
+                    List<UserStatus> userStatusHistory = userStatusModel.GetByFK(user.IDName, user.id);
+                    foreach (UserStatus userStatus in userStatusHistory)
                     {
-                        attendance.statusId = userStatus.statusId;
-                        break;
+                        if (userStatus.startDate.Date <= archivedMeeting.meetingDatetime.Date && userStatus.endDate.Date >= archivedMeeting.meetingDatetime.Date)
+                        {
+                            attendance.statusId = userStatus.statusId;
+                            break;
+                        }
                     }
+
+                    attendanceModel.Add(attendance);
                 }
 
-
+                userAttendance.Add(new Object[] { user, attendance });
             }
 
-            return attendances;
+            return userAttendance;
+        }
+
+        public bool StartMeeting(Meeting meeting)
+        {
+            ArchivedMeeting archivedMeeting = new ArchivedMeeting();
+            if(meeting.GetType() == typeof(ModifiedMeeting))
+            {
+                archivedMeeting.meeting_id = ((ModifiedMeeting) meeting).meeting_id;
+                archivedMeeting.modifiedMeeting_id = meeting.id;
+            }
+            else
+            {
+                archivedMeeting.meeting_id = meeting.id;
+            }
+
+            archivedMeeting.meetingDatetime = DateTime.Now;
+            archivedMeeting.duration = meeting.duration;
+
+            int archivedMeetingId = archivedMeetingModel.Add(archivedMeeting);
+
+            if(archivedMeetingId != -1)
+            {
+                archivedMeeting.id = archivedMeetingId;
+
+                onGoingMeeting = meeting;
+                onGoingArchivedMeeting = archivedMeeting;
+                onGoingMeetingUserAttendance = GetMeetingUserAttendances(archivedMeeting);
+
+                scannerHandler.InitializeDevice();
+                scannerHandler.StartCaptureThread();
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool StopMeeting()
+        {
+            if (onGoingMeetingUserAttendance.Count > 0)
+            {
+                foreach (Object[] userAttendance in onGoingMeetingUserAttendance)
+                {
+                    Attendance attendance = (Attendance)userAttendance[1];
+                    if (attendance.statusId == 14)
+                    {
+                        attendance.statusId = 13;
+                        attendanceModel.Set(attendance);
+                    }
+                }
+                scannerHandler.StopThread();
+                return true;
+            }
+
+            return false;
         }
 
         public static int GetIso8601WeekOfYear(DateTime time)
