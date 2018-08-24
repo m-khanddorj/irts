@@ -87,10 +87,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AddParticipantToMeeting.xaml.cs">
+      <DependentUpon>AddParticipantToMeeting.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Admin.cs" />
+    <Compile Include="ArchivedMeeting.cs" />
+    <Compile Include="Attendance.cs" />
     <Compile Include="BitmapFormat.cs" />
     <Compile Include="Department.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Event.cs" />
     <Compile Include="ExternalDataImporter.cs" />
+    <Compile Include="ImportUser.xaml.cs">
+      <DependentUpon>ImportUser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MeetingAndUser.cs" />
     <Compile Include="Model.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Raw.cs" />
@@ -101,6 +112,15 @@
     <Compile Include="MeetingStatus.xaml.cs">
       <DependentUpon>MeetingStatus.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Userstatus.cs" />
+    <Page Include="AddParticipantToMeeting.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ImportUser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -187,6 +207,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="images\calendar.png" />
+    <Resource Include="images\x.png" />
+    <Resource Include="images\tick.png" />
+    <Resource Include="images\search.png" />
     <Content Include="libzkfpcsharp.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

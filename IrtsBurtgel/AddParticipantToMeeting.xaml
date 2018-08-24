@@ -1,0 +1,21 @@
+﻿<Window x:Class="IrtsBurtgel.AddParticipantToMeeting"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:IrtsBurtgel"
+        mc:Ignorable="d"
+        Title="Оролцогч хуралд нэмэх" Height="450" Width="450">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Button Content="Нэмэх" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Click="Add"/>
+        <TextBox HorizontalAlignment="Stretch" x:Name="searchBox" Height="23" Margin="10,10,38,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,38,10,38" x:Name="listbox"/>
+        <Button HorizontalAlignment="Right" Click="Search" Background="White" Margin="10,10,10,10" VerticalAlignment="Top" Width="23" Height="23">
+            <Image Source="images/search.png"></Image>
+        </Button>
+
+    </Grid>
+</Window>
