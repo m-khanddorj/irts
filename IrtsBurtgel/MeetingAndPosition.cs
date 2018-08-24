@@ -28,7 +28,7 @@ namespace IrtsBurtgel
             List<Object[]> list = new List<Object[]>();
             if (id != -1)
             {
-                list.Add(new Object[] { "mdid", id });
+                list.Add(new Object[] { "mpid", id });
             }
             list.Add(new Object[] { "meeting_id", meetingId });
             list.Add(new Object[] { "position_id", positionId });
@@ -39,7 +39,7 @@ namespace IrtsBurtgel
         {
             return new MeetingAndPosition
             {
-                id = (int)reader["mdid"],
+                id = (int)reader["mpid"],
                 meetingId = (int)reader["meeting_id"],
                 positionId = (int)reader["position_id"]
             };
