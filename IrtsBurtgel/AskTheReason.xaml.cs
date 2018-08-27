@@ -19,9 +19,16 @@ namespace IrtsBurtgel
     /// </summary>
     public partial class AskTheReason : Window
     {
+        public string text;
         public AskTheReason()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            text = textBox.Text;
+            DialogResult = true;
         }
     }
 }
