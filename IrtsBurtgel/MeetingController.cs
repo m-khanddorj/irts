@@ -355,7 +355,8 @@ namespace IrtsBurtgel
 
         public bool StopMeeting()
         {
-            if (onGoingMeetingUserAttendance.Count > 0)
+            
+if (onGoingMeetingUserAttendance.Count > 0)
             {
                 foreach (Object[] userAttendance in onGoingMeetingUserAttendance)
                 {
