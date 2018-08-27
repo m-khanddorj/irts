@@ -28,6 +28,8 @@ namespace IrtsBurtgel
         public Meeting onGoingMeeting;
         public ScannerHandler scannerHandler;
 
+        public Meeting closestMeeting;
+
         public MeetingController()
         {
             meetingModel = new Model<Meeting>();
@@ -45,6 +47,43 @@ namespace IrtsBurtgel
             mpModel = new Model<MeetingAndPosition>();
 
             scannerHandler = new ScannerHandler(mc: this);
+
+            var startTimeSpan = TimeSpan.Zero;
+            var periodTimeSpan = TimeSpan.FromMinutes(1);
+
+            var timer = new System.Threading.Timer((e) =>
+            {
+                CheckMeeting();
+            }, null, startTimeSpan, periodTimeSpan);
+        }
+
+        public void CheckMeeting()
+        {
+            DateTime now = DateTime.Now;
+            List<Meeting> meetings = FindByDate(now);
+            if(meetings.Count == 0)
+            {
+                return;
+            }
+
+            bool catchedClosest = false;
+            foreach (Meeting meeting in meetings)
+            {
+                if (meeting.duration > 0)
+                {
+                    if(meeting.startDatetime.Hour == now.Hour && meeting.startDatetime.Minute == now.Minute)
+                    {
+                        StartMeeting(meeting);
+                        break;
+                    }
+
+                    if(meeting.startDatetime.TimeOfDay > now.TimeOfDay && catchedClosest == false)
+                    {
+                        catchedClosest = true;
+                        closestMeeting = meeting;
+                    }
+                }
+            }
         }
 
         public List<Meeting> FindByDate(DateTime date)
@@ -107,7 +146,7 @@ namespace IrtsBurtgel
                     }
                 }
             }
-
+            result = result.OrderBy(x => x.startDatetime.TimeOfDay).ToList();
             return result;
         }
 
@@ -292,13 +331,13 @@ namespace IrtsBurtgel
                 if (meeting.GetType() == typeof(ModifiedMeeting))
                 {
                     ModifiedMeeting mMeeting = (ModifiedMeeting)meeting;
-                    modifiedMeetingModel.Add(new ModifiedMeeting
+                    modifiedMeetingModel.Set(new ModifiedMeeting
                     {
                         name = mMeeting.name,
                         startDatetime = meeting.startDatetime,
                         duration = 0,
                         reason = reason,
-                        meeting_id = meeting.id,
+                        meeting_id = mMeeting.meeting_id,
                         order = mMeeting.order + 1
                     });
                 }
@@ -423,8 +462,8 @@ namespace IrtsBurtgel
                     posUsers.AddRange(userModel.GetByFK(positionModel.staticObj.IDName, mps.Select(x => x.positionId).ToArray()));
                 }
 
-                tempUsers.Union(depUsers, new UserComparer());
-                tempUsers.Union(posUsers, new UserComparer());
+                tempUsers = tempUsers.Union(depUsers, new UserComparer()).ToList();
+                tempUsers = tempUsers.Union(posUsers, new UserComparer()).ToList();
 
                 return tempUsers;
             }

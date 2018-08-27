@@ -52,11 +52,12 @@ namespace IrtsBurtgel
         {
             MeetingStatus meetingStatus = new MeetingStatus();
             meetingStatus.Visibility = Visibility.Visible;
-            meetingController.StartMeeting(meetingModel.Get(1));
+            meetingController.StartMeeting(meetingModel.Get(3));
         }
 
         private void showMenu(object sender, RoutedEventArgs e)
         {
+            //meetingController.StopMeeting();
             LeftSide.Children.Clear();
             LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
             LeftSide.VerticalAlignment = VerticalAlignment.Center;
@@ -1707,7 +1708,7 @@ namespace IrtsBurtgel
         void ShowReport(object sender, RoutedEventArgs e)
         {
             ReportExporter re = new ReportExporter(meetingController);
-            re.ExportAttendance(meetingModel.Get(1), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-08-27"), "sample");
+            re.ExportAttendance(meetingModel.Get(3), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-08-27"), "sample");
         }
     }
 }
