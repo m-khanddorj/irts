@@ -48,7 +48,7 @@ namespace IrtsBurtgel
         public bool InitializeDevice()
         {
             int ret = zkfperrdef.ZKFP_ERR_OK;
-            if ((ret = zkfp2.Init()) == zkfperrdef.ZKFP_ERR_OK)
+            if ( (ret = zkfp2.Init()) == zkfperrdef.ZKFP_ERR_OK)
             {
                 int nCount = zkfp2.GetDeviceCount() - 1;
                 if (nCount > 0)
@@ -58,13 +58,17 @@ namespace IrtsBurtgel
                 else
                 {
                     zkfp2.Terminate();
-                    MessageBox.Show("No device connected!");
+                    Console.WriteLine("No device connected!");
                     return false;
                 }
             }
             else
             {
-                MessageBox.Show("Initialize fail, ret=" + ret + " !");
+                if (ret == zkfperrdef.ZKFP_ERR_ALREADY_INIT)
+                {
+                    return true;
+                }
+                Console.WriteLine("Initialize fail, ret=" + ret + " !");
                 return false;
             }
         }
@@ -74,7 +78,7 @@ namespace IrtsBurtgel
             int ret = zkfp.ZKFP_ERR_OK;
             if (IntPtr.Zero == (mDevHandle = zkfp2.OpenDevice(0)))
             {
-                MessageBox.Show("OpenDevice fail");
+                Console.WriteLine("OpenDevice fail");
                 return false;
             }
             if (IntPtr.Zero == (mDBHandle = zkfp2.DBInit()))
@@ -129,9 +133,11 @@ namespace IrtsBurtgel
             }
         }
 
-        public void StopThread()
+        public void Stop()
         {
             bIsTimeToDie = true;
+            Thread.Sleep(1000);
+            zkfp2.CloseDevice(mDevHandle);
         }
 
         private bool ReadFPCapture(int msg)
@@ -162,11 +168,6 @@ namespace IrtsBurtgel
                         break;
                     }
 
-                    if (ret > maxRet)
-                    {
-                        maxRet = ret;
-                        identifiedAttendance = userAttendance;
-                    }
                     if (user.fingerprint1 != "")
                     {
                         blob3 = Convert.FromBase64String(user.fingerprint1);
@@ -177,12 +178,6 @@ namespace IrtsBurtgel
                             maxRet = ret;
                             identifiedAttendance = userAttendance;
                             break;
-                        }
-
-                        if (ret > maxRet)
-                        {
-                            maxRet = ret;
-                            identifiedAttendance = userAttendance;
                         }
                     }
                 }

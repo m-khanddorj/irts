@@ -198,8 +198,8 @@ namespace IrtsBurtgel
                 string fingerprint0 = fingerprint.ContainsKey(0) ? fingerprint[0] : "";
                 string fingerprint1 = fingerprint.ContainsKey(1) ? fingerprint[1] : "";
 
-                int depid = GetInt(reader, 2);
-                int posid = GetInt(reader, 3);
+                int depid = GetInt(reader, 8);
+                int posid = GetInt(reader, 2);
 
                 posid = posid == -1 ? 0 : posid;
 
@@ -220,7 +220,7 @@ namespace IrtsBurtgel
                     {
                         id = u.id,
                         pin = pinnum,
-                        fname = reader.GetString(1) ?? "",
+                        fname = reader.GetString(3) ?? "",
                         lname = "",
                         fingerprint0 = fingerprint0,
                         fingerprint1 = fingerprint1,
@@ -234,7 +234,7 @@ namespace IrtsBurtgel
                     result = result && 0 <= userModel.Add(new User
                     {
                         pin = pinnum,
-                        fname = reader.GetString(1) ?? "",
+                        fname = reader.GetString(3) ?? "",
                         lname = "",
                         fingerprint0 = fingerprint0,
                         fingerprint1 = fingerprint1,
@@ -253,9 +253,9 @@ namespace IrtsBurtgel
             {
                 string str = reader.GetString(index);
                 bool isNumeric = int.TryParse(str, out int pin);
-                if (!isNumeric && str != null)
+                if (!isNumeric && str != null && str != "")
                 {
-                    throw new Exception("Excel файлын тоо агуулах ёстой баганад өөр төрлийн мэдээлэл орсон байна.");
+                    throw new Exception("Excel файлын тоо агуулах ёстой баганад өөр төрлийн мэдээлэл орсон байна. Мөрийн дугаар: " + index.ToString());
                 }
                 else if (str == null)
                 {
@@ -274,7 +274,7 @@ namespace IrtsBurtgel
             }
             else
             {
-                throw new Exception("Excel файлын тоо агуулах ёстой баганад өөр төрлийн мэдээлэл орсон байна.");
+                throw new Exception("Excel файлын тоо агуулах ёстой баганад өөр төрлийн мэдээлэл орсон байна. Мөрийн дугаар: " + index.ToString());
             }
         }
 
