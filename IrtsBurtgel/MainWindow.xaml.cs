@@ -46,17 +46,26 @@ namespace IrtsBurtgel
             madModel = new Model<MeetingAndDepartment>();
             mapModel = new Model<MeetingAndPosition>();
             modifiedMeetingModel = new Model<ModifiedMeeting>();
-            
+
+            time.Text = meetingController.TextToDisplay();
         }
         
+        public void login(object sender, RoutedEventArgs e)
+        {
+            if (username.Text == "admin" && password.Password == "admin") showMenu();
+            else
+            {
+                MessageBox.Show("Та нэр, нууц үгээ дахин шалгана уу!","Нэр эсвэл нууц үг буруу байна");
+            }
+        }
         private void showStatus(object sender, RoutedEventArgs e)
         {
             MeetingStatus meetingStatus = new MeetingStatus();
             meetingStatus.Visibility = Visibility.Visible;
-            meetingController.StartMeeting(meetingModel.Get(3));
+            //meetingController.StartMeeting(meetingModel.Get(3));
         }
 
-        private void showMenu(object sender, RoutedEventArgs e)
+        private void showMenu(object sender=null, RoutedEventArgs e=null)
         {
             //meetingController.StopMeeting();
             LeftSide.Children.Clear();
@@ -113,18 +122,16 @@ namespace IrtsBurtgel
 
             RightSide.Children.Clear();
             RightSide.HorizontalAlignment = HorizontalAlignment.Stretch;
-
-            Label title = new Label();
-            title.Content = "Дараагийн хурал:";
-            title.FontSize = 22;
-            title.Margin = new Thickness(10, 0, 0, 0);
-            Label time = new Label();
-            time.Content = "2018/09/01 15:00";
-            time.FontSize = 24;
-            time.Margin = new Thickness(10, 0, 0, 0);
-
-
-            RightSide.Children.Add(title);
+            
+            TextBlock time = new TextBlock();
+            time.Margin = new Thickness(10);
+            time.HorizontalAlignment = HorizontalAlignment.Stretch;
+            time.TextWrapping = TextWrapping.Wrap;
+            time.Text = meetingController.TextToDisplay();
+            time.FontSize = 20;
+            if (FindName("time") != null) UnregisterName("time");
+            RegisterName("time", time);
+            
             RightSide.Children.Add(time);
         }
 

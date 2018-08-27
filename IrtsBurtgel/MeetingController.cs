@@ -127,6 +127,40 @@ namespace IrtsBurtgel
             }
         }
 
+        public string TextToDisplay()
+        {
+            DateTime time = DateTime.Today;
+            if (meetingModel.GetAll() == null) return "Хурал байхгүй байна.";
+            Meeting meeting = null;
+            DateTime now = DateTime.Now; //Don't change it
+            DateTime day = DateTime.Today;
+            //Checking todays meetings
+            List<Meeting> meetings = FindByDate(day);
+            meetings = meetings.OrderBy(o => o.startDatetime).ToList();
+            foreach(Meeting m in meetings)
+            {
+                if(m.startDatetime.AddMinutes(m.duration) > now)
+                {
+                    meeting = m;
+                    break;
+                }
+            }
+            day = day.AddDays(1);
+            while (meeting == null)
+            {
+                while (FindByDate(day).Count == 0) day = day.AddDays(1);
+                meeting = FindByDate(day)[0];
+            }
+            if(meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
+            {
+                return "Хурал эхлээд " + (DateTime.Now - meeting.startDatetime).TotalMinutes + "минут болж байна";
+            }
+            else
+            {
+                return "Дараагийн хурал " + meeting.startDatetime.ToString();
+            }
+        }
+
         public List<Meeting> FindByDate(DateTime date)
         {
             List<Meeting> list = meetingModel.GetAll();

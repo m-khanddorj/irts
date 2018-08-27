@@ -6,13 +6,27 @@
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
         Title="Window1" Height="450" Width="800">
-    <Grid Background="#FF007ACC">
-        <Grid.ColumnDefinitions>
-        </Grid.ColumnDefinitions>
-        <Label Content="Цагдаагийн газар"  HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="36" Foreground="White"/>
-        <Label Content="198/200" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="36" Foreground="#fff"/>
-        <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="58" Height="58" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
-            <Image Height="38" Width="38" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
-        </Button>
-    </Grid>
+    <StackPanel Background="#FF007ACC">
+        <DockPanel>
+            <Button DockPanel.Dock="Right" Width="58" Height="58" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
+                <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
+            </Button>
+            <Label x:Name="Attendance" Content="12" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="36" Foreground="#fff"/>
+            <Label x:Name="OrgTitle" Content="Org" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="36" Foreground="White"/>
+        </DockPanel>
+        <Grid Background="White" ShowGridLines="True">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="5*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Column="0" Grid.Row="0" Content="Bat-Orgil"/>
+            <Label Grid.Column="1" Grid.Row="0" Content="15"/>
+            <Label Grid.Column="0" Grid.Row="1" Content="Batsukh"/>
+            <Label Grid.Column="1" Grid.Row="1" Content="15"/>
+        </Grid>
+    </StackPanel>
 </Window>
