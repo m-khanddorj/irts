@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="Window1" Height="200" Width="400
+        Title="Window1" Height="185" Width="400
         ">
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Label Content="Та шалтгаанаа оруулна уу!" />
-            <TextBlock Height="35" Width="350"></TextBlock>
+        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,10">
+            <Label Content="Та шалтгаанаа оруулна уу!"/>
+            <TextBox x:Name="textBox" AcceptsReturn="True" TextWrapping="Wrap" VerticalAlignment="Stretch" Margin="0,0,0,10" MinHeight="40" Height="70"/>
+            <Button Content="Хадгалах" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Click="Button_Click"/>
         </StackPanel>
-        <Button Content="Save" HorizontalAlignment="Left" Margin="307,120,0,0" VerticalAlignment="Top" Width="75"/>
     </Grid>
 </Window>

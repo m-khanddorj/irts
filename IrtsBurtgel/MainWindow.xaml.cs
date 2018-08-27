@@ -258,7 +258,10 @@ namespace IrtsBurtgel
             Calendar calendar = (Calendar)((Button)sender).Tag;
             AskTheReason ask = new AskTheReason();
             ask.ShowDialog();
-            //meetingController.CancelMeetingsByDate(calendar.SelectedDate);
+            if ((bool)ask.DialogResult)
+            {
+                meetingController.CancelMeetingsByDate((DateTime)calendar.SelectedDate,ask.text);
+            }
         }
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
         {
@@ -285,7 +288,7 @@ namespace IrtsBurtgel
             xImage.Source = new BitmapImage(new Uri("images/x.png", UriKind.Relative));
             xImage.Width = 20;
             xImage.Height = 20;
-            xImage.Tag = calendar;
+            xButton.Tag = calendar;
 
             xButton.Content = xImage;
             xButton.Click += MarkDayAsIncative;
@@ -353,6 +356,8 @@ namespace IrtsBurtgel
             xImage.Source = new BitmapImage(new Uri("images/x.png", UriKind.Relative));
             xImage.Width = 20;
             xImage.Height = 20;
+            xButton.Content = xImage;
+            xButton.Click += MarkDayAsIncative;
 
             rButton.Content = calendarImage;
             rButton.Click += ShowCalendar;
@@ -395,7 +400,12 @@ namespace IrtsBurtgel
             dockPanel.Children.Add(listbox);
         }
 
-
+        void RemoveFromList(object sender, RoutedEventArgs e)
+        {
+            ListBox listBox = (ListBox)((Button)sender).Tag;
+            listBox.Items.Remove(listBox.SelectedItem);
+            return;
+        }
         void onMeetingNameChanged(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
@@ -424,7 +434,7 @@ namespace IrtsBurtgel
             nameLabel.Width = 215;
             TextBox name = new TextBox();
             name.Width = 215;
-            name.Text = (string)meeting.name;
+            name.Text = meeting.name;
             controls.Add(name);
 
             nameStack.Children.Add(nameLabel);
@@ -602,6 +612,8 @@ namespace IrtsBurtgel
             Button gRemoveButton = new Button();
             gRemoveButton.Content = "Хасах";
             gRemoveButton.Background = Brushes.White;
+            gRemoveButton.Tag = pGroupList;
+            gRemoveButton.Click += RemoveFromList;
             gRemoveButton.Width = 50;
 
             Button gAddButton = new Button();
@@ -655,6 +667,8 @@ namespace IrtsBurtgel
             Button uRemoveButton = new Button();
             uRemoveButton.Content = "Хасах";
             uRemoveButton.Background = Brushes.White;
+            uRemoveButton.Tag = pUserList;
+            uRemoveButton.Click += RemoveFromList;
             uRemoveButton.Width = 50;
 
             Button uAddButton = new Button();
@@ -708,6 +722,8 @@ namespace IrtsBurtgel
             Button posRemoveButton = new Button();
             posRemoveButton.Content = "Хасах";
             posRemoveButton.Background = Brushes.White;
+            posRemoveButton.Tag = pPositionList;
+            posRemoveButton.Click += RemoveFromList;
             posRemoveButton.Width = 50;
 
             Button posAddButton = new Button();
@@ -770,7 +786,11 @@ namespace IrtsBurtgel
             stackPanel.Children.Add(pStack);
             stackPanel.Children.Add(saveStack);
 
-            RightSide.Children.Add(stackPanel);
+            ScrollViewer scrollViewer = new ScrollViewer();
+            scrollViewer.Content = stackPanel;
+            scrollViewer.Margin = new Thickness(0, 0, -20, 0);
+            RightSide.Children.Add(scrollViewer);
+            scrollViewer.Height = this.ActualHeight+50;
         }
 
         void addMeeting(object sender, RoutedEventArgs e)
@@ -943,6 +963,8 @@ namespace IrtsBurtgel
 
             Button gRemoveButton = new Button();
             gRemoveButton.Content = "Хасах";
+            gRemoveButton.Tag = pGroupList;
+            gRemoveButton.Click += RemoveFromList;
             gRemoveButton.Background = Brushes.White;
             gRemoveButton.Width = 50;
 
@@ -988,6 +1010,8 @@ namespace IrtsBurtgel
 
             Button uRemoveButton = new Button();
             uRemoveButton.Content = "Хасах";
+            uRemoveButton.Tag = pUserList;
+            uRemoveButton.Click += RemoveFromList;
             uRemoveButton.Background = Brushes.White;
             uRemoveButton.Width = 50;
 
@@ -1032,6 +1056,8 @@ namespace IrtsBurtgel
 
             Button posRemoveButton = new Button();
             posRemoveButton.Content = "Хасах";
+            posRemoveButton.Tag = pPositionList;
+            posRemoveButton.Click += RemoveFromList;
             posRemoveButton.Background = Brushes.White;
             posRemoveButton.Width = 50;
 
