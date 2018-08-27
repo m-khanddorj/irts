@@ -18,7 +18,7 @@ namespace IrtsBurtgel
             meetingController = mc;
         }
 
-        public string ExportAttendance(Meeting meeting, DateTime startDate, DateTime endDate)
+        public string ExportAttendance(Meeting meeting, DateTime startDate, DateTime endDate, string filename)
         {
             using (var package = new ExcelPackage())
             {
@@ -28,69 +28,87 @@ namespace IrtsBurtgel
                 worksheet.Cells[1, 1].Value = "№";
                 worksheet.Cells[1, 2].Value = "Нэр";
                 worksheet.Cells[1, 3].Value = "Хэлтэс";
-
-                List<MeetingAndUser> mus = meetingController.muModel.GetByFK(meeting.IDName, meeting.id);
-                List<User> users = meetingController.userModel.Get(mus.Select(x => x.userId).ToArray());
+                worksheet.Cells[1, 4].Value = "Албан тушаал";
 
                 List<ArchivedMeeting> archivedMeetings = meetingController.archivedMeetingModel.GetByFK(meeting.IDName, meeting.id);
                 foreach (ArchivedMeeting archivedMeeting in archivedMeetings)
                 {
-                    if(archivedMeeting.meetingDatetime.Date < startDate || archivedMeeting.meetingDatetime.Date > endDate)
+                    if (archivedMeeting.meetingDatetime.Date < startDate || archivedMeeting.meetingDatetime.Date > endDate)
                     {
                         archivedMeetings.Remove(archivedMeeting);
                     }
                 }
 
-                for (int i = 0; i < archivedMeetings.Count; i ++)
+                for (int i = 0; i < archivedMeetings.Count; i++)
                 {
-                    worksheet.Cells[1, i + 4].Value = archivedMeetings[i].meetingDatetime.ToString("yyyyMMdd");
+                    worksheet.Cells[1, i + 5].Value = archivedMeetings[i].meetingDatetime.ToString("yyyy/MM/dd HH:mm");
                 }
 
-                //Add some items...
-                worksheet.Cells["A2"].Value = 12001;
-                worksheet.Cells["B2"].Value = "Nails";
-                worksheet.Cells["C2"].Value = 37;
-                worksheet.Cells["D2"].Value = 3.99;
 
-                worksheet.Cells["A3"].Value = 12002;
-                worksheet.Cells["B3"].Value = "Hammer";
-                worksheet.Cells["C3"].Value = 5;
-                worksheet.Cells["D3"].Value = 12.10;
+                List<Attendance> attendances = meetingController.attendanceModel.GetByFK(archivedMeetings.First().IDName, archivedMeetings.Select(x => x.id).ToArray());
+                List<User> users = meetingController.userModel.Get(attendances.Select(x => x.userId).ToArray());
+                Dictionary<int, string> positions = meetingController.positionModel.GetAll().ToDictionary(x => x.id, x => x.name);
+                Dictionary<int, string> departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
 
-                worksheet.Cells["A4"].Value = 12003;
-                worksheet.Cells["B4"].Value = "Saw";
-                worksheet.Cells["C4"].Value = 12;
-                worksheet.Cells["D4"].Value = 15.37;
+                users.OrderBy(x => x.departmentId);
 
-                //Add a formula for the value-column
-                worksheet.Cells["E2:E4"].Formula = "C2*D2";
+                worksheet.Cells[1, archivedMeetings.Count + 5].Value = "Нийт ирсэн";
+                worksheet.Cells[1, archivedMeetings.Count + 6].Value = "Нийт хоцорсон";
+                worksheet.Cells[1, archivedMeetings.Count + 7].Value = "Нийт тасалсан";
 
+                for (int i = 0; i < users.Count; i ++)
+                {
+                    worksheet.Cells[i + 2, 1].Value = i + 1;
+                    worksheet.Cells[i + 2, 2].Value = users[i].fname;
+                    worksheet.Cells[i + 2, 3].Value = departments.ContainsKey(users[i].departmentId) ? departments[users[i].departmentId]:"";
+                    worksheet.Cells[i + 2, 4].Value = positions.ContainsKey(users[i].positionId) ? positions[users[i].positionId] :"";
+
+                    string columnName1 = GetExcelColumnName(4);
+                    string columnName2 = GetExcelColumnName(archivedMeetings.Count + 4);
+                    string columnRange = columnName1 + (i + 1).ToString() + ":" + columnName2 + (i + 1).ToString();
+
+                    worksheet.Cells[i + 2, archivedMeetings.Count + 5].Formula = "COUNTIF(" + columnRange + ", \"И\")";
+                    worksheet.Cells[i + 2, archivedMeetings.Count + 6].Formula = "COUNTIF(" + columnRange + ", \"Х*\")";
+                    worksheet.Cells[i + 2, archivedMeetings.Count + 7].Formula = "COUNTIF(" + columnRange + ", \"Т\")";
+                }
+
+                for (int i = 0; i < archivedMeetings.Count; i++)
+                {
+                    for (int j = 0; j < users.Count; j++)
+                    {
+                        Attendance attendance =  attendances.FindAll(x => x.userId == users[j].id).Find(x => x.archivedMeetingId == archivedMeetings[i].id);
+                        if(attendance != null)
+                        {
+                            string status;
+                            switch (attendance.statusId)
+                            {
+                                case 1: status = "И"; break;
+                                case 13: status = "Т"; break;
+                                case 14: status = "Б"; break;
+                                default: status = "Ш"; break;
+                            }
+                            worksheet.Cells[j + 2, i + 5].Value = status;
+                        }
+                    }
+
+                    string columnName = GetExcelColumnName(i + 5);
+                    string columnRange = columnName + "2:" + columnName + (users.Count + 1).ToString();
+
+                    worksheet.Cells[users.Count + 2, i + 5].Formula = "COUNTIF(" + columnRange + ", \"И\")";
+                    worksheet.Cells[users.Count + 3, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Х*\")";
+                    worksheet.Cells[users.Count + 4, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Т\")";
+                }
+
+                worksheet.Cells[users.Count + 2, 2].Value = "Нийт ирсэн";
+                worksheet.Cells[users.Count + 3, 2].Value = "Нийт хоцорсон";
+                worksheet.Cells[users.Count + 4, 2].Value = "Нийт тасалсан";
+                
                 //Ok now format the values;
-                using (var range = worksheet.Cells[1, 1, 1, 5])
+                using (var range = worksheet.Cells[1, 1, 1, archivedMeetings.Count + 4])
                 {
                     range.Style.Font.Bold = true;
-                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    range.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
-                    range.Style.Font.Color.SetColor(Color.White);
                 }
-
-                worksheet.Cells["A5:E5"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells["A5:E5"].Style.Font.Bold = true;
-
-                worksheet.Cells[5, 3, 5, 5].Formula = string.Format("SUBTOTAL(9,{0})", new ExcelAddress(2, 3, 4, 3).Address);
-                worksheet.Cells["C2:C5"].Style.Numberformat.Format = "#,##0";
-                worksheet.Cells["D2:E5"].Style.Numberformat.Format = "#,##0.00";
-
-                //Create an autofilter for the range
-                worksheet.Cells["A1:E4"].AutoFilter = true;
-
-                worksheet.Cells["A2:A4"].Style.Numberformat.Format = "@";   //Format as text
-
-                //There is actually no need to calculate, Excel will do it for you, but in some cases it might be useful. 
-                //For example if you link to this workbook from another workbook or you will open the workbook in a program that hasn't a calculation engine or 
-                //you want to use the result of a formula in your program.
-                worksheet.Calculate();
-
+                                
                 worksheet.Cells.AutoFitColumns(0);  //Autofit columns for all cells
 
                 // lets set the header text 
@@ -117,11 +135,27 @@ namespace IrtsBurtgel
                 // set some extended property values
                 package.Workbook.Properties.Company = "BolorSoft LLC.";
 
-                var xlFile = Utils.GetFileInfo("sample1.xlsx");
+                var xlFile = Utils.GetFileInfo(filename + ".xlsx");
                 // save our new workbook in the output directory and we are done!
                 package.SaveAs(xlFile);
                 return xlFile.FullName;
             }
+        }
+
+        private string GetExcelColumnName(int columnNumber)
+        {
+            int dividend = columnNumber;
+            string columnName = String.Empty;
+            int modulo;
+
+            while (dividend > 0)
+            {
+                modulo = (dividend - 1) % 26;
+                columnName = Convert.ToChar(65 + modulo).ToString() + columnName;
+                dividend = (int)((dividend - modulo) / 26);
+            }
+
+            return columnName;
         }
     }
 }

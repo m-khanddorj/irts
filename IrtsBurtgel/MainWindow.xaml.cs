@@ -52,6 +52,7 @@ namespace IrtsBurtgel
         {
             MeetingStatus meetingStatus = new MeetingStatus();
             meetingStatus.Visibility = Visibility.Visible;
+            meetingController.StartMeeting(meetingModel.Get(1));
         }
 
         private void showMenu(object sender, RoutedEventArgs e)
@@ -1731,7 +1732,8 @@ namespace IrtsBurtgel
 
         void ShowReport(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("h");
+            ReportExporter re = new ReportExporter(meetingController);
+            re.ExportAttendance(meetingModel.Get(1), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-08-27"), "sample");
         }
     }
 }

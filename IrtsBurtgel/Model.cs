@@ -397,13 +397,13 @@ namespace IrtsBurtgel
                     }
                     string sqlpart1 = String.Join(",", keyValueStr);
 
-                    string sql = "SELECT * FROM \"" + staticObj.TableName + "\" WHERE " + fkName + " = @id";
+                    string sql = "SELECT * FROM \"" + staticObj.TableName + "\" WHERE " + fkName + " in (" + sqlpart1 + ")";
 
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
                         for (int i = 0; i < fkIds.Length; i++)
                         {
-                            selectCommand.Parameters.Add(new SqlParameter("@id" + i.ToString(), list[i]));
+                            selectCommand.Parameters.Add(new SqlParameter("@id" + i.ToString(), fkIds[i]));
                         }
 
                         using (var reader = selectCommand.ExecuteReader())
