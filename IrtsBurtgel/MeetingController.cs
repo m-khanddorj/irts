@@ -292,13 +292,13 @@ namespace IrtsBurtgel
                 if (meeting.GetType() == typeof(ModifiedMeeting))
                 {
                     ModifiedMeeting mMeeting = (ModifiedMeeting)meeting;
-                    modifiedMeetingModel.Add(new ModifiedMeeting
+                    modifiedMeetingModel.Set(new ModifiedMeeting
                     {
                         name = mMeeting.name,
                         startDatetime = meeting.startDatetime,
                         duration = 0,
                         reason = reason,
-                        meeting_id = meeting.id,
+                        meeting_id = mMeeting.meeting_id,
                         order = mMeeting.order + 1
                     });
                 }
