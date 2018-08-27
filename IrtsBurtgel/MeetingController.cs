@@ -153,7 +153,7 @@ namespace IrtsBurtgel
                     if (mMeetings != null && mMeetings.Count > 0)
                     {
                         bool added = false;
-                        mMeetings.OrderByDescending(x => x.order);
+                        mMeetings = mMeetings.OrderByDescending(x => x.order).ToList();
                         foreach (ModifiedMeeting mMeeting in mMeetings)
                         {
                             if (mMeeting.event_id == -1)
@@ -170,8 +170,8 @@ namespace IrtsBurtgel
                                     if (mMeeting.duration != 0)
                                     {
                                         result.Add(mMeeting);
+                                        added = true;
                                     }
-                                    added = true;
                                     break;
                                 }
                             }

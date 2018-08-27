@@ -32,7 +32,8 @@ namespace IrtsBurtgel
         private int mfpWidth = 0;
         private int mfpHeight = 0;
         private int mfpDpi = 0;
-        
+
+        private Thread captureThread;
         private MeetingController meetingController;
 
         const int MESSAGE_CAPTURED_OK = 0x0400 + 6;
@@ -47,6 +48,7 @@ namespace IrtsBurtgel
 
         public bool InitializeDevice()
         {
+            Stop();
             int ret = zkfperrdef.ZKFP_ERR_OK;
             if ( (ret = zkfp2.Init()) == zkfperrdef.ZKFP_ERR_OK)
             {
@@ -106,7 +108,7 @@ namespace IrtsBurtgel
 
             Console.WriteLine("reader parameter, image width:" + mfpWidth + ", height:" + mfpHeight + ", dpi:" + mfpDpi);
 
-            Thread captureThread = new Thread(new ThreadStart(DoCapture));
+            captureThread = new Thread(new ThreadStart(DoCapture));
             captureThread.IsBackground = true;
             captureThread.Start();
             bIsTimeToDie = false;
@@ -124,7 +126,7 @@ namespace IrtsBurtgel
                 if (ret == zkfp.ZKFP_ERR_OK)
                 {
                     Console.Beep();
-                    if (ReadFPCapture(MESSAGE_CAPTURED_OK))
+                    if (!ReadFPCapture(MESSAGE_CAPTURED_OK))
                     {
                         Console.Beep();
                     }
@@ -135,9 +137,10 @@ namespace IrtsBurtgel
 
         public void Stop()
         {
+            zkfp2.CloseDevice(mDevHandle);
+            zkfp2.Terminate();
             bIsTimeToDie = true;
             Thread.Sleep(1000);
-            zkfp2.CloseDevice(mDevHandle);
         }
 
         private bool ReadFPCapture(int msg)
@@ -187,9 +190,12 @@ namespace IrtsBurtgel
                     return false;
                 }
 
-                ((Attendance)identifiedAttendance[1]).statusId = 1;
-                ((Attendance)identifiedAttendance[1]).regTime = DateTime.Now;
-                meetingController.attendanceModel.Set(((Attendance)identifiedAttendance[1]));
+                if (((Attendance)identifiedAttendance[1]).regTime == DateTime.Parse("1997-10-21"))
+                {
+                    ((Attendance)identifiedAttendance[1]).statusId = 1;
+                    ((Attendance)identifiedAttendance[1]).regTime = DateTime.Now;
+                    meetingController.attendanceModel.Set(((Attendance)identifiedAttendance[1]));
+                }
 
             }
             else

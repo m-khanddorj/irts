@@ -1734,7 +1734,7 @@ namespace IrtsBurtgel
         void ShowReport(object sender, RoutedEventArgs e)
         {
             ReportExporter re = new ReportExporter(meetingController);
-            re.ExportAttendance(meetingModel.Get(3), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-08-27"), "sample");
+            re.ExportAttendance(meetingModel.Get(4), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-08-30"), "sample");
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
