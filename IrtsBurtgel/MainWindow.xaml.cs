@@ -370,7 +370,7 @@ namespace IrtsBurtgel
                     ListBoxItem listBoxItem = new ListBoxItem();
                     if (meeting.duration == 0) listBoxItem.Content = "Цуцлагдсан";
                     else listBoxItem.Content = meeting.name;
-                    listBoxItem.Tag = meeting;
+                    listBoxItem.Tag = meeting;//end tagiig n zooj ugch bn
                     listBoxItem.Uid = meeting.id.ToString();
                     listBoxItem.Height = 25;
                     listbox.Items.Add(listBoxItem);
@@ -445,6 +445,7 @@ namespace IrtsBurtgel
                 listBoxItem.Content = meeting.name;
                 listBoxItem.Uid = meeting.id.ToString();
                 listBoxItem.Height = 25;
+                listBoxItem.Tag = meeting; //done fixing. Try it now
                 listbox.Items.Add(listBoxItem);
             }
             listbox.SelectionChanged += ModifyMeeting;
@@ -1408,10 +1409,14 @@ namespace IrtsBurtgel
             Label label = new Label();
             string id = ((ListBoxItem)listBox.SelectedValue).Uid;
             Object meeting;
+            //ModifiedMeeting eswl Meeting -g n medehgui uchir ehleed object gj zarlaad , hereglehdee cast hiij bgn s
             if (((ListBoxItem)listBox.SelectedItem).Tag is ModifiedMeeting)
             {
                 meeting = modifiedMeetingModel.Get(Int32.Parse(id));
-            }
+            }//bolno ghde tgwl shuud Meeting bolchihood bsn. Tgd Torliig n harj bgad database-n ali table-s awahaa shiidej bgn
+             //zoozo. 
+            //meeting gsn table-s modifiedMeeting -n id gaar get hiih gd bsima
+            //ug n ingeed salgachij bgam chin null zaamaarguima
             else
             {
                 meeting = meetingModel.Get(Int32.Parse(id));
@@ -1419,7 +1424,7 @@ namespace IrtsBurtgel
             RightSide.Children.Clear();
 
 
-            List<Object> controls = new List<Object>();
+            List<Object> controls = new List<Object>(); //shine medeenuudiig zooh bus 
 
             StackPanel stackPanel = new StackPanel();
             stackPanel.Orientation = Orientation.Vertical;
