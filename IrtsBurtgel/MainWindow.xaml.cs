@@ -1409,21 +1409,16 @@ namespace IrtsBurtgel
             Label label = new Label();
             string id = ((ListBoxItem)listBox.SelectedValue).Uid;
             Object meeting;
-            //ModifiedMeeting eswl Meeting -g n medehgui uchir ehleed object gj zarlaad , hereglehdee cast hiij bgn s
             if (((ListBoxItem)listBox.SelectedItem).Tag is ModifiedMeeting)
             {
                 meeting = modifiedMeetingModel.Get(Int32.Parse(id));
-            }//bolno ghde tgwl shuud Meeting bolchihood bsn. Tgd Torliig n harj bgad database-n ali table-s awahaa shiidej bgn
-             //zoozo. 
-            //meeting gsn table-s modifiedMeeting -n id gaar get hiih gd bsima
-            //ug n ingeed salgachij bgam chin null zaamaarguima
+            }
             else
             {
                 meeting = meetingModel.Get(Int32.Parse(id));
             }
             RightSide.Children.Clear();
-
-
+            
             List<Object> controls = new List<Object>(); //shine medeenuudiig zooh bus 
 
             StackPanel stackPanel = new StackPanel();
