@@ -312,7 +312,17 @@ namespace IrtsBurtgel
         public bool StartMeeting(Meeting meeting)
         {
             List<ArchivedMeeting> archivedMeetings = GetArchivedMeetingByDate(DateTime.Now);
-            ArchivedMeeting archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == meeting.id).Find(x => (x.meetingDatetime < DateTime.Now && x.meetingDatetime.AddMinutes(x.duration) > DateTime.Now));
+            ArchivedMeeting archivedMeeting;
+
+            if (meeting.GetType() == typeof(ModifiedMeeting))
+            {
+                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == ((ModifiedMeeting)meeting).meeting_id).Find(x => (x.meetingDatetime < DateTime.Now && x.meetingDatetime.AddMinutes(x.duration) > DateTime.Now));
+            }
+            else
+            {
+                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == meeting.id).Find(x => (x.meetingDatetime < DateTime.Now && x.meetingDatetime.AddMinutes(x.duration) > DateTime.Now));
+            }
+
 
             if (archivedMeeting == null)
             {
