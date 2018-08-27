@@ -4,11 +4,14 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace IrtsBurtgel
 {
     public class MeetingController
     {
+        public static int MEETING_STARTED = 1, IDLE = 0;
+
         public Model<Meeting> meetingModel;
         public Model<ModifiedMeeting> modifiedMeetingModel;
         public Model<ArchivedMeeting> archivedMeetingModel;
@@ -29,6 +32,9 @@ namespace IrtsBurtgel
         public ScannerHandler scannerHandler;
 
         public Meeting closestMeeting;
+        public int status;
+
+        public Timer aTimer;
 
         public MeetingController()
         {
@@ -48,40 +54,75 @@ namespace IrtsBurtgel
 
             scannerHandler = new ScannerHandler(mc: this);
 
-            var startTimeSpan = TimeSpan.Zero;
-            var periodTimeSpan = TimeSpan.FromMinutes(1);
-
-            var timer = new System.Threading.Timer((e) =>
+            aTimer = new Timer(1000);
+            aTimer.Elapsed += new ElapsedEventHandler((object source, ElapsedEventArgs e) =>
             {
                 CheckMeeting();
-            }, null, startTimeSpan, periodTimeSpan);
+            });
+            aTimer.Enabled = true;
         }
 
         public void CheckMeeting()
         {
             DateTime now = DateTime.Now;
-            List<Meeting> meetings = FindByDate(now);
-            if(meetings.Count == 0)
-            {
-                return;
-            }
 
-            bool catchedClosest = false;
-            foreach (Meeting meeting in meetings)
+            Console.WriteLine("Status = " + status.ToString());
+            if (status == IDLE)
             {
-                if (meeting.duration > 0)
+                List<Meeting> meetings = FindByDate(now);
+                if (meetings.Count == 0)
                 {
-                    if(meeting.startDatetime.Hour == now.Hour && meeting.startDatetime.Minute == now.Minute)
-                    {
-                        StartMeeting(meeting);
-                        break;
-                    }
+                    return;
+                }
 
-                    if(meeting.startDatetime.TimeOfDay > now.TimeOfDay && catchedClosest == false)
+                bool catchedClosest = false;
+                closestMeeting = null;
+                foreach (Meeting meeting in meetings)
+                {
+                    if (meeting.duration > 0)
                     {
-                        catchedClosest = true;
-                        closestMeeting = meeting;
+                        if (meeting.startDatetime.Hour == now.Hour && meeting.startDatetime.Minute == now.Minute)
+                        {
+                            Console.WriteLine("Meeting time occured. Start meeting.");
+                            StartMeeting(meeting);
+                            status = MEETING_STARTED;
+                            Console.WriteLine("Setted Status = " + status.ToString());
+                            return;
+                        }
+
+                        if (meeting.startDatetime.TimeOfDay < now.TimeOfDay && meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay > now.TimeOfDay)
+                        {
+                            Console.WriteLine("Detected ongoing meeting. Fast forwarding meeting.");
+                            StartMeeting(meeting);
+                            status = MEETING_STARTED;
+                            Console.WriteLine("Setted Status = " + status.ToString());
+                            return;
+                        }
+
+                        if (meeting.startDatetime.TimeOfDay > now.TimeOfDay && catchedClosest == false)
+                        {
+                            catchedClosest = true;
+                            closestMeeting = meeting;
+                        }
                     }
+                }
+                if (closestMeeting != null)
+                {
+                    Console.WriteLine(now - closestMeeting.startDatetime);
+                }
+                else
+                {
+                    Console.WriteLine("No meeting today.");
+                }
+            }
+            else
+            {
+                DateTime date = onGoingArchivedMeeting.meetingDatetime.AddMinutes(onGoingArchivedMeeting.duration);
+                if (date.Hour <= now.Hour && date.Minute <= now.Minute)
+                {
+                    StopMeeting();
+                    status = IDLE;
+                    Console.WriteLine("Meeting ended.");
                 }
             }
         }
@@ -231,7 +272,7 @@ namespace IrtsBurtgel
         // TODO: Needs to be improved
         public List<Object[]> GetMeetingUserAttendances(ArchivedMeeting archivedMeeting)
         {
-            List<Attendance> attendances = attendanceModel.GetByFK(archivedMeeting.IDName, archivedMeeting.meeting_id);
+            List<Attendance> attendances = attendanceModel.GetByFK(archivedMeeting.IDName, archivedMeeting.id);
             List<Object[]> userAttendance = new List<Object[]>();
 
             List<MeetingAndUser> mulist = muModel.GetByFK("meeting_id", archivedMeeting.meeting_id);
@@ -270,37 +311,46 @@ namespace IrtsBurtgel
 
         public bool StartMeeting(Meeting meeting)
         {
-            ArchivedMeeting archivedMeeting = new ArchivedMeeting();
-            if (meeting.GetType() == typeof(ModifiedMeeting))
+            List<ArchivedMeeting> archivedMeetings = GetArchivedMeetingByDate(DateTime.Now);
+            ArchivedMeeting archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == meeting.id).Find(x => (x.meetingDatetime < DateTime.Now && x.meetingDatetime.AddMinutes(x.duration) > DateTime.Now));
+
+            if (archivedMeeting == null)
             {
-                archivedMeeting.meeting_id = ((ModifiedMeeting)meeting).meeting_id;
-                archivedMeeting.modifiedMeeting_id = meeting.id;
+                archivedMeeting = new ArchivedMeeting();
+
+                if (meeting.GetType() == typeof(ModifiedMeeting))
+                {
+                    archivedMeeting.meeting_id = ((ModifiedMeeting)meeting).meeting_id;
+                    archivedMeeting.modifiedMeeting_id = meeting.id;
+                }
+                else
+                {
+                    archivedMeeting.meeting_id = meeting.id;
+                }
+
+                archivedMeeting.meetingDatetime = DateTime.Now;
+                archivedMeeting.duration = meeting.duration;
+                archivedMeeting.name = meeting.name;
+
+                int archivedMeetingId = archivedMeetingModel.Add(archivedMeeting);
+
+                if (archivedMeetingId != -1)
+                {
+                    archivedMeeting.id = archivedMeetingId;
+                }
+                else
+                {
+                    return false;
+                }
             }
-            else
-            {
-                archivedMeeting.meeting_id = meeting.id;
-            }
 
-            archivedMeeting.meetingDatetime = DateTime.Now;
-            archivedMeeting.duration = meeting.duration;
-            archivedMeeting.name = meeting.name;
+            onGoingMeeting = meeting;
+            onGoingArchivedMeeting = archivedMeeting;
+            onGoingMeetingUserAttendance = GetMeetingUserAttendances(archivedMeeting);
 
-            int archivedMeetingId = archivedMeetingModel.Add(archivedMeeting);
-
-            if (archivedMeetingId != -1)
-            {
-                archivedMeeting.id = archivedMeetingId;
-
-                onGoingMeeting = meeting;
-                onGoingArchivedMeeting = archivedMeeting;
-                onGoingMeetingUserAttendance = GetMeetingUserAttendances(archivedMeeting);
-
-                scannerHandler.InitializeDevice();
-                scannerHandler.StartCaptureThread();
-                return true;
-            }
-
-            return false;
+            scannerHandler.InitializeDevice();
+            scannerHandler.StartCaptureThread();
+            return true;
         }
 
         public bool StopMeeting()
@@ -316,7 +366,7 @@ namespace IrtsBurtgel
                         attendanceModel.Set(attendance);
                     }
                 }
-                scannerHandler.StopThread();
+                scannerHandler.Stop();
                 return true;
             }
 

@@ -57,6 +57,7 @@ namespace IrtsBurtgel
                 id = (int)reader["a_meeting_id"],
                 name = (string)reader["name"],
                 meeting_id = (int)reader["meeting_id"],
+                duration = (int)reader["duration"],
                 modifiedMeeting_id = reader["m_meeting_id"].GetType() != typeof(int) ? -1 : (int)reader["m_meeting_id"],
                 meetingDatetime = (DateTime)reader["meeting_datetime"],
                 protocol = (string)reader["protocol"]
