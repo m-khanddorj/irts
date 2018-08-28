@@ -1,14 +1,14 @@
 
 CREATE TABLE "position" (
                 position_id INT IDENTITY NOT NULL,
-                name VARCHAR(255) NOT NULL,
+                name NVARCHAR(255) NOT NULL,
                 is_deleted BIT DEFAULT 0 NOT NULL,
                 CONSTRAINT position_id PRIMARY KEY (position_id)
 )
 
 CREATE TABLE department (
                 department_id INT IDENTITY NOT NULL,
-                name VARCHAR(255) NOT NULL,
+                name NVARCHAR(255) NOT NULL,
                 is_deleted BIT DEFAULT 0 NOT NULL,
                 CONSTRAINT department_id PRIMARY KEY (department_id)
 )
@@ -37,7 +37,7 @@ CREATE TABLE "user" (
 
 CREATE TABLE event (
                 event_id INT IDENTITY NOT NULL,
-                name VARCHAR(255) DEFAULT 50 NOT NULL,
+                name NVARCHAR(255) NOT NULL,
                 start_date DATETIME NOT NULL,
                 end_date DATETIME NOT NULL,
                 interval_type TINYINT NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE event (
 
 CREATE TABLE status (
                 status_id INT IDENTITY NOT NULL,
-                name VARCHAR(50) NOT NULL,
+                name NVARCHAR(50) NOT NULL,
                 is_primary BIT DEFAULT 0 NOT NULL,
                 CONSTRAINT status_id PRIMARY KEY (status_id)
 )
@@ -68,12 +68,13 @@ CREATE TABLE meeting (
                 meeting_id INT IDENTITY NOT NULL,
                 start_datetime DATETIME NOT NULL,
                 duration INT NOT NULL,
-                name VARCHAR(255) NOT NULL,
+                name NVARCHAR(255) NOT NULL,
                 is_deleted BIT DEFAULT 0 NOT NULL,
                 end_date DATETIME,
                 interval_type TINYINT DEFAULT 0 NOT NULL,
                 interval_day INT DEFAULT 0,
                 week TINYINT DEFAULT 0,
+                reg_bef_meeting INT DEFAULT 15 NOT NULL,
                 CONSTRAINT meeting_id PRIMARY KEY (meeting_id)
 )
 
@@ -93,7 +94,7 @@ CREATE TABLE meeting_and_department (
 
 CREATE TABLE modified_meeting (
                 m_meeting_id INT IDENTITY NOT NULL,
-                name VARCHAR(255) NOT NULL,
+                name NVARCHAR(255) NOT NULL,
                 start_datetime DATETIME NOT NULL,
                 duration INT NOT NULL,
                 is_deleted BIT DEFAULT 0 NOT NULL,
@@ -111,7 +112,7 @@ CREATE TABLE archived_meeting (
                 protocol VARCHAR(255),
                 meeting_datetime DATETIME NOT NULL,
                 duration INT NOT NULL,
-                name VARCHAR(255) NOT NULL,
+                name NVARCHAR(255) NOT NULL,
                 CONSTRAINT a_meeting_id PRIMARY KEY (a_meeting_id)
 )
 
@@ -120,7 +121,7 @@ CREATE TABLE attendance (
                 user_id INT NOT NULL,
                 status_id INT NOT NULL,
                 a_meeting_id INT NOT NULL,
-                reg_time DATETIME NOT NULL,
+                reg_time INT,
                 CONSTRAINT attendance_id PRIMARY KEY (attendance_id)
 )
 

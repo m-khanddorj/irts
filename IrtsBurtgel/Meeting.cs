@@ -17,6 +17,7 @@ namespace IrtsBurtgel
         public byte intervalType;
         public byte week;
         public int intervalDay;
+        public int regMinBefMeeting;
         public string name;
         public DateTime startDatetime;
         public DateTime endDate;
@@ -45,6 +46,7 @@ namespace IrtsBurtgel
             list.Add(new Object[] { "duration", duration });
             list.Add(new Object[] { "interval_type", intervalType });
             list.Add(new Object[] { "interval_day", intervalDay });
+            list.Add(new Object[] { "reg_bef_meeting", regMinBefMeeting });
             list.Add(new Object[] { "week", week });
             list.Add(new Object[] { "is_deleted", isDeleted });
             list.Add(new Object[] { "start_datetime", startDatetime });
@@ -68,6 +70,7 @@ namespace IrtsBurtgel
                 duration = (int)reader["duration"],
                 intervalType = (byte)reader["interval_type"],
                 intervalDay = (int)reader["interval_day"],
+                regMinBefMeeting = (int)reader["reg_bef_meeting"],
                 week = (byte)reader["Week"],
                 isDeleted = (bool)reader["is_deleted"]
             };

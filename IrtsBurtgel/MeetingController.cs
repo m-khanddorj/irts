@@ -81,16 +81,17 @@ namespace IrtsBurtgel
                 {
                     if (meeting.duration > 0)
                     {
-                        if (meeting.startDatetime.Hour == now.Hour && meeting.startDatetime.Minute == now.Minute)
+                        int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting:meeting.regMinBefMeeting;
+                        if (meeting.startDatetime.AddMinutes(-regbefminute).Hour == now.Hour && meeting.startDatetime.AddMinutes(-regbefminute).Minute == now.Minute)
                         {
-                            Console.WriteLine("Meeting time occured. Start meeting.");
+                            Console.WriteLine("Meeting time occured. Start meeting registration.");
                             StartMeeting(meeting);
                             status = MEETING_STARTED;
                             Console.WriteLine("Setted Status = " + status.ToString());
                             return;
                         }
 
-                        if (meeting.startDatetime.TimeOfDay < now.TimeOfDay && meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay > now.TimeOfDay)
+                        if (meeting.startDatetime.AddMinutes(-regbefminute).TimeOfDay < now.TimeOfDay && meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay > now.TimeOfDay)
                         {
                             Console.WriteLine("Detected ongoing meeting. Fast forwarding meeting.");
                             StartMeeting(meeting);
@@ -136,7 +137,6 @@ namespace IrtsBurtgel
             //Checking todays meetings
             List<Meeting> meetings = FindByDate(day);
             if (meetings == null || meetings.Count == 0) return "Хурал байхгүй байна.";
-            meetings = meetings.OrderBy(o => o.startDatetime).ToList();
             foreach(Meeting m in meetings)
             {
                 if(m.startDatetime.AddMinutes(m.duration) > now)
@@ -145,15 +145,23 @@ namespace IrtsBurtgel
                     break;
                 }
             }
+
             day = day.AddDays(1);
             while (meeting == null)
             {
                 while (FindByDate(day).Count == 0) day = day.AddDays(1);
                 meeting = FindByDate(day)[0];
             }
-            if(meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
+
+            int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
+
+            if (meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
             {
                 return "Хурал эхлээд " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут болж байна";
+            }
+            else if(meeting.startDatetime.AddMinutes(-regbefminute) < DateTime.Now && meeting.startDatetime > DateTime.Now)
+            {
+                return "Дараагийн хурал " + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm") + ". Бүртгэл эхэлсэн байна.";
             }
             else
             {
@@ -320,8 +328,8 @@ namespace IrtsBurtgel
                 {
                     attendance = new Attendance();
                     attendance.archivedMeetingId = archivedMeeting.id;
-                    attendance.statusId = 14;
-                    attendance.regTime = DateTime.Parse("1997-10-21");
+                    attendance.statusId = 15;
+                    attendance.regTime = -1;
                     attendance.userId = user.id;
 
                     List<UserStatus> userStatusHistory = userStatusModel.GetByFK(user.IDName, user.id);
@@ -353,16 +361,17 @@ namespace IrtsBurtgel
 
         public bool StartMeeting(Meeting meeting)
         {
-            List<ArchivedMeeting> archivedMeetings = GetArchivedMeetingByDate(DateTime.Now);
+            DateTime now = DateTime.Now;
+            List<ArchivedMeeting> archivedMeetings = GetArchivedMeetingByDate(now);
             ArchivedMeeting archivedMeeting;
 
             if (meeting.GetType() == typeof(ModifiedMeeting))
             {
-                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == ((ModifiedMeeting)meeting).meeting_id).Find(x => (x.meetingDatetime < DateTime.Now && x.meetingDatetime.AddMinutes(x.duration) > DateTime.Now));
+                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == ((ModifiedMeeting)meeting).meeting_id).Find(x => (x.meetingDatetime < now && x.meetingDatetime.AddMinutes(x.duration) > now));
             }
             else
             {
-                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == meeting.id).Find(x => (x.meetingDatetime < DateTime.Now && x.meetingDatetime.AddMinutes(x.duration) > DateTime.Now));
+                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == meeting.id).Find(x => (x.meetingDatetime < now && x.meetingDatetime.AddMinutes(x.duration) > now));
             }
 
 
@@ -380,7 +389,7 @@ namespace IrtsBurtgel
                     archivedMeeting.meeting_id = meeting.id;
                 }
 
-                archivedMeeting.meetingDatetime = DateTime.Now;
+                archivedMeeting.meetingDatetime = now.Date + (meeting.startDatetime).TimeOfDay;
                 archivedMeeting.duration = meeting.duration;
                 archivedMeeting.name = meeting.name;
 
@@ -413,9 +422,9 @@ namespace IrtsBurtgel
                 foreach (Object[] userAttendance in onGoingMeetingUserAttendance)
                 {
                     Attendance attendance = (Attendance)userAttendance[1];
-                    if (attendance.statusId == 14)
+                    if (attendance.statusId == 15)
                     {
-                        attendance.statusId = 13;
+                        attendance.statusId = 14;
                         attendanceModel.Set(attendance);
                     }
                 }
