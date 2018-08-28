@@ -190,10 +190,19 @@ namespace IrtsBurtgel
                     return false;
                 }
 
-                if (((Attendance)identifiedAttendance[1]).regTime == DateTime.Parse("1997-10-21"))
+                if (((Attendance)identifiedAttendance[1]).statusId == 15)
                 {
-                    ((Attendance)identifiedAttendance[1]).statusId = 1;
-                    ((Attendance)identifiedAttendance[1]).regTime = DateTime.Now;
+                    DateTime now = DateTime.Now;
+                    if(now > meetingController.onGoingArchivedMeeting.meetingDatetime)
+                    {
+                        ((Attendance)identifiedAttendance[1]).statusId = 2;
+                        ((Attendance)identifiedAttendance[1]).regTime = (int)Math.Floor((now - meetingController.onGoingArchivedMeeting.meetingDatetime).TotalMinutes);
+                    }
+                    else
+                    {
+                        ((Attendance)identifiedAttendance[1]).statusId = 1;
+                        ((Attendance)identifiedAttendance[1]).regTime = -1;
+                    }
                     meetingController.attendanceModel.Set(((Attendance)identifiedAttendance[1]));
                 }
 

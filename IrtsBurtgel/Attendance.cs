@@ -16,7 +16,7 @@ namespace IrtsBurtgel
         public int userId;
         public int statusId;
         public int archivedMeetingId;
-        public DateTime regTime;
+        public int regTime;
 
         public Attendance()
         {
@@ -24,7 +24,7 @@ namespace IrtsBurtgel
             userId = -1;
             statusId = -1;
             archivedMeetingId = -1;
-            regTime = new DateTime();
+            regTime = -1;
         }
         
         public override List<Object[]> ToKVStringList()
@@ -34,10 +34,7 @@ namespace IrtsBurtgel
             if (userId != -1) list.Add(new Object[] { "user_id", userId });
             if (statusId != -1) list.Add(new Object[] { "status_id", statusId });
             if (archivedMeetingId != -1) list.Add(new Object[] { "a_meeting_id", archivedMeetingId });
-            if (DateTime.Compare(regTime, new DateTime()) != 0)
-            {
-                list.Add(new Object[] { "reg_time", regTime });
-            }
+            if (regTime != -1) list.Add(new Object[] { "reg_time", regTime });
             return list;
         }
 
@@ -49,7 +46,7 @@ namespace IrtsBurtgel
                 userId = (int)reader["user_id"],
                 archivedMeetingId = (int)reader["a_meeting_id"],
                 statusId = (int)reader["status_id"],
-                regTime = (DateTime)reader["reg_time"]
+                regTime = reader["reg_time"].GetType() != typeof(int) ? -1 : (int)reader["reg_time"]
             };
         }
     }

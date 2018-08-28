@@ -16,7 +16,6 @@ namespace IrtsBurtgel
         public string username;
         public string password;
         public string organizationName;
-        public bool isDeleted;
 
         public Admin()
         {

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace IrtsBurtgel
 {
@@ -20,6 +21,12 @@ namespace IrtsBurtgel
 
         public string ExportAttendance(Meeting meeting, DateTime startDate, DateTime endDate, string filename)
         {
+            if(meeting == null)
+            {
+                MessageBox.Show("Тайлан гаргах хурлаа сонгоно уу!");
+                return "";
+            }
+
             using (var package = new ExcelPackage())
             {
                 // Add a new worksheet to the empty workbook
@@ -102,8 +109,9 @@ namespace IrtsBurtgel
                             switch (attendance.statusId)
                             {
                                 case 1: status = "И"; break;
-                                case 13: status = "Т"; break;
-                                case 14: status = "Б"; break;
+                                case 2: status = "Х(" + attendance.regTime.ToString() + ")"; break;
+                                case 14: status = "Т"; break;
+                                case 15: status = "Б"; break;
                                 default: status = "Ш"; break;
                             }
                             worksheet.Cells[j + 2, i + 5].Value = status;
