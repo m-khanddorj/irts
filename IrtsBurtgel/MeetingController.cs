@@ -130,12 +130,12 @@ namespace IrtsBurtgel
         public string TextToDisplay()
         {
             DateTime time = DateTime.Today;
-            if (meetingModel.GetAll() == null) return "Хурал байхгүй байна.";
             Meeting meeting = null;
             DateTime now = DateTime.Now; //Don't change it
             DateTime day = DateTime.Today;
             //Checking todays meetings
             List<Meeting> meetings = FindByDate(day);
+            if (meetings == null || meetings.Count == 0) return "Хурал байхгүй байна.";
             meetings = meetings.OrderBy(o => o.startDatetime).ToList();
             foreach(Meeting m in meetings)
             {
@@ -153,11 +153,11 @@ namespace IrtsBurtgel
             }
             if(meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
             {
-                return "Хурал эхлээд " + (DateTime.Now - meeting.startDatetime).TotalMinutes + "минут болж байна";
+                return "Хурал эхлээд " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут болж байна";
             }
             else
             {
-                return "Дараагийн хурал " + meeting.startDatetime.ToString();
+                return "Дараагийн хурал " + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm");
             }
         }
 
@@ -334,7 +334,15 @@ namespace IrtsBurtgel
                         }
                     }
 
-                    attendanceModel.Add(attendance);
+                    int id = attendanceModel.Add(attendance);
+                    if (id == -1)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        attendance.id = id;
+                    }
                 }
 
                 userAttendance.Add(new Object[] { user, attendance });
@@ -400,7 +408,7 @@ namespace IrtsBurtgel
         public bool StopMeeting()
         {
             
-if (onGoingMeetingUserAttendance.Count > 0)
+            if (onGoingMeetingUserAttendance != null && onGoingMeetingUserAttendance.Count > 0)
             {
                 foreach (Object[] userAttendance in onGoingMeetingUserAttendance)
                 {

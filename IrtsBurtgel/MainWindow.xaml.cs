@@ -396,6 +396,7 @@ namespace IrtsBurtgel
         {
             RightSide.Children.Clear();
             LeftSide.Children.Clear();
+            LeftSide.Tag = DateTime.Now;
 
             List<Object> list = new List<Object>();
             Label header = new Label();
