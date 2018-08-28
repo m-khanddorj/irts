@@ -24,7 +24,6 @@ namespace IrtsBurtgel
             username = "";
             password = "";
             organizationName = "";
-            isDeleted = false;
         }
 
         public override List<Object[]> ToKVStringList()
@@ -37,7 +36,6 @@ namespace IrtsBurtgel
             list.Add(new Object[] { "username", username });
             list.Add(new Object[] { "password", password });
             list.Add(new Object[] { "organization_name", organizationName });
-            list.Add(new Object[] { "is_deleted", isDeleted });
             return list;
         }
 
@@ -48,8 +46,7 @@ namespace IrtsBurtgel
                 id = (int)reader["admin_id"],
                 username = (string)reader["username"],
                 password = (string)reader["password"],
-                organizationName = (string)reader["organization_name"],
-                isDeleted = (bool)reader["is_deleted"]
+                organizationName = (string)reader["organization_name"]
             };
         }
     }

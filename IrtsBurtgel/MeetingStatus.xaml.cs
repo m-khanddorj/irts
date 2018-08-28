@@ -19,9 +19,13 @@ namespace IrtsBurtgel
     /// </summary>
     public partial class MeetingStatus : Window
     {
+        Model<Admin> adminModel;
         public MeetingStatus()
         {
             InitializeComponent();
+            adminModel = new Model<Admin>();
+
+            OrgTitle.Content = adminModel.GetAll()[0].organizationName;
         }
 
         private void Expand(object sender, RoutedEventArgs e)

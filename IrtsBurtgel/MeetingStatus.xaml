@@ -14,19 +14,16 @@
             <Label x:Name="Attendance" Content="12" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="36" Foreground="#fff"/>
             <Label x:Name="OrgTitle" Content="Org" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="36" Foreground="White"/>
         </DockPanel>
-        <Grid Background="White" ShowGridLines="True">
+        <Grid Background="White" ShowGridLines="True" x:Name="status">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Label Grid.Column="0" Grid.Row="0" Content="Bat-Orgil"/>
-            <Label Grid.Column="1" Grid.Row="0" Content="15"/>
-            <Label Grid.Column="0" Grid.Row="1" Content="Batsukh"/>
-            <Label Grid.Column="1" Grid.Row="1" Content="15"/>
+            <Label Grid.Column="0" Grid.Row="0" Content="Ажилтны нэр"/>
+            <Label Grid.Column="1" Grid.Row="0" Content="Хоцорсон минут"/>
         </Grid>
     </StackPanel>
 </Window>
