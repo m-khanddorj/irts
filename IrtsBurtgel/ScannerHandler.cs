@@ -35,6 +35,7 @@ namespace IrtsBurtgel
 
         private Thread captureThread;
         private MeetingController meetingController;
+        private List<MeetingStatus> meetingStatusWindows;
 
         const int MESSAGE_CAPTURED_OK = 0x0400 + 6;
 
@@ -75,7 +76,7 @@ namespace IrtsBurtgel
             }
         }
 
-        public bool StartCaptureThread()
+        public bool StartCaptureThread(List<MeetingStatus> meetingStatusWindows)
         {
             int ret = zkfp.ZKFP_ERR_OK;
             if (IntPtr.Zero == (mDevHandle = zkfp2.OpenDevice(0)))
@@ -108,6 +109,7 @@ namespace IrtsBurtgel
 
             Console.WriteLine("reader parameter, image width:" + mfpWidth + ", height:" + mfpHeight + ", dpi:" + mfpDpi);
 
+            this.meetingStatusWindows = meetingStatusWindows;
             captureThread = new Thread(new ThreadStart(DoCapture));
             captureThread.IsBackground = true;
             captureThread.Start();
@@ -204,6 +206,11 @@ namespace IrtsBurtgel
                         ((Attendance)identifiedAttendance[1]).regTime = -1;
                     }
                     meetingController.attendanceModel.Set(((Attendance)identifiedAttendance[1]));
+                }
+
+                foreach (MeetingStatus ms in meetingStatusWindows)
+                {
+                    
                 }
 
             }

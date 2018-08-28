@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -23,11 +24,12 @@ namespace IrtsBurtgel
             positionModel = new Model<Position>(true);
         }
 
-        public bool ImportUserData(string excelpath, string datpath)
+        public bool ImportUserData(string excelpath, string datpath, string imagepath)
         {
             bool result;
             try
             {
+                ImportImagesOfUserFromFolder(imagepath);
                 result = ImportFromExcel(excelpath, ImportDat(datpath));
                 return result;
             }
@@ -165,6 +167,15 @@ namespace IrtsBurtgel
             }
 
             return result;
+        }
+
+        public void ImportImagesOfUserFromFolder(string path)
+        {
+            string targetDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location + "/userimages/");
+            Directory.CreateDirectory(targetDir);
+            
+            foreach (var file in Directory.GetFiles(path))
+                File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
         }
 
         //Reader should be selected user sheet

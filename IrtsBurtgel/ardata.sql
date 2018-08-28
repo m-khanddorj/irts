@@ -1,20 +1,4 @@
-﻿INSERT INTO [dbo].[archived_meeting]
-           ([meeting_id]
-		   ,[name]
-           ,[protocol]
-           ,[meeting_datetime]
-           ,[duration])
-     VALUES
-           (1,'TestArchivedMeeting1' , 'Protocol1', '20180823', '25');
-
-INSERT INTO [dbo].[meeting_and_user]
-           ([user_id]
-           ,[meeting_id])
-     VALUES
-           (1, 1),
-		   (2, 1);
-		   
-INSERT INTO [dbo].[status]
+﻿INSERT INTO [dbo].[status]
            ([name]
            ,[is_primary])
      VALUES
@@ -34,24 +18,15 @@ INSERT INTO [dbo].[status]
            (N'Тасалсан', 1),			/*14*/
            (N'Тодорхойгүй', 1);			/*15*/
 
-INSERT INTO [dbo].[user_status]
-           ([start_date]
-           ,[end_date]
-           ,[user_id]
-           ,[status_id]
-           ,[is_deleted])
-     VALUES
-           ('20180821', '20180824', 3, 2, 0);
-		   
 
-INSERT INTO [dbo].[attendance]
-           ([reg_time]
-           ,[a_meeting_id]
-           ,[user_id]
-           ,[status_id])
-     VALUES
-           ('2018-08-21 15:14', 3, 2, 2);
-
+INSERT INTO [dbo].[admin]
+			([username]
+			,[password]
+			,[organization_name]
+			,[reg_date]
+			)
+ 	  VALUES
+			('admin', 'password', 'Name', NOW());
 
 
 

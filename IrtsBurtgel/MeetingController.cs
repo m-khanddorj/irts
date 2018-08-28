@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -35,6 +37,7 @@ namespace IrtsBurtgel
         public int status;
 
         public Timer aTimer;
+        public List<MeetingStatus> meetingStatusWindows;
 
         public MeetingController()
         {
@@ -81,8 +84,9 @@ namespace IrtsBurtgel
                 {
                     if (meeting.duration > 0)
                     {
-                        int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting:meeting.regMinBefMeeting;
-                        if (meeting.startDatetime.AddMinutes(-regbefminute).Hour == now.Hour && meeting.startDatetime.AddMinutes(-regbefminute).Minute == now.Minute)
+                        int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
+                        
+                        if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).Hour == now.Hour && meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).Minute == now.Minute)
                         {
                             Console.WriteLine("Meeting time occured. Start meeting registration.");
                             StartMeeting(meeting);
@@ -91,7 +95,7 @@ namespace IrtsBurtgel
                             return;
                         }
 
-                        if (meeting.startDatetime.AddMinutes(-regbefminute).TimeOfDay < now.TimeOfDay && meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay > now.TimeOfDay)
+                        if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).TimeOfDay < now.TimeOfDay && meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay > now.TimeOfDay)
                         {
                             Console.WriteLine("Detected ongoing meeting. Fast forwarding meeting.");
                             StartMeeting(meeting);
@@ -135,23 +139,31 @@ namespace IrtsBurtgel
             DateTime now = DateTime.Now; //Don't change it
             DateTime day = DateTime.Today;
             //Checking todays meetings
-            List<Meeting> meetings = FindByDate(day);
+            List<Meeting> meetings = meetingModel.GetAll();
             if (meetings == null || meetings.Count == 0) return "Хурал байхгүй байна.";
-            foreach(Meeting m in meetings)
+
+            for (int i = 0; i < 7; i++)
             {
-                if(m.startDatetime.AddMinutes(m.duration) > now)
+                meetings = FindByDate(day);
+                if (meetings != null && meetings.Count > 0)
                 {
-                    meeting = m;
-                    break;
+                    foreach (Meeting m in meetings)
+                    {
+                        if (m.startDatetime.AddMinutes(m.duration).TimeOfDay > now.TimeOfDay)
+                        {
+                            meeting = m;
+                            break;
+                        }
+                    }
+                    if(meeting != null)
+                    {
+                        break;
+                    }
                 }
+                day = day.AddDays(1);
             }
 
-            day = day.AddDays(1);
-            while (meeting == null)
-            {
-                while (FindByDate(day).Count == 0) day = day.AddDays(1);
-                meeting = FindByDate(day)[0];
-            }
+            if (meeting == null) return "Хурал байхгүй байна.";
 
             int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
 
@@ -159,7 +171,7 @@ namespace IrtsBurtgel
             {
                 return "Хурал эхлээд " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут болж байна";
             }
-            else if(meeting.startDatetime.AddMinutes(-regbefminute) < DateTime.Now && meeting.startDatetime > DateTime.Now)
+            else if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)) < DateTime.Now && meeting.startDatetime > DateTime.Now)
             {
                 return "Дараагийн хурал " + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm") + ". Бүртгэл эхэлсэн байна.";
             }
@@ -410,13 +422,13 @@ namespace IrtsBurtgel
             onGoingMeetingUserAttendance = GetMeetingUserAttendances(archivedMeeting);
 
             scannerHandler.InitializeDevice();
-            scannerHandler.StartCaptureThread();
+            scannerHandler.StartCaptureThread(meetingStatusWindows);
             return true;
         }
 
         public bool StopMeeting()
         {
-            
+
             if (onGoingMeetingUserAttendance != null && onGoingMeetingUserAttendance.Count > 0)
             {
                 foreach (Object[] userAttendance in onGoingMeetingUserAttendance)
@@ -582,6 +594,18 @@ namespace IrtsBurtgel
             catch (Exception ex)
             {
                 return new List<User>();
+            }
+        }
+
+        public string GetUserImage(User user)
+        {
+            if (File.Exists(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/userimages/" + user.pin + ".jpg"))
+            {
+                return Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/userimages/" + user.pin + ".jpg";
+            }
+            else
+            {
+                return "";
             }
         }
 
