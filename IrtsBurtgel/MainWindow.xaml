@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="Ирц бүртгэлийн систем" MinHeight="450" MinWidth="900" Height="450" Width ="900">
+        Title="Ирц бүртгэлийн систем" MinHeight="500" MinWidth="900" Height="500" Width ="900" WindowStartupLocation="CenterScreen"  Icon="images/time-logo.png">
     <Window.Resources>
         <Style x:Key="blue_background" TargetType="{x:Type Rectangle}">
             <Setter Property="Fill" Value="#FF007ACC"/>
@@ -24,10 +24,8 @@
         <Grid Grid.Column="0" Background="#FF007ACC">
             <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="LeftSide">
                 <DockPanel>
-                    <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="36" Height="30" Background="{x:Null}" BorderBrush="{x:Null}" DockPanel.Dock="Top" Click="showStatus">
-                        <Image Height="30" Width="30" Source="images/eye.png" RenderTransformOrigin="0.5,0.5"/>
-                    </Button>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" x:Name="Login">
+                        <TextBlock Margin="0 20" TextAlignment="Center" FontSize="20" Foreground="White" Text="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ"/>
                         <Label Content="Нэвтрэх нэр" Height="25" Width="225" Foreground="White"/>
                         <TextBox HorizontalAlignment="Center" x:Name="username" TextWrapping="Wrap" Padding="5" Width="225"/>
                         <Label Content="Нууц үг" Foreground="White" Width="225"/>
@@ -36,14 +34,21 @@
                     </StackPanel>
                 </DockPanel>
             </DockPanel>
+            <TextBlock Margin="5" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="10" Foreground="White" Text="©Бүх эрх хуулиар хамгаалагдсан. Болорсофт ХХК. 2018 он."/>
         </Grid>
         <Grid Grid.Column="1">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"  Width="450"  x:Name="RightSide">
-                <TextBlock x:Name="time" FontSize="20" TextWrapping="Wrap" Margin="10,10,10,10" />
+                <Image Height="200" Width="200" Source="images/logo.jpg"/>
+                <TextBlock Margin="20 5 20 30" FontSize="15" HorizontalAlignment="Center" Text="ЦЕГ-ын Эрүүгийн Цагдаагийн алба"/>
+                <TextBlock HorizontalAlignment="Center" Text="Дараагийн хурал:"/>
+                <TextBlock x:Name="time" TextAlignment="Center" FontWeight="Bold" FontSize="20" TextWrapping="Wrap" Margin="10" />
+                <Button HorizontalAlignment="Center" Width="120" Height="32" Background="#FF007ACC" BorderBrush="{x:Null}" DockPanel.Dock="Top" Click="showStatus">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Height="30" Width="30" Source="images/eye.png" RenderTransformOrigin="0.5,0.5"/>
+                        <Label Padding="10 0" VerticalAlignment="Center" Foreground="White"> Ирц харах</Label>
+                    </StackPanel>
+                </Button>
             </StackPanel>
-            </Grid>
-
-
-
+        </Grid>
     </Grid>
 </Window>

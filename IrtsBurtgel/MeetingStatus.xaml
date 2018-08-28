@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="Window1" Height="450" Width="800">
+        Title="ХУРЛЫН ИРЦ БҮРТГЭЛ" Height="450" Width="800" WindowStartupLocation="Manual" Icon="images/time-logo.png">
     <StackPanel Background="#FF007ACC">
         <DockPanel>
             <Button DockPanel.Dock="Right" Width="58" Height="58" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
