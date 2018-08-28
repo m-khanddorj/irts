@@ -55,6 +55,7 @@ namespace IrtsBurtgel
         }
         private void Update(List<Object[]> latePeople)
         {
+            AttendanceLabel.Content = latePeople.Count;
             status.RowDefinitions.Clear();
             status.Children.Clear();
 

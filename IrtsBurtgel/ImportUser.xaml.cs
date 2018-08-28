@@ -68,7 +68,12 @@ namespace IrtsBurtgel
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            if(c==2) this.DialogResult = true;
+            if(c==3) this.DialogResult = true;
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            
         }
     }
 }

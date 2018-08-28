@@ -47,9 +47,16 @@ namespace IrtsBurtgel
             mapModel = new Model<MeetingAndPosition>();
             modifiedMeetingModel = new Model<ModifiedMeeting>();
 
+            System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
+            dispatcherTimer.Start();
+        }
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
             time.Text = meetingController.TextToDisplay();
         }
-        
+
         public void login(object sender, RoutedEventArgs e)
         {
             if (username.Text == "admin" && password.Password == "admin") showMenu();
@@ -549,6 +556,22 @@ namespace IrtsBurtgel
 
             sdStack.Children.Add(sdLabel);
             sdStack.Children.Add(sd);
+
+            /**Registration start time
+             */
+            StackPanel regStartStack = new StackPanel();
+            regStartStack.Orientation = Orientation.Horizontal;
+            regStartStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label regStartLabel = new Label();
+            regStartLabel.Content = "Хурлын бүртгэл хэдэн минутын өмнө эхлэх:";
+            regStartLabel.Width = 215;
+            TextBox regStart = new TextBox();
+            regStart.Width = 215;
+            controls.Add(regStart);
+
+            regStartStack.Children.Add(regStartLabel);
+            regStartStack.Children.Add(regStart);
             /**
                 * duration Stack
                 */
@@ -795,6 +818,7 @@ namespace IrtsBurtgel
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
             stackPanel.Children.Add(sdStack);
+            stackPanel.Children.Add(regStartStack);
 
             stackPanel.Children.Add(durationStack);
             stackPanel.Children.Add(edStack);
@@ -819,12 +843,13 @@ namespace IrtsBurtgel
             string name = ((TextBox)controls[0]).Text;
             string st = ((TextBox)controls[1]).Text;
             string sd = ((DateTime)((DatePicker)controls[2]).SelectedDate).ToShortDateString();
-            string duration = ((TextBox)controls[3]).Text;
-            string ed = ((DatePicker)controls[4]).Text;
-            ComboBox freqType = (ComboBox)controls[5];
-            ListBox pDeps = (ListBox)controls[6];
-            ListBox pUsers = (ListBox)controls[7];
-            ListBox pPositions = (ListBox)controls[8];
+            string regStart = ((TextBox)controls[3]).Text;
+            string duration = ((TextBox)controls[4]).Text;
+            string ed = ((DatePicker)controls[5]).Text;
+            ComboBox freqType = (ComboBox)controls[6];
+            ListBox pDeps = (ListBox)controls[7];
+            ListBox pUsers = (ListBox)controls[8];
+            ListBox pPositions = (ListBox)controls[9];
 
             Meeting meeting = new Meeting();
             meeting.name = name;
@@ -836,6 +861,16 @@ namespace IrtsBurtgel
             catch (Exception ex)
             {
                 MessageBox.Show("Та хурал эхлэх цагаа цаг:минут гэсэн хэлбэртэйгээр оруулна уу!");
+                return;
+            }
+            /**checking time and inserting*/
+            try
+            {
+                meeting.regMinBefMeeting = Int32.Parse(regStart);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Хурлын бүртгэл хэдэн минутын өмнө эхлэх талбарыг зөв бөглөнө үү");
                 return;
             }
             /** checking and inserting duration*/
@@ -1006,6 +1041,22 @@ namespace IrtsBurtgel
 
             sdStack.Children.Add(sdLabel);
             sdStack.Children.Add(sd);
+            /**Registration start time
+             */
+            StackPanel regStartStack = new StackPanel();
+            regStartStack.Orientation = Orientation.Horizontal;
+            regStartStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label regStartLabel = new Label();
+            regStartLabel.Content = "Хурал эхлэх цаг:";
+            regStartLabel.Width = 215;
+            TextBox regStart = new TextBox();
+            regStart.Width = 215;
+            regStart.Text = ((DateTime)meeting.startDatetime).ToShortTimeString();
+            //controls.Add(regStart);
+
+            regStartStack.Children.Add(regStartLabel);
+            regStartStack.Children.Add(regStart);
             /**
                 * ending time Stack
                 */
