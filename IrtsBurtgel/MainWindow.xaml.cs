@@ -55,6 +55,7 @@ namespace IrtsBurtgel
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
             time.Text = meetingController.TextToDisplay();
+            meetingController.CheckMeeting();
         }
 
         public void login(object sender, RoutedEventArgs e)
