@@ -69,7 +69,26 @@ namespace IrtsBurtgel
         private void showStatus(object sender, RoutedEventArgs e)
         {
             MeetingStatus meetingStatus = new MeetingStatus();
-            meetingStatus.Visibility = Visibility.Visible;
+            meetingStatus.WindowStartupLocation = WindowStartupLocation.Manual;
+
+            //Debug.Assert(System.Windows.Forms.SystemInformation.MonitorCount > 1);
+            if (System.Windows.Forms.Screen.AllScreens.Length > 1)
+            {
+                System.Drawing.Rectangle workingArea = System.Windows.Forms.Screen.AllScreens[1].WorkingArea;
+                meetingStatus.Left = workingArea.Left;
+                meetingStatus.Top = workingArea.Top;
+                meetingStatus.Width = workingArea.Width;
+                meetingStatus.Height = workingArea.Height;
+                meetingStatus.WindowState = WindowState.Maximized;
+                meetingStatus.WindowStyle = WindowStyle.None;
+                meetingStatus.Topmost = true;
+                meetingStatus.Show();
+            }
+            else
+            {
+                meetingStatus.Show();
+            }
+            //meetingStatus.Visibility = Visibility.Visible;
             //meetingController.StartMeeting(meetingModel.Get(3));
         }
 

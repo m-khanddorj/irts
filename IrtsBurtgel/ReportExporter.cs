@@ -19,9 +19,9 @@ namespace IrtsBurtgel
             meetingController = mc;
         }
 
-        public string ExportAttendance(Meeting meeting, DateTime startDate, DateTime endDate, string filename)
+        public string ExportAttendance(List<Meeting> meetings, DateTime startDate, DateTime endDate, string filename)
         {
-            if(meeting == null)
+            if(meetings == null || meetings.Count == 0)
             {
                 MessageBox.Show("Тайлан гаргах хурлаа сонгоно уу!");
                 return "";
@@ -37,7 +37,7 @@ namespace IrtsBurtgel
                 worksheet.Cells[1, 3].Value = "Хэлтэс";
                 worksheet.Cells[1, 4].Value = "Албан тушаал";
 
-                List<ArchivedMeeting> archivedMeetings = meetingController.archivedMeetingModel.GetByFK(meeting.IDName, meeting.id);
+                List<ArchivedMeeting> archivedMeetings = meetingController.archivedMeetingModel.GetByFK(meetings.First().IDName, meetings.Select(x => x is ModifiedMeeting? (((ModifiedMeeting)x).meeting_id):x.id).ToArray());
                 foreach (ArchivedMeeting archivedMeeting in archivedMeetings)
                 {
                     if (archivedMeeting.meetingDatetime.Date < startDate || archivedMeeting.meetingDatetime.Date > endDate)
