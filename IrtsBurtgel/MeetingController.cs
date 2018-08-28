@@ -162,32 +162,25 @@ namespace IrtsBurtgel
                 }
                 day = day.AddDays(1);
             }
-            
-            day = day.AddDays(1);
-            int numDays = 7;
-            while (meeting == null && numDays!=0)
+
+            if(meeting == null)
             {
-                while (FindByDate(day).Count == 0) day = day.AddDays(1);
-                meeting = FindByDate(day)[0];
-                numDays--;
+                return "Ойрын 7 хоногт хурал байхгүй.";
             }
 
             int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
-            if(meeting == null)
+           
+            if (meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
             {
-                return "Ойрын 7 хоногт хурал байхгүй."; 
-            }
-            else if (meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
-            {
-                return "Хурал эхлээд " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут болж байна";
+                return "Хурал эхлээд\n " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут өнгөрч байна";
             }
             else if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)) < DateTime.Now && meeting.startDatetime > DateTime.Now)
             {
-                return "Хурал эхлэхэд: " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes) + " минут. Бүртгэл эхэлсэн байна.";
+                return "Хурал эхлэхэд\n " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes) + " минут дутуу байна. Бүртгэл эхэлсэн байна.";
             }
             else
             {
-                return "Дараагийн хурал " + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm");
+                return "Дараагийн хурал\n " + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm");
             }
         }
 

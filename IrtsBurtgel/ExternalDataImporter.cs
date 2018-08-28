@@ -24,7 +24,7 @@ namespace IrtsBurtgel
             positionModel = new Model<Position>(true);
         }
 
-        public bool ImportUserData(string excelpath, string datpath, string imagepath)
+        public bool ImportUserData(string excelpath, string datpath, List<string> imagepath)
         {
             bool result;
             try
@@ -169,13 +169,19 @@ namespace IrtsBurtgel
             return result;
         }
 
-        public void ImportImagesOfUserFromFolder(string path)
+        public void ImportImagesOfUserFromFolder(List<string> paths)
         {
-            string targetDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location + "/userimages/");
-            Directory.CreateDirectory(targetDir);
-            
-            foreach (var file in Directory.GetFiles(path))
-                File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
+            try
+            {
+                string targetDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location + "/userimages/");
+                Directory.CreateDirectory(targetDir);
+                foreach (string file in paths)
+                    File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Хэрэглэгчдийн зураг хуулах явцад алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+            }
         }
 
         //Reader should be selected user sheet
