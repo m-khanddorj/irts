@@ -11,7 +11,7 @@
             <Button DockPanel.Dock="Right" Width="58" Height="58" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
                 <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
             </Button>
-            <Label x:Name="Attendance" Content="12" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="36" Foreground="#fff"/>
+            <Label x:Name="AttendanceLabel" Content="12" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="36" Foreground="#fff"/>
             <Label x:Name="OrgTitle" Content="Org" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="36" Foreground="White"/>
         </DockPanel>
         <Grid Background="White" ShowGridLines="True" x:Name="status">

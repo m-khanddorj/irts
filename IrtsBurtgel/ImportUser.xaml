@@ -15,11 +15,14 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Button Content="template.fp10.1" Width="150" Background="White" Height="25" Grid.Column="0" Grid.Row="0" Click="Button_Click"/>
         <Button Background="White" Content="Excel file" Width="150" Height="25" Grid.Column="0" Grid.Row="1" Click="Button_Click_1"/>
+        <Button Background="White" Content="Image folder" Width="150" Height="25" Grid.Column="0" Grid.Row="2" Click="Button_Click_3"/>
         <Image Grid.Column="1" Grid.Row="0" x:Name="datImage"  Height="20"  Width="25" Source="images/x.png"/>
         <Image Grid.Column="1" Grid.Row="1" x:Name="xlImage" Height="20"  Width="25" Source="images/x.png"/>
-        <Button Background="White" Content="Save" HorizontalAlignment="Left" Margin="147,11,0,0" Grid.Row="2" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2" Click="Button_Click_2"/>
+        <Image Grid.Column="1" Grid.Row="2" x:Name="filelImage" Height="20"  Width="25" Source="images/x.png"/>
+        <Button Background="White" Content="Save" HorizontalAlignment="Left" Margin="147,1,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2" Click="Button_Click_2"/>
     </Grid>
 </Window>

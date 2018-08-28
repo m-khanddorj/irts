@@ -147,21 +147,26 @@ namespace IrtsBurtgel
             }
 
             day = day.AddDays(1);
-            while (meeting == null)
+            int numDays = 7;
+            while (meeting == null && numDays!=0)
             {
                 while (FindByDate(day).Count == 0) day = day.AddDays(1);
                 meeting = FindByDate(day)[0];
+                numDays--;
             }
 
             int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
-
-            if (meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
+            if(meeting == null)
+            {
+                return "Ойрын 7 хоногт хурал байхгүй."; 
+            }
+            else if (meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
             {
                 return "Хурал эхлээд " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут болж байна";
             }
             else if(meeting.startDatetime.AddMinutes(-regbefminute) < DateTime.Now && meeting.startDatetime > DateTime.Now)
             {
-                return "Дараагийн хурал " + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm") + ". Бүртгэл эхэлсэн байна.";
+                return "Хурал эхлэхэд: " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes) + " минут. Бүртгэл эхэлсэн байна.";
             }
             else
             {
