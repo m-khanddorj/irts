@@ -957,7 +957,7 @@ namespace IrtsBurtgel
             StackPanel stStack = new StackPanel();
             stStack.Orientation = Orientation.Horizontal;
             stStack.Margin = new Thickness(0, 5, 0, 5);
-
+            
             Label stLabel = new Label();
             stLabel.Content = "Хурал эхлэх цаг:";
             stLabel.Width = 215;

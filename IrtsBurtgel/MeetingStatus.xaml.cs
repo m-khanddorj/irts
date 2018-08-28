@@ -20,11 +20,12 @@ namespace IrtsBurtgel
     public partial class MeetingStatus : Window
     {
         Model<Admin> adminModel;
+        //dummy data
         public MeetingStatus()
         {
             InitializeComponent();
             adminModel = new Model<Admin>();
-
+            //Showing the org title
             OrgTitle.Content = adminModel.GetAll()[0].organizationName;
         }
 
@@ -52,6 +53,45 @@ namespace IrtsBurtgel
 
             
         }
+        private void Update(List<Object[]> latePeople)
+        {
+            status.RowDefinitions.Clear();
+            status.Children.Clear();
 
+            RowDefinition row = new RowDefinition();
+            row.Height = new GridLength(1, GridUnitType.Star);
+
+            status.RowDefinitions.Add(row);
+            Label nameLabel = new Label();
+            nameLabel.Content = "Ажилтны нэр";
+            Label lateMinute = new Label();
+            lateMinute.Content = "Хоцорсон минут";
+
+            foreach(Object[] obj in latePeople)
+            {
+                RowDefinition tmpRow = new RowDefinition();
+                tmpRow.Height = new GridLength(1, GridUnitType.Star);
+
+                User user = (User)obj[0];
+                Attendance att = (Attendance)obj[1];
+
+                Label userLabel = new Label();
+                userLabel.Content = user.fname + " " + user.lname;
+                Label lateLabel = new Label();
+                lateLabel.Content = att.regTime;
+
+                status.RowDefinitions.Add(tmpRow);
+                int rowNum = status.RowDefinitions.Count-1;
+
+                Grid.SetColumn(userLabel, 0);
+                Grid.SetColumn(lateLabel, 1);
+
+                Grid.SetRow(userLabel, rowNum);
+                Grid.SetRow(lateLabel, rowNum);
+
+                status.Children.Add(userLabel);
+                status.Children.Add(lateLabel);
+            }
+        }
     }
 }
