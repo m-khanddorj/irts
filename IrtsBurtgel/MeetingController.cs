@@ -12,7 +12,7 @@ namespace IrtsBurtgel
 {
     public class MeetingController
     {
-        public static int MEETING_STARTED = 1, IDLE = 0;
+        public static int MEETING_STARTED = 1, IDLE = 0, MEETING_STARTING = 2;
 
         public Model<Meeting> meetingModel;
         public Model<ModifiedMeeting> modifiedMeetingModel;
@@ -89,6 +89,7 @@ namespace IrtsBurtgel
                         if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).Hour == now.Hour && meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).Minute == now.Minute)
                         {
                             Console.WriteLine("Meeting time occured. Start meeting registration.");
+                            status = MEETING_STARTING;
                             StartMeeting(meeting);
                             status = MEETING_STARTED;
                             Console.WriteLine("Setted Status = " + status.ToString());
@@ -98,6 +99,7 @@ namespace IrtsBurtgel
                         if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).TimeOfDay < now.TimeOfDay && meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay > now.TimeOfDay)
                         {
                             Console.WriteLine("Detected ongoing meeting. Fast forwarding meeting.");
+                            status = MEETING_STARTING;
                             StartMeeting(meeting);
                             status = MEETING_STARTED;
                             Console.WriteLine("Setted Status = " + status.ToString());
@@ -120,7 +122,7 @@ namespace IrtsBurtgel
                     Console.WriteLine("No meeting today.");
                 }
             }
-            else
+            else if(status == MEETING_STARTED)
             {
                 DateTime date = onGoingArchivedMeeting.meetingDatetime.AddMinutes(onGoingArchivedMeeting.duration);
                 if (date.Hour <= now.Hour && date.Minute <= now.Minute)
@@ -172,15 +174,15 @@ namespace IrtsBurtgel
            
             if (meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
             {
-                return "Хурал эхлээд\n " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут өнгөрч байна";
+                return "Хурал эхлээд:\n" + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут өнгөрч байна";
             }
             else if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)) < DateTime.Now && meeting.startDatetime > DateTime.Now)
             {
-                return "Хурал эхлэхэд\n " + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes) + " минут дутуу байна. Бүртгэл эхэлсэн байна.";
+                return "Хурал эхлэхэд:\n" + Math.Floor((meeting.startDatetime - DateTime.Now).TotalMinutes) + " минут дутуу байна. Бүртгэл эхэлсэн.";
             }
             else
             {
-                return "Дараагийн хурал\n " + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm");
+                return "Дараагийн хурал:\n" + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm");
             }
         }
 
@@ -608,7 +610,7 @@ namespace IrtsBurtgel
             }
             else
             {
-                return "";
+                return "images\\default-user.png";
             }
         }
 

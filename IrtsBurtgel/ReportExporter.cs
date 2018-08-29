@@ -231,7 +231,9 @@ namespace IrtsBurtgel
                     worksheet2.PrinterSettings.RepeatColumns = worksheet2.Cells["A:G"];
 
                     // Change the sheet view to show it in page layout mode
-                    worksheet.View.PageLayoutView = true;
+                    worksheet2.View.PageLayoutView = true;
+
+                    package.Workbook.Worksheets.MoveToStart("Хэлтсээр");
 
                 }
 

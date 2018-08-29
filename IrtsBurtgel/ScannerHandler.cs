@@ -150,13 +150,14 @@ namespace IrtsBurtgel
             bool result = true;
             if (msg == MESSAGE_CAPTURED_OK)
             {
-                String strShow = zkfp2.BlobToBase64(CapTmp, cbCapTmp);
-                Console.WriteLine("capture template data:" + strShow + "\n");
 
                 Object[] identifiedAttendance = null;
                 int maxRet = -100;
 
                 byte[] blob1 = CapTmp;
+
+                String strShow = zkfp2.BlobToBase64(blob1, cbCapTmp);
+                Console.WriteLine("capture template data:" + strShow + "\n");
 
                 foreach (Object[] userAttendance in meetingController.onGoingMeetingUserAttendance)
                 {
@@ -207,10 +208,13 @@ namespace IrtsBurtgel
                     }
                     meetingController.attendanceModel.Set(((Attendance)identifiedAttendance[1]));
                 }
-
-                foreach (MeetingStatus ms in meetingStatusWindows)
+                
+                if(meetingStatusWindows != null)
                 {
-                    
+                    foreach (MeetingStatus ms in meetingStatusWindows)
+                    {
+
+                    }
                 }
 
             }

@@ -39,13 +39,13 @@ namespace IrtsBurtgel
 
             meetingController = new MeetingController();
             meetingModel = meetingController.meetingModel;
-            userModel = new Model<User>();
-            depModel = new Model<Department>();
-            posModel = new Model<Position>();
-            mauModel = new Model<MeetingAndUser>();
-            madModel = new Model<MeetingAndDepartment>();
-            mapModel = new Model<MeetingAndPosition>();
-            modifiedMeetingModel = new Model<ModifiedMeeting>();
+            userModel = meetingController.userModel;
+            depModel = meetingController.departmentModel;
+            posModel = meetingController.positionModel;
+            mauModel = meetingController.muModel;
+            madModel = meetingController.mdModel;
+            mapModel = meetingController.mpModel;
+            modifiedMeetingModel = meetingController.modifiedMeetingModel;
 
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -1901,7 +1901,7 @@ namespace IrtsBurtgel
         void ShowReport(object sender, RoutedEventArgs e)
         {
             ReportExporter re = new ReportExporter(meetingController);
-            re.ExportAttendance(meetingModel.Get(new int[] {4}), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-08-30"), "sample");
+            re.ExportAttendance(meetingModel.Get(new int[] {1}), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-09-01"), "sample");
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
