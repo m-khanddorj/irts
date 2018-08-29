@@ -1839,7 +1839,7 @@ namespace IrtsBurtgel
             if (iuser.DialogResult == true)
             {
                 ExternalDataImporter edi = new ExternalDataImporter();
-                edi.ImportUserData(iuser.xlPath, iuser.datPath, "");
+                edi.ImportUserData(iuser.xlPath, iuser.datPath, new List<string>());
                 ShowMembers(null,null);
             }
         }
