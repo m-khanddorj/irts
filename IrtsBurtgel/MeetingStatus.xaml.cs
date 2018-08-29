@@ -50,8 +50,6 @@ namespace IrtsBurtgel
                 this.WindowState = WindowState.Normal;
                 this.WindowStyle = WindowStyle.ThreeDBorderWindow;
             }
-
-            
         }
         private void Update(List<Object[]> latePeople)
         {

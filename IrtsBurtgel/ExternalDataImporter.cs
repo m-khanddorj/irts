@@ -173,10 +173,14 @@ namespace IrtsBurtgel
         {
             try
             {
-                string targetDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location + "/userimages/");
+                string targetDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages";
                 Directory.CreateDirectory(targetDir);
+                Console.WriteLine("Copying user images into " + targetDir);
                 foreach (string file in paths)
+                {
+                    Console.WriteLine("Copying image from " + file + " to " + Path.Combine(targetDir, Path.GetFileName(file)));
                     File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
+                }
             }
             catch (Exception ex)
             {
