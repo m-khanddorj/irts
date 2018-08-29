@@ -602,9 +602,9 @@ namespace IrtsBurtgel
 
         public string GetUserImage(User user)
         {
-            if (File.Exists(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/userimages/" + user.pin + ".jpg"))
+            if (File.Exists(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages\\" + user.pin + ".jpg"))
             {
-                return Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/userimages/" + user.pin + ".jpg";
+                return Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages\\" + user.pin + ".jpg";
             }
             else
             {

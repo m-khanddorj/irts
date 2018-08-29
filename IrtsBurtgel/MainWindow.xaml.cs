@@ -1840,7 +1840,7 @@ namespace IrtsBurtgel
             if (iuser.DialogResult == true)
             {
                 ExternalDataImporter edi = new ExternalDataImporter();
-                edi.ImportUserData(iuser.xlPath, iuser.datPath, new List<string>());
+                edi.ImportUserData(iuser.xlPath, iuser.datPath, iuser.imagePaths.ToList());
                 ShowMembers(null,null);
             }
         }
@@ -1901,7 +1901,7 @@ namespace IrtsBurtgel
         void ShowReport(object sender, RoutedEventArgs e)
         {
             ReportExporter re = new ReportExporter(meetingController);
-            re.ExportAttendance(meetingModel.Get(4), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-08-30"), "sample");
+            re.ExportAttendance(meetingModel.Get(new int[] {4}), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-08-30"), "sample");
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
