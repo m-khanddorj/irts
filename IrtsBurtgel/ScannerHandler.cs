@@ -34,8 +34,7 @@ namespace IrtsBurtgel
         private int mfpDpi = 0;
 
         private Thread captureThread;
-        private MeetingController meetingController;
-        private List<MeetingStatus> meetingStatusWindows;
+        public MeetingController meetingController;
 
         const int MESSAGE_CAPTURED_OK = 0x0400 + 6;
 
@@ -76,7 +75,7 @@ namespace IrtsBurtgel
             }
         }
 
-        public bool StartCaptureThread(List<MeetingStatus> meetingStatusWindows)
+        public bool StartCaptureThread()
         {
             int ret = zkfp.ZKFP_ERR_OK;
             if (IntPtr.Zero == (mDevHandle = zkfp2.OpenDevice(0)))
@@ -108,8 +107,7 @@ namespace IrtsBurtgel
             zkfp2.ByteArray2Int(paramValue, ref mfpDpi);
 
             Console.WriteLine("reader parameter, image width:" + mfpWidth + ", height:" + mfpHeight + ", dpi:" + mfpDpi);
-
-            this.meetingStatusWindows = meetingStatusWindows;
+            
             captureThread = new Thread(new ThreadStart(DoCapture));
             captureThread.IsBackground = true;
             captureThread.Start();
@@ -196,7 +194,7 @@ namespace IrtsBurtgel
                 if (((Attendance)identifiedAttendance[1]).statusId == 15)
                 {
                     DateTime now = DateTime.Now;
-                    if(now > meetingController.onGoingArchivedMeeting.meetingDatetime)
+                    if(now > meetingController.onGoingArchivedMeeting.meetingDatetime && now.Minute != meetingController.onGoingArchivedMeeting.meetingDatetime.Minute)
                     {
                         ((Attendance)identifiedAttendance[1]).statusId = 2;
                         ((Attendance)identifiedAttendance[1]).regTime = (int)Math.Floor((now - meetingController.onGoingArchivedMeeting.meetingDatetime).TotalMinutes);
@@ -209,12 +207,14 @@ namespace IrtsBurtgel
                     meetingController.attendanceModel.Set(((Attendance)identifiedAttendance[1]));
                 }
                 
-                if(meetingStatusWindows != null)
+                if(meetingController.mainWindow != null)
                 {
-                    foreach (MeetingStatus ms in meetingStatusWindows)
-                    {
-
-                    }
+                    meetingController.mainWindow.Dispatcher.Invoke(() => {
+                        foreach(MeetingStatus ms in meetingController.mainWindow.meetingStatusWindows)
+                        {
+                            ms.Update(meetingController.onGoingMeetingUserAttendance);
+                        }
+                    });
                 }
 
             }

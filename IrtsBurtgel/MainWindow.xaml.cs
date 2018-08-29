@@ -33,11 +33,13 @@ namespace IrtsBurtgel
         Model<MeetingAndDepartment> madModel;
         Model<MeetingAndPosition> mapModel;
         Model<ModifiedMeeting> modifiedMeetingModel;
+        public List<MeetingStatus> meetingStatusWindows;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            meetingController = new MeetingController();
+            meetingController = new MeetingController(this);
             meetingModel = meetingController.meetingModel;
             userModel = meetingController.userModel;
             depModel = meetingController.departmentModel;
@@ -46,6 +48,7 @@ namespace IrtsBurtgel
             madModel = meetingController.mdModel;
             mapModel = meetingController.mpModel;
             modifiedMeetingModel = meetingController.modifiedMeetingModel;
+            meetingStatusWindows = new List<MeetingStatus>();
 
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
@@ -68,7 +71,8 @@ namespace IrtsBurtgel
         }
         private void showStatus(object sender, RoutedEventArgs e)
         {
-            MeetingStatus meetingStatus = new MeetingStatus();
+            MeetingStatus meetingStatus = new MeetingStatus(meetingController);
+            meetingStatusWindows.Add(meetingStatus);
             meetingStatus.WindowStartupLocation = WindowStartupLocation.Manual;
 
             //Debug.Assert(System.Windows.Forms.SystemInformation.MonitorCount > 1);
@@ -1898,10 +1902,144 @@ namespace IrtsBurtgel
             dockPanel.Children.Add(listbox);
 
         }
+
+        void getReport(object sender, RoutedEventArgs e)
+        {
+            List<Object> controls = (List<Object>)((Button)sender).Tag;
+            ListBox listBox = (ListBox)controls[0];
+            DatePicker st = (DatePicker)controls[1];
+            DatePicker et = (DatePicker)controls[2];
+            if(listBox == null || st ==null || et ==null)
+            {
+                MessageBox.Show("Та дээрх бүх талбарыг бөглөнө үү!", "Алдаа");
+                return;
+            }
+            ReportExporter re = new ReportExporter(meetingController);
+            List<Meeting> meetings;
+
+            if ( (string)((ListBoxItem)listBox.SelectedItem).Content  == "Бүх хурлууд")
+            {
+                meetings = meetingModel.GetAll();
+            }
+            else
+            {
+                meetings = new List<Meeting>();
+                meetings.Add(meetingModel.Get(Int32.Parse(((ListBoxItem)listBox.SelectedItem).Uid)));
+            }
+            re.ExportAttendance(meetings, (DateTime)st.SelectedDate, (DateTime)et.SelectedDate, "report");
+            
+        }
         void ShowReport(object sender, RoutedEventArgs e)
         {
-            ReportExporter re = new ReportExporter(meetingController);
-            re.ExportAttendance(meetingModel.Get(new int[] {1}), DateTime.Parse("2018-08-19"), DateTime.Parse("2018-09-01"), "sample");
+            RightSide.Children.Clear();
+
+            List<Object> controls = new List<Object>();
+
+            Grid grid = new Grid();
+            grid.Margin = new Thickness(10);
+            grid.VerticalAlignment = VerticalAlignment.Stretch;
+            //Defining the cols
+            ColumnDefinition col0 = new ColumnDefinition();
+            ColumnDefinition col1 = new ColumnDefinition();
+
+            col0.Width = new GridLength(1, GridUnitType.Star);
+            col1.Width = new GridLength(30);
+
+            grid.ColumnDefinitions.Add(col0);
+            grid.ColumnDefinitions.Add(col1);
+            //Defining the rows
+            RowDefinition row0 = new RowDefinition();
+            RowDefinition row1 = new RowDefinition();
+            RowDefinition row2 = new RowDefinition();
+            RowDefinition row3 = new RowDefinition();
+            RowDefinition row4 = new RowDefinition();
+            RowDefinition row5 = new RowDefinition();
+
+            row0.Height = new GridLength(30);
+            row1.Height = new GridLength(0);
+            row2.Height = new GridLength(1, GridUnitType.Star);
+            row3.Height = new GridLength(30);
+            row4.Height = new GridLength(30);
+            row5.Height = new GridLength(30);
+
+            grid.RowDefinitions.Add(row0);
+            grid.RowDefinitions.Add(row1);
+            grid.RowDefinitions.Add(row2);
+            grid.RowDefinitions.Add(row3);
+            grid.RowDefinitions.Add(row4);
+            grid.RowDefinitions.Add(row5);
+
+
+            Label title = new Label();
+            title.Content = "Хурал сонгох";
+            Grid.SetColumnSpan(title, 2);
+            Grid.SetRow(title, 0);
+            Grid.SetColumn(title, 0);
+
+            ListBox listBox = new ListBox();
+            controls.Add(listBox);
+            listBox.Margin = new Thickness(0, 10, 0, 10);
+            ListBoxItem allMeeting = new ListBoxItem();
+            allMeeting.Content = "Бүх хурлууд";
+            listBox.SelectedItem = allMeeting;
+
+            listBox.Items.Add(allMeeting);
+
+            List<Meeting> meetings = meetingModel.GetAll();
+
+            foreach (Meeting meeting in meetings)
+            {
+                ListBoxItem listBoxItem = new ListBoxItem();
+                listBoxItem.Content = meeting.name;
+                listBoxItem.Uid = meeting.id.ToString();
+
+                listBox.Items.Add(listBoxItem);
+            }
+
+            Grid.SetColumnSpan(listBox, 2);
+            Grid.SetColumn(listBox, 0);
+            Grid.SetRow(listBox, 2);
+
+            Label timeSelectorTitle = new Label();
+            timeSelectorTitle.Content = "Хугацаа сонгох";
+            Grid.SetRow(timeSelectorTitle, 3);
+            Grid.SetColumn(timeSelectorTitle, 0);
+
+            StackPanel timeSelector = new StackPanel();
+            timeSelector.Orientation = Orientation.Horizontal;
+            timeSelector.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+            DatePicker startTime = new DatePicker();
+            controls.Add(startTime);
+            startTime.SelectedDate = DateTime.Today.AddDays(-7);
+            Label label = new Label();
+            label.Content = "-";
+            DatePicker endTime = new DatePicker();
+            endTime.SelectedDate = DateTime.Today;
+            controls.Add(endTime);
+
+            Button saveButton = new Button();
+            saveButton.Tag = controls;
+            saveButton.Content = "Тайлан авах";
+            saveButton.Click += getReport;
+            saveButton.Margin = new Thickness(10,0,0,0);
+            saveButton.HorizontalAlignment = HorizontalAlignment.Right;
+
+            timeSelector.Children.Add(startTime);
+            timeSelector.Children.Add(label);
+            timeSelector.Children.Add(endTime);
+            timeSelector.Children.Add(saveButton);
+
+            Grid.SetColumnSpan(timeSelector, 2);
+            Grid.SetRow(timeSelector, 4);
+            Grid.SetColumn(timeSelector, 0);
+
+            grid.Children.Add(title);
+            grid.Children.Add(listBox);
+            grid.Children.Add(timeSelectorTitle);
+            grid.Children.Add(timeSelector);
+
+            RightSide.Children.Add(grid);
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

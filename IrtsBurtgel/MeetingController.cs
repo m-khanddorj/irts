@@ -37,9 +37,9 @@ namespace IrtsBurtgel
         public int status;
 
         public Timer aTimer;
-        public List<MeetingStatus> meetingStatusWindows;
+        public MainWindow mainWindow;
 
-        public MeetingController()
+        public MeetingController(MainWindow mw)
         {
             meetingModel = new Model<Meeting>();
             modifiedMeetingModel = new Model<ModifiedMeeting>();
@@ -56,6 +56,7 @@ namespace IrtsBurtgel
             mpModel = new Model<MeetingAndPosition>();
 
             scannerHandler = new ScannerHandler(mc: this);
+            mainWindow = mw;
 
             aTimer = new Timer(1000);
             aTimer.Elapsed += new ElapsedEventHandler((object source, ElapsedEventArgs e) =>
@@ -382,18 +383,21 @@ namespace IrtsBurtgel
             List<ArchivedMeeting> archivedMeetings = GetArchivedMeetingByDate(now);
             ArchivedMeeting archivedMeeting;
 
+            int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
+
             if (meeting.GetType() == typeof(ModifiedMeeting))
             {
-                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == ((ModifiedMeeting)meeting).meeting_id).Find(x => (x.meetingDatetime < now && x.meetingDatetime.AddMinutes(x.duration) > now));
+                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == ((ModifiedMeeting)meeting).meeting_id).Find(x => (x.meetingDatetime.AddMinutes(-regbefminute) < now && x.meetingDatetime.AddMinutes(x.duration) > now));
             }
             else
             {
-                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == meeting.id).Find(x => (x.meetingDatetime < now && x.meetingDatetime.AddMinutes(x.duration) > now));
+                archivedMeeting = archivedMeetings.FindAll(x => x.meeting_id == meeting.id).Find(x => (x.meetingDatetime.AddMinutes(-regbefminute) < now && x.meetingDatetime.AddMinutes(x.duration) > now));
             }
 
 
             if (archivedMeeting == null)
             {
+                Console.WriteLine("Creating archive of meeting");
                 archivedMeeting = new ArchivedMeeting();
 
                 if (meeting.GetType() == typeof(ModifiedMeeting))
@@ -427,7 +431,7 @@ namespace IrtsBurtgel
             onGoingMeetingUserAttendance = GetMeetingUserAttendances(archivedMeeting);
 
             scannerHandler.InitializeDevice();
-            scannerHandler.StartCaptureThread(meetingStatusWindows);
+            scannerHandler.StartCaptureThread();
             return true;
         }
 

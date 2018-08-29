@@ -20,13 +20,15 @@ namespace IrtsBurtgel
     public partial class MeetingStatus : Window
     {
         Model<Admin> adminModel;
+        MeetingController meetingController;
         //dummy data
-        public MeetingStatus()
+        public MeetingStatus(MeetingController mc)
         {
             InitializeComponent();
             adminModel = new Model<Admin>();
             //Showing the org title
             OrgTitle.Content = adminModel.GetAll()[0].organizationName;
+            meetingController = mc;
         }
 
         private void Expand(object sender, RoutedEventArgs e)
@@ -51,7 +53,7 @@ namespace IrtsBurtgel
                 this.WindowStyle = WindowStyle.ThreeDBorderWindow;
             }
         }
-        private void Update(List<Object[]> latePeople)
+        public void Update(List<Object[]> latePeople)
         {
             AttendanceLabel.Content = latePeople.Count;
             status.RowDefinitions.Clear();

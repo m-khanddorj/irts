@@ -94,7 +94,7 @@ namespace IrtsBurtgel
 
                     if (!departmentAttendance.ContainsKey(users[i].departmentId))
                     {
-                        departmentAttendance.Add(users[i].departmentId, new int[16]);
+                        departmentAttendance.Add(users[i].departmentId, new int[18]);
                     }
                 }
 
@@ -116,7 +116,7 @@ namespace IrtsBurtgel
                             }
                             worksheet.Cells[j + 2, i + 5].Value = status;
                             departmentAttendance[users[j].departmentId][attendance.statusId]++;
-                            departmentAttendance[users[j].departmentId][15]++;
+                            departmentAttendance[users[j].departmentId][16]++;
                         }
                     }
 
@@ -204,7 +204,8 @@ namespace IrtsBurtgel
                         int j = 0;
                         foreach (KeyValuePair<int, int[]> entry in departmentAttendance)
                         {
-                            worksheet2.Cells[j + 2, i + 3].Value = entry.Value[1] / entry.Value[15];
+                            worksheet2.Cells[j + 2, i + 3].Value = (double)(entry.Value[1] + entry.Value[2]) / entry.Value[16];
+                            worksheet2.Cells[j + 2, i + 3].Style.Numberformat.Format = "#0%";
                             j++;
                         }
                     }
@@ -248,6 +249,7 @@ namespace IrtsBurtgel
                 var xlFile = Utils.GetFileInfo(filename + ".xlsx");
                 // save our new workbook in the output directory and we are done!
                 package.SaveAs(xlFile);
+                MessageBox.Show("Тайлан " + xlFile.FullName + " файлд амжилттай гарлаа.");
                 return xlFile.FullName;
             }
         }
