@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,7 @@ namespace IrtsBurtgel
     {
         public string xlPath;
         public string datPath;
+        public string[] imagePaths;
         public int c;
         public ImportUser()
         {
@@ -30,7 +32,7 @@ namespace IrtsBurtgel
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".1";
             dlg.Filter = "1 file (*.1)|*.1";
             Nullable<bool> result = dlg.ShowDialog();
@@ -49,7 +51,7 @@ namespace IrtsBurtgel
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            OpenFileDialog dlg = new OpenFileDialog();
             dlg.DefaultExt = ".xlsx";
             dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
             Nullable<bool> result = dlg.ShowDialog();
@@ -73,7 +75,22 @@ namespace IrtsBurtgel
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.DefaultExt = ".jpg";
+            dlg.Filter = "Images (*.jpg;*.png;*.jpeg)|*.jpg;*.png;*.jpeg";
+
+            dlg.Multiselect = true;
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
+            {
+                // Open document 
+                string[] filenames = dlg.FileNames;
+                imagePaths = filenames;
+                imageImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
+                c++;
+            }
         }
     }
 }
