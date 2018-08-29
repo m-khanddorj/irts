@@ -66,7 +66,7 @@ namespace IrtsBurtgel
             if (username.Text == "admin" && password.Password == "admin") showMenu();
             else
             {
-                MessageBox.Show("Та нэр, нууц үгээ дахин шалгана уу!","Нэр эсвэл нууц үг буруу байна");
+                MessageBox.Show("Та нэр, нууц үгээ дахин шалгана уу!", "Нэр эсвэл нууц үг буруу байна");
             }
         }
         private void showStatus(object sender, RoutedEventArgs e)
@@ -96,7 +96,7 @@ namespace IrtsBurtgel
             //meetingController.StartMeeting(meetingModel.Get(3));
         }
 
-        private void showMenu(object sender=null, RoutedEventArgs e=null)
+        private void showMenu(object sender = null, RoutedEventArgs e = null)
         {
             //meetingController.StopMeeting();
             LeftSide.Children.Clear();
@@ -129,12 +129,12 @@ namespace IrtsBurtgel
 
             Button Members = new Button();
             Members.Content = "Гишүүд";
-            Members.Margin = margin; 
+            Members.Margin = margin;
             Members.Click += ShowMembers;
             Members.Width = 210;
             Members.Height = 30;
             Members.Background = Brushes.White;
-            
+
 
             Button Report = new Button();
             Report.Content = "Тайлан";
@@ -153,7 +153,7 @@ namespace IrtsBurtgel
 
             RightSide.Children.Clear();
             RightSide.HorizontalAlignment = HorizontalAlignment.Stretch;
-            
+
             TextBlock time = new TextBlock();
             time.Margin = new Thickness(10);
             time.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -162,11 +162,11 @@ namespace IrtsBurtgel
             time.FontSize = 20;
             if (FindName("time") != null) UnregisterName("time");
             RegisterName("time", time);
-            
+
             RightSide.Children.Add(time);
         }
 
-        DockPanel addHeader(List<Object> controls =null, List<Object> rControls = null)
+        DockPanel addHeader(List<Object> controls = null, List<Object> rControls = null)
         {
             LeftSide.VerticalAlignment = VerticalAlignment.Stretch;
             LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -212,7 +212,7 @@ namespace IrtsBurtgel
             {
                 foreach (Object control in controls)
                 {
-                    if(control is Button)
+                    if (control is Button)
                     {
                         Button tmp = (Button)control;
                         tmp.Height = 30;
@@ -222,7 +222,7 @@ namespace IrtsBurtgel
                         tmp.Background = Brushes.Transparent;
                         headerPanel.Children.Add(tmp);
                     }
-                    if(control is Label)
+                    if (control is Label)
                     {
                         Label tmp = (Label)control;
                         tmp.Foreground = Brushes.White;
@@ -231,7 +231,7 @@ namespace IrtsBurtgel
                     }
                 }
             }
-            if(rControls!=null)
+            if (rControls != null)
             {
                 foreach (Object control in rControls)
                 {
@@ -267,7 +267,7 @@ namespace IrtsBurtgel
             {
                 RegisterName("headerPanel", headerPanel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 UnregisterName("headerPanel");
                 RegisterName("headerPanel", headerPanel);
@@ -283,22 +283,22 @@ namespace IrtsBurtgel
             {
                 listbox = (ListBox)FindName("listbox");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 UnregisterName("listbox");
                 listbox = (ListBox)FindName("listbox");
             }
 
-            if(FindName("SearchBox") == null)
+            if (FindName("SearchBox") == null)
             {
-                TextBox searchBox= new TextBox();
-                RegisterName("SearchBox",searchBox);
+                TextBox searchBox = new TextBox();
+                RegisterName("SearchBox", searchBox);
                 ((DockPanel)FindName("headerPanel")).Children.Add(searchBox);
             }
             else
             {
                 listbox.Items.Clear();
-                if( (string)((Button)sender).Tag == "meeting" )
+                if ((string)((Button)sender).Tag == "meeting")
                 {
                     foreach (Meeting meeting in meetingModel.GetAll())
                     {
@@ -308,12 +308,12 @@ namespace IrtsBurtgel
                         listbox.Items.Add(lbi);
                     }
                 }
-                else if((string)((Button)sender).Tag == "user")
+                else if ((string)((Button)sender).Tag == "user")
                 {
                     foreach (User user in userModel.GetAll())
                     {
                         ListBoxItem lbi = new ListBoxItem();
-                        lbi.Content = user.fname + " " +user.lname;
+                        lbi.Content = user.fname + " " + user.lname;
                         lbi.Tag = user.id;
                         listbox.Items.Add(lbi);
                     }
@@ -324,13 +324,13 @@ namespace IrtsBurtgel
                     if ((string)((Button)sender).Tag == "meeting")
                         ShowMeetings();
                     else
-                        ShowMembers(null,null);
+                        ShowMembers(null, null);
                     UnregisterName("SearchBox");
                     return;
                 }
-                for(int i=listbox.Items.Count-1 ; i>=0 ;i--)
+                for (int i = listbox.Items.Count - 1; i >= 0; i--)
                 {
-                    Regex regex = new Regex(@"[a-zA-Z0-9]*"+ searchBox.Text + @"[a-zA-Z0-9]*");
+                    Regex regex = new Regex(@"[a-zA-Z0-9]*" + searchBox.Text + @"[a-zA-Z0-9]*");
                     Match match = regex.Match((string)((ListBoxItem)listbox.Items[i]).Content);
                     if (!match.Success)
                     {
@@ -340,14 +340,14 @@ namespace IrtsBurtgel
             }
         }
 
-        void MarkDayAsIncative(object sender, RoutedEventArgs e)
+        void MarkDayAsInactive(object sender, RoutedEventArgs e)
         {
             Calendar calendar = (Calendar)((Button)sender).Tag;
             AskTheReason ask = new AskTheReason();
             ask.ShowDialog();
             if ((bool)ask.DialogResult)
             {
-                meetingController.CancelMeetingsByDate((DateTime)calendar.SelectedDate,ask.text);
+                meetingController.CancelMeetingsByDate((DateTime)calendar.SelectedDate, ask.text);
             }
         }
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
@@ -369,7 +369,7 @@ namespace IrtsBurtgel
             calendarImage.Width = 20;
             calendarImage.Height = 20;
             rButton.Content = calendarImage;
-            rButton.Click += ShowCalendar;
+            rButton.Click += ShowEventAdder;
 
             Button xButton = new Button();
             Image xImage = new Image();
@@ -379,7 +379,7 @@ namespace IrtsBurtgel
             xButton.Tag = calendar;
 
             xButton.Content = xImage;
-            xButton.Click += MarkDayAsIncative;
+            xButton.Click += MarkDayAsInactive;
             List<Object> rControls = new List<Object>();
             rControls.Add(rButton);
             rControls.Add(xButton);
@@ -389,7 +389,7 @@ namespace IrtsBurtgel
             listbox.Margin = new Thickness(10, 10, 10, 10);
             if ((DateTime)calendar.SelectedDate < DateTime.Today)
             {
-                List<ArchivedMeeting> meetings =  meetingController.GetArchivedMeetingByDate((DateTime)calendar.SelectedDate);
+                List<ArchivedMeeting> meetings = meetingController.GetArchivedMeetingByDate((DateTime)calendar.SelectedDate);
                 foreach (ArchivedMeeting meeting in meetings)
                 {
                     ListBoxItem listBoxItem = new ListBoxItem();
@@ -402,16 +402,19 @@ namespace IrtsBurtgel
             else
             {
                 List<Meeting> meetings = meetingController.FindByDate((DateTime)calendar.SelectedDate);
+                int i = 1;
                 foreach (Meeting meeting in meetings)
                 {
                     if (meeting.isDeleted) continue;
                     ListBoxItem listBoxItem = new ListBoxItem();
-                    if (meeting.duration == 0) listBoxItem.Content = "Цуцлагдсан";
-                    else listBoxItem.Content = meeting.name;
-                    listBoxItem.Tag = meeting;//end tagiig n zooj ugch bn
+                    if (meeting.duration == 0) listBoxItem.Content = listBoxItem.Content = i + ". " + meeting.name + ", " + meeting.startDatetime.ToString("HH:mm") + " цагийн хурал цуцлагдсан";
+                    else listBoxItem.Content = i + ". " + meeting.name + ", " + meeting.startDatetime.ToString("HH:mm") + ", " + meeting.duration + " минут";
+
                     listBoxItem.Uid = meeting.id.ToString();
                     listBoxItem.Height = 25;
+                    listBoxItem.Tag = meeting; //done fixing. Try it now
                     listbox.Items.Add(listBoxItem);
+                    i++;
                 }
                 listbox.SelectionChanged += ModifyMeeting;
             }
@@ -448,10 +451,10 @@ namespace IrtsBurtgel
             xImage.Width = 20;
             xImage.Height = 20;
             xButton.Content = xImage;
-            xButton.Click += MarkDayAsIncative;
+            xButton.Click += MarkDayAsInactive;
 
             rButton.Content = calendarImage;
-            rButton.Click += ShowCalendar;
+            rButton.Click += ShowEventAdder;
 
             xButton.Content = xImage;
 
@@ -459,10 +462,10 @@ namespace IrtsBurtgel
             rControls.Add(rButton);
             rControls.Add(xButton);
 
-            DockPanel dockPanel = addHeader(list,rControls);
+            DockPanel dockPanel = addHeader(list, rControls);
 
             Viewbox ll = new Viewbox();
-            
+
             dockPanel.Children.Add(ll);
 
             Calendar calendar = new Calendar();
@@ -470,24 +473,44 @@ namespace IrtsBurtgel
             viewbox.Stretch = Stretch.Uniform;
             viewbox.Child = calendar;
             calendar.SelectedDatesChanged += OnSelectedDateChange;
+            calendar.SelectedDate = DateTime.Today;
             RightSide.Children.Add(viewbox);
+
 
             ListBox listbox = new ListBox();
             listbox.Margin = new Thickness(10, 10, 10, 10);
-
-            List<Meeting> meetings = meetingController.FindByDate(DateTime.Today);
-
-            foreach (Meeting meeting in meetings)
+            if ((DateTime)calendar.SelectedDate < DateTime.Today)
             {
-                ListBoxItem listBoxItem = new ListBoxItem();
-
-                listBoxItem.Content = meeting.name;
-                listBoxItem.Uid = meeting.id.ToString();
-                listBoxItem.Height = 25;
-                listBoxItem.Tag = meeting; //done fixing. Try it now
-                listbox.Items.Add(listBoxItem);
+                List<ArchivedMeeting> meetings = meetingController.GetArchivedMeetingByDate((DateTime)calendar.SelectedDate);
+                foreach (ArchivedMeeting meeting in meetings)
+                {
+                    ListBoxItem listBoxItem = new ListBoxItem();
+                    listBoxItem.Content = meeting.name;
+                    listBoxItem.Uid = meeting.id.ToString();
+                    listBoxItem.Height = 25;
+                    listbox.Items.Add(listBoxItem);
+                }
             }
-            listbox.SelectionChanged += ModifyMeeting;
+            else
+            {
+                List<Meeting> meetings = meetingController.FindByDate((DateTime)calendar.SelectedDate);
+                int i = 1;
+                foreach (Meeting meeting in meetings)
+                {
+                    if (meeting.isDeleted) continue;
+                    ListBoxItem listBoxItem = new ListBoxItem();
+                    if (meeting.duration == 0) listBoxItem.Content = listBoxItem.Content = i + ". " + meeting.name + ", " + meeting.startDatetime.ToString("HH:mm") + " цагийн хурал цуцлагдсан";
+                    else listBoxItem.Content = i + ". " + meeting.name + ", " + meeting.startDatetime.ToString("HH:mm") + ", " + meeting.duration + " минут";
+
+                    listBoxItem.Uid = meeting.id.ToString();
+                    listBoxItem.Height = 25;
+                    listBoxItem.Tag = meeting; //done fixing. Try it now
+                    listbox.Items.Add(listBoxItem);
+                    i++;
+                }
+                listbox.SelectionChanged += ModifyMeeting;
+            }
+
 
             dockPanel.Children.Add(listbox);
         }
@@ -586,7 +609,7 @@ namespace IrtsBurtgel
             durationStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label durationLabel = new Label();
-            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа минутаар:";
             durationLabel.Width = 215;
             TextBox duration = new TextBox();
             duration.Width = 215;
@@ -674,7 +697,7 @@ namespace IrtsBurtgel
             {
                 RegisterName("Groups", pGroupList);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 UnregisterName("Groups");
                 RegisterName("Groups", pGroupList);
@@ -720,7 +743,7 @@ namespace IrtsBurtgel
             {
                 RegisterName("Users", pUserList);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 UnregisterName("Users");
                 RegisterName("Users", pUserList);
@@ -837,7 +860,7 @@ namespace IrtsBurtgel
         void insertMeeting(object sender, RoutedEventArgs e)
         {
             List<Object> controls = (List<Object>)((Button)sender).Tag;
-            for(int i=0;i<9;i++)
+            for (int i = 0; i < 9; i++)
             {
                 if (controls[i] == null)
                 {
@@ -899,7 +922,7 @@ namespace IrtsBurtgel
                     meeting.intervalType = 7;
                     meeting.intervalDay = 7;
                 }
-                else if(type == 2)
+                else if (type == 2)
                 {
                     meeting.intervalType = 7;
                     meeting.intervalDay = 14;
@@ -1016,7 +1039,7 @@ namespace IrtsBurtgel
             StackPanel stStack = new StackPanel();
             stStack.Orientation = Orientation.Horizontal;
             stStack.Margin = new Thickness(0, 5, 0, 5);
-            
+
             Label stLabel = new Label();
             stLabel.Content = "Хурал эхлэх цаг:";
             stLabel.Width = 215;
@@ -1071,7 +1094,7 @@ namespace IrtsBurtgel
             durationStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label durationLabel = new Label();
-            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа минутаар:";
             durationLabel.Width = 215;
             TextBox duration = new TextBox();
             duration.Width = 215;
@@ -1429,7 +1452,7 @@ namespace IrtsBurtgel
             //check and set meeting intervalType(frq)
             try
             {
-                meeting.intervalType = Byte.Parse( ((ComboBoxItem)freqType.SelectedItem).Tag.ToString() );
+                meeting.intervalType = Byte.Parse(((ComboBoxItem)freqType.SelectedItem).Tag.ToString());
             }
             catch (Exception ex)
             {
@@ -1440,11 +1463,11 @@ namespace IrtsBurtgel
             try
             {
                 List<MeetingAndUser> oldMaus = mauModel.GetByFK(meeting.IDName, meeting.id);
-                foreach(MeetingAndUser mau in oldMaus)
+                foreach (MeetingAndUser mau in oldMaus)
                 {
                     mauModel.Remove(mau.id);
                 }
-                foreach(ListBoxItem user in users.Items)
+                foreach (ListBoxItem user in users.Items)
                 {
                     MeetingAndUser newMau = new MeetingAndUser();
                     newMau.meetingId = meeting.id;
@@ -1485,6 +1508,187 @@ namespace IrtsBurtgel
             }
             ShowMeetings(sender, null);
         }
+        void ShowEventAdder(object sender, RoutedEventArgs e)
+        {
+            RightSide.Children.Clear();
+
+            List<Object> controls = new List<Object>(); //shine medeenuudiig zooh bus 
+
+            StackPanel stackPanel = new StackPanel();
+            stackPanel.Orientation = Orientation.Vertical;
+            stackPanel.Margin = new Thickness(10);
+
+            /**
+                * Name stack
+                */
+
+
+            Label header = new Label
+            {
+                Content = "Тэмдэглэлт өдөр нэмэх",
+                FontWeight = FontWeights.Bold,
+                Width = 215
+            };
+
+            StackPanel nameStack = new StackPanel();
+            nameStack.Orientation = Orientation.Horizontal;
+            nameStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label nameLabel = new Label
+            {
+                Content = "Тэмдэглэлт өдрийн нэр:",
+                Width = 215
+            };
+
+            TextBox name = new TextBox
+            {
+                Width = 215
+            };
+            controls.Add(name);
+
+            nameStack.Children.Add(nameLabel);
+            nameStack.Children.Add(name);
+
+            /**
+                * Start date stack
+                */
+
+            StackPanel sdStack = new StackPanel();
+            sdStack.Orientation = Orientation.Horizontal;
+            sdStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label sdLabel = new Label();
+            sdLabel.Content = "Эхлэх огноо:";
+            sdLabel.Width = 215;
+            DatePicker sd = new DatePicker
+            {
+                SelectedDate = DateTime.Today,
+                Width = 215
+            };
+            controls.Add(sd);
+
+            sdStack.Children.Add(sdLabel);
+            sdStack.Children.Add(sd);
+
+            /**
+                * End date stack
+                */
+
+            StackPanel edStack = new StackPanel();
+            edStack.Orientation = Orientation.Horizontal;
+            edStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label edLabel = new Label();
+            edLabel.Content = "Дуусах огноо:";
+            edLabel.Width = 215;
+            DatePicker ed = new DatePicker
+            {
+                SelectedDate = DateTime.Today,
+                Width = 215
+            };
+            controls.Add(ed);
+
+            edStack.Children.Add(edLabel);
+            edStack.Children.Add(ed);
+
+            /**
+                * Interval Type stack
+                */
+
+            StackPanel itStack = new StackPanel();
+            itStack.Orientation = Orientation.Horizontal;
+
+            Label itLabel = new Label
+            {
+                Content = "Давтамжийн төрөл:",
+                Width = 215
+            };
+            ComboBox it = new ComboBox
+            {
+                Width = 215
+            };
+            it.Items.Insert(0, "Жилийн энэ өдрүүдэд");
+            it.Items.Insert(1, "Сарын энэ өдрүүдэд");
+            it.Items.Insert(2, "Нэг удаагийн");
+            it.SelectedIndex = 0;
+
+            controls.Add(it);
+
+            itStack.Children.Add(itLabel);
+            itStack.Children.Add(it);
+
+            /**
+            * Save button 
+            */
+            StackPanel saveStack = new StackPanel();
+            saveStack.HorizontalAlignment = HorizontalAlignment.Right;
+            saveStack.Orientation = Orientation.Horizontal;
+            saveStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Button saveButton = new Button();
+            saveButton.Content = "Хадгалах";
+            saveButton.Background = Brushes.White;
+            saveButton.Height = 25;
+            saveButton.Width = 100;
+
+            saveButton.Tag = controls;
+            saveButton.Click += AddEvent;
+
+            Button backButton = new Button();
+            backButton.Content = "Буцах";
+            backButton.Background = Brushes.White;
+            backButton.Height = 25;
+            backButton.Width = 100;
+            
+            backButton.Click += ShowCalendar;
+
+            saveStack.Children.Add(saveButton);
+            saveStack.Children.Add(backButton);
+
+            stackPanel.Children.Add(header);
+            stackPanel.Children.Add(nameStack);
+            stackPanel.Children.Add(sdStack);
+            stackPanel.Children.Add(edStack);
+            stackPanel.Children.Add(itStack);
+            stackPanel.Children.Add(saveStack);
+
+            RightSide.Children.Add(stackPanel);
+        }
+
+        void AddEvent(object sender, RoutedEventArgs e)
+        {
+            List<Object> controls = (List<Object>)((Button)sender).Tag;
+            TextBox nameTB = (TextBox)controls[0];
+            DatePicker sdDP = (DatePicker)controls[1];
+            DatePicker edDP = (DatePicker)controls[2];
+            ComboBox itCB = (ComboBox)controls[3];
+            try
+            {
+                int id = meetingController.eventModel.Add(new Event
+                {
+                    name = nameTB.Text,
+                    startDate = (DateTime)sdDP.SelectedDate,
+                    endDate = (DateTime)edDP.SelectedDate,
+                    intervalType = (byte)itCB.SelectedIndex
+                });
+
+                if (id != -1)
+                {
+                    MessageBox.Show("Тэмдэглэлт өдөр амжилттай нэмэгдлээ.");
+                    ShowCalendar(null, null);
+                }
+                else
+                {
+                    MessageBox.Show("Тэмдэглэлт өдөр нэмэхэд алдаа гарлаа.");
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Тэмдэглэлт өдөр нэмэхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+            }
+        }
+
+
 
         void ModifyMeeting(object sender, RoutedEventArgs e)
         {
@@ -1501,7 +1705,7 @@ namespace IrtsBurtgel
                 meeting = meetingModel.Get(Int32.Parse(id));
             }
             RightSide.Children.Clear();
-            
+
             List<Object> controls = new List<Object>(); //shine medeenuudiig zooh bus 
 
             StackPanel stackPanel = new StackPanel();
@@ -1522,6 +1726,7 @@ namespace IrtsBurtgel
             TextBox name = new TextBox();
             name.Width = 215;
             name.Text = ((Meeting)meeting).name;
+            name.IsEnabled = false;
             controls.Add(name);
 
             nameStack.Children.Add(nameLabel);
@@ -1555,7 +1760,7 @@ namespace IrtsBurtgel
             durationStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label durationLabel = new Label();
-            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа минутаар:";
             durationLabel.Width = 215;
             TextBox duration = new TextBox();
             duration.Width = 215;
@@ -1570,6 +1775,7 @@ namespace IrtsBurtgel
             */
             StackPanel saveStack = new StackPanel();
             saveStack.HorizontalAlignment = HorizontalAlignment.Right;
+            saveStack.Orientation = Orientation.Horizontal;
             saveStack.Margin = new Thickness(0, 5, 0, 5);
 
             Button saveButton = new Button();
@@ -1578,12 +1784,21 @@ namespace IrtsBurtgel
             saveButton.Height = 25;
             saveButton.Width = 100;
 
+            Button backButton = new Button();
+            backButton.Content = "Буцах";
+            backButton.Background = Brushes.White;
+            backButton.Height = 25;
+            backButton.Width = 100;
+            
+            backButton.Click += ShowCalendar;
+
             controls.Add(meeting);
 
             saveButton.Tag = controls;
             saveButton.Click += setMMeeting;
 
             saveStack.Children.Add(saveButton);
+            saveStack.Children.Add(backButton);
 
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
@@ -1594,12 +1809,12 @@ namespace IrtsBurtgel
         }
         void setMMeeting(object sender, RoutedEventArgs e)
         {
-            List<Object> controls= (List<Object>)((Button)sender).Tag;
+            List<Object> controls = (List<Object>)((Button)sender).Tag;
             TextBox name = (TextBox)controls[0];
             TextBox st = (TextBox)controls[1];
             TextBox duration = (TextBox)controls[2];
             Object meeting = controls[3];
-            if(meeting is ModifiedMeeting)
+            if (meeting is ModifiedMeeting)
             {
                 Meeting mmeeting = (Meeting)meeting;
                 mmeeting.name = name.Text;
@@ -1607,6 +1822,7 @@ namespace IrtsBurtgel
                     " " + st.Text);
                 mmeeting.duration = Int32.Parse(duration.Text);
                 modifiedMeetingModel.Set((ModifiedMeeting)meeting);
+                MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
             else
             {
@@ -1617,17 +1833,17 @@ namespace IrtsBurtgel
                     " " + st.Text);
                 mmeeting.duration = Int32.Parse(duration.Text);
                 modifiedMeetingModel.Add(mmeeting);
+                MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
-            MessageBox.Show("Done");
         }
 
         void addParticipantsToMeeting(object sender, RoutedEventArgs e)
         {
             string type = (string)((List<Object>)(((Button)sender).Tag))[0];
             ListBox list = (ListBox)((List<Object>)(((Button)sender).Tag))[1];
-            AddParticipantToMeeting addWindow = new AddParticipantToMeeting(type,list);
+            AddParticipantToMeeting addWindow = new AddParticipantToMeeting(type, list);
             addWindow.ShowDialog();
-            if(type == "group")
+            if (type == "group")
             {
                 ListBox pGroupList = (ListBox)this.FindName("Groups");
                 ListBoxItem newGroup = new ListBoxItem();
@@ -1638,13 +1854,13 @@ namespace IrtsBurtgel
                     pGroupList.Items.Add(newGroup);
                 }
             }
-            else if(type == "user")
+            else if (type == "user")
             {
                 ListBox pGroupList = (ListBox)this.FindName("Users");
                 ListBoxItem newGroup = new ListBoxItem();
                 if (userModel.Get(addWindow.id) != null)
                 {
-                    newGroup.Content = userModel.Get(addWindow.id).fname + " "+ userModel.Get(addWindow.id).lname;
+                    newGroup.Content = userModel.Get(addWindow.id).fname + " " + userModel.Get(addWindow.id).lname;
                     newGroup.Tag = addWindow.id;
                     pGroupList.Items.Add(newGroup);
                 }
@@ -1665,22 +1881,22 @@ namespace IrtsBurtgel
         void removeMeeting(object sender, RoutedEventArgs e)
         {
             Meeting meeting = (Meeting)((Button)sender).Tag;
-            if(meetingModel.MarkAsDeleted(meeting.id))
+            if (meetingModel.MarkAsDeleted(meeting.id))
             {
                 MessageBox.Show("Амжилттай устгалаа");
                 ShowMeetings();
             }
             else
             {
-                MessageBox.Show( "Та орчноо шалгаад дахин оролдоно уу!","Бүтэлгүйтлээ");
+                MessageBox.Show("Та орчноо шалгаад дахин оролдоно уу!", "Бүтэлгүйтлээ");
             }
 
-            
+
         }
         /** Is called when meeting time has to change only 1 time
          * Gets data from meeting , modifies and inserts into Modified meeting
          */
-        void ShowMeetings(object sender=null, RoutedEventArgs e=null)
+        void ShowMeetings(object sender = null, RoutedEventArgs e = null)
         {
             LeftSide.Children.Clear();
             Label label = new Label();
@@ -1689,7 +1905,7 @@ namespace IrtsBurtgel
             Button import = new Button();
             import.Content = "+";
             import.Click += addMeeting;
-            
+
             Button search = new Button();
             Image searchImage = new Image();
             searchImage.Source = new BitmapImage(new Uri("images/searchwhite.png", UriKind.Relative));
@@ -1704,7 +1920,7 @@ namespace IrtsBurtgel
             controls.Add(label);
 
             rcontrols.Add(search);
-            DockPanel dockPanel = addHeader(controls,rcontrols);
+            DockPanel dockPanel = addHeader(controls, rcontrols);
 
             ListBox listbox = new ListBox();
             try
@@ -1719,11 +1935,11 @@ namespace IrtsBurtgel
             listbox.Margin = new Thickness(10, 10, 10, 10);
             listbox.HorizontalAlignment = HorizontalAlignment.Stretch;
 
-            List < Meeting >  meetings = meetingModel.GetAll();
+            List<Meeting> meetings = meetingModel.GetAll();
 
-            foreach(Meeting meeting in meetings)
+            foreach (Meeting meeting in meetings)
             {
-                if(meeting.isDeleted)
+                if (meeting.isDeleted)
                 {
                     continue;
                 }
@@ -1741,7 +1957,7 @@ namespace IrtsBurtgel
 
         }
 
-        void setUser(object sender,RoutedEventArgs e)
+        void setUser(object sender, RoutedEventArgs e)
         {
             List<Object> controls = (List<Object>)(((Button)sender).Tag);
 
@@ -1761,7 +1977,7 @@ namespace IrtsBurtgel
             {
                 MessageBox.Show("Та программ ажиллуулж байгаа орчиноо шалгана уу", "Өөрчилсөнгүй");
             }
-            ShowMembers(sender,null);
+            ShowMembers(sender, null);
         }
         void onUserChanged(object sender, RoutedEventArgs e)
         {
@@ -1800,8 +2016,8 @@ namespace IrtsBurtgel
             grid.RowDefinitions.Add(row1);
             grid.RowDefinitions.Add(row2);
             grid.RowDefinitions.Add(row3);
-            
-            for(int i = 0;i<5;i++)
+
+            for (int i = 0; i < 5; i++)
             {
                 Label nameLabel = new Label();
                 Label valueLabel = new Label();
@@ -1845,7 +2061,7 @@ namespace IrtsBurtgel
             {
                 ExternalDataImporter edi = new ExternalDataImporter();
                 edi.ImportUserData(iuser.xlPath, iuser.datPath, iuser.imagePaths.ToList());
-                ShowMembers(null,null);
+                ShowMembers(null, null);
             }
         }
         void ShowMembers(object sender, RoutedEventArgs e)
@@ -1873,22 +2089,22 @@ namespace IrtsBurtgel
             buttons.Add(label);
             rbuttons.Add(search);
 
-            DockPanel dockPanel = addHeader(buttons,rbuttons);
+            DockPanel dockPanel = addHeader(buttons, rbuttons);
 
             ListBox listbox = new ListBox();
             try
             {
                 RegisterName("listbox", listbox);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 UnregisterName("listbox");
                 RegisterName("listbox", listbox);
             }
             listbox.Margin = new Thickness(10, 10, 10, 10);
-            
+
             List<User> users = userModel.GetAll();
-            foreach(User user in users)
+            foreach (User user in users)
             {
                 ListBoxItem listBoxItem = new ListBoxItem();
 
@@ -1909,7 +2125,7 @@ namespace IrtsBurtgel
             ListBox listBox = (ListBox)controls[0];
             DatePicker st = (DatePicker)controls[1];
             DatePicker et = (DatePicker)controls[2];
-            if(listBox == null || st ==null || et ==null)
+            if (listBox == null || st == null || et == null)
             {
                 MessageBox.Show("Та дээрх бүх талбарыг бөглөнө үү!", "Алдаа");
                 return;
@@ -1917,7 +2133,7 @@ namespace IrtsBurtgel
             ReportExporter re = new ReportExporter(meetingController);
             List<Meeting> meetings;
 
-            if ( (string)((ListBoxItem)listBox.SelectedItem).Content  == "Бүх хурлууд")
+            if ((string)((ListBoxItem)listBox.SelectedItem).Content == "Бүх хурлууд")
             {
                 meetings = meetingModel.GetAll();
             }
@@ -1927,7 +2143,7 @@ namespace IrtsBurtgel
                 meetings.Add(meetingModel.Get(Int32.Parse(((ListBoxItem)listBox.SelectedItem).Uid)));
             }
             re.ExportAttendance(meetings, (DateTime)st.SelectedDate, (DateTime)et.SelectedDate, "report");
-            
+
         }
         void ShowReport(object sender, RoutedEventArgs e)
         {
@@ -2022,7 +2238,7 @@ namespace IrtsBurtgel
             saveButton.Tag = controls;
             saveButton.Content = "Тайлан авах";
             saveButton.Click += getReport;
-            saveButton.Margin = new Thickness(10,0,0,0);
+            saveButton.Margin = new Thickness(10, 0, 0, 0);
             saveButton.HorizontalAlignment = HorizontalAlignment.Right;
 
             timeSelector.Children.Add(startTime);

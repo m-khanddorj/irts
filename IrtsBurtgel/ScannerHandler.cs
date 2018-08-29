@@ -212,7 +212,7 @@ namespace IrtsBurtgel
                     meetingController.mainWindow.Dispatcher.Invoke(() => {
                         foreach(MeetingStatus ms in meetingController.mainWindow.meetingStatusWindows)
                         {
-                            ms.Update(meetingController.onGoingMeetingUserAttendance);
+                            //ms.Update(meetingController.onGoingMeetingUserAttendance);
                         }
                     });
                 }

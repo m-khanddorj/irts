@@ -23,6 +23,7 @@ namespace IrtsBurtgel
         public Model<Attendance> attendanceModel;
         public Model<Department> departmentModel;
         public Model<Position> positionModel;
+        public Model<Status> statusModel;
 
         public Model<MeetingAndUser> muModel;
         public Model<MeetingAndDepartment> mdModel;
@@ -50,6 +51,7 @@ namespace IrtsBurtgel
             attendanceModel = new Model<Attendance>();
             departmentModel = new Model<Department>();
             positionModel = new Model<Position>();
+            statusModel = new Model<Status>();
 
             muModel = new Model<MeetingAndUser>();
             mdModel = new Model<MeetingAndDepartment>();
@@ -145,7 +147,7 @@ namespace IrtsBurtgel
             List<Meeting> meetings = meetingModel.GetAll();
             if (meetings == null || meetings.Count == 0) return "Хурал байхгүй байна.";
 
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 31; i++)
             {
                 meetings = FindByDate(day);
                 if (meetings != null && meetings.Count > 0)
@@ -168,7 +170,7 @@ namespace IrtsBurtgel
 
             if(meeting == null)
             {
-                return "Ойрын 7 хоногт хурал байхгүй.";
+                return "Энэ сард хурал байхгүй.";
             }
 
             int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
@@ -179,7 +181,7 @@ namespace IrtsBurtgel
             }
             else if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)) < DateTime.Now && meeting.startDatetime > DateTime.Now)
             {
-                return "Хурал эхлэхэд:\n" + Math.Floor((meeting.startDatetime - DateTime.Now).TotalMinutes) + " минут дутуу байна. Бүртгэл эхэлсэн.";
+                return "Хурал эхлэхэд:\n" + Math.Floor((meeting.startDatetime - DateTime.Now).TotalMinutes) + ":" + Math.Floor((meeting.startDatetime - DateTime.Now).TotalSeconds) % 60 + " дутуу байна. Бүртгэл эхэлсэн.";
             }
             else
             {
@@ -225,7 +227,7 @@ namespace IrtsBurtgel
                             else
                             {
                                 Event ev = eventModel.Get(mMeeting.event_id);
-                                if (IsInDate(date, ev.intervalType, ev.week, ev.intervalDay, ev.startDate))
+                                if(((ev.intervalType == 0 || ev.intervalType == 2) && date.Date >= ev.startDate && ev.endDate >= date.Date) || (ev.intervalType == 1 && date.Day >= ev.startDate.Day && ev.endDate.Day >= date.Day))
                                 {
                                     if (mMeeting.duration != 0)
                                     {
