@@ -34,7 +34,10 @@ namespace IrtsBurtgel
         Model<MeetingAndDepartment> madModel;
         Model<MeetingAndPosition> mapModel;
         Model<ModifiedMeeting> modifiedMeetingModel;
+        Model<Attendance> attModel;
+        Model<ArchivedMeeting> archModel;
         public List<MeetingStatus> meetingStatusWindows;
+        bool is_home = false;
 
         public MainWindow()
         {
@@ -50,7 +53,9 @@ namespace IrtsBurtgel
             mapModel = meetingController.mpModel;
             modifiedMeetingModel = meetingController.modifiedMeetingModel;
             meetingStatusWindows = new List<MeetingStatus>();
-
+            archModel = new Model<ArchivedMeeting>();
+            attModel = new Model<Attendance>();
+            
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -105,6 +110,7 @@ namespace IrtsBurtgel
 
         private void showMenu(object sender = null, RoutedEventArgs e = null)
         {
+            is_home = true;
             //meetingController.StopMeeting();
             LeftSide.Children.Clear();
             LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -198,12 +204,16 @@ namespace IrtsBurtgel
 
             Label timeHeaderLabel = new Label();
             timeHeaderLabel.Content = "Огноо";
+            timeHeaderLabel.Background =  new SolidColorBrush(Color.FromArgb(0xFF, 00, 0x7A, 0xCC));
+            timeHeaderLabel.Foreground = Brushes.White;
 
             Grid.SetRow(timeHeaderLabel, 0);
             Grid.SetColumn(timeHeaderLabel, 0);
 
             Label closestMeetingLabel = new Label();
             closestMeetingLabel.Content = "Хурлын нэр";
+            closestMeetingLabel.Background = new SolidColorBrush(Color.FromArgb(0xFF, 00, 0x7A, 0xCC));
+            closestMeetingLabel.Foreground = Brushes.White;
 
             Grid.SetRow(closestMeetingLabel,0);
             Grid.SetColumn(closestMeetingLabel, 1);
@@ -266,6 +276,15 @@ namespace IrtsBurtgel
             RightSide.Children.Add(status);
         }
 
+        void goBack(object sender = null, RoutedEventArgs e = null)
+        {
+            if (is_home)
+            {
+                System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+                Application.Current.Shutdown();
+            }
+            else showMenu();
+        }
         DockPanel addHeader(List<Object> controls = null, List<Object> rControls = null)
         {
             LeftSide.VerticalAlignment = VerticalAlignment.Stretch;
@@ -281,7 +300,7 @@ namespace IrtsBurtgel
 
             back.Content = "⯇";
             back.FontSize = 20;
-            back.Click += showMenu;
+            back.Click += goBack;
             back.Foreground = Brushes.White;
             back.BorderBrush = Brushes.Transparent;
             back.Background = Brushes.Transparent;
@@ -472,7 +491,7 @@ namespace IrtsBurtgel
             DockPanel dockPanel = addHeader(list, rControls);
 
             ListBox listbox = new ListBox();
-            listbox.Margin = new Thickness(10, 10, 10, 10);
+            listbox.Margin = new Thickness(10, 10, 10, 20);
             if ((DateTime)calendar.SelectedDate >= DateTime.Today)
             {
                 List<Meeting> meetings = meetingController.FindByDate((DateTime)calendar.SelectedDate);
@@ -502,6 +521,7 @@ namespace IrtsBurtgel
          */
         void ShowCalendar(object sender, RoutedEventArgs e)
         {
+            is_home = false;
             RightSide.Children.Clear();
             LeftSide.Children.Clear();
             LeftSide.Tag = DateTime.Now;
@@ -555,7 +575,7 @@ namespace IrtsBurtgel
 
 
             ListBox listbox = new ListBox();
-            listbox.Margin = new Thickness(10, 10, 10, 10);
+            listbox.Margin = new Thickness(10, 10, 10, 20);
             if ((DateTime)calendar.SelectedDate < DateTime.Today)
             {
                 List<ArchivedMeeting> meetings = meetingController.GetArchivedMeetingByDate((DateTime)calendar.SelectedDate);
@@ -603,7 +623,7 @@ namespace IrtsBurtgel
                     listBox.Items.Remove(selectedItems[i]);
             }
             else
-                MessageBox.Show("Та жагсаалтаас хасах хүмүүсээ эхлээд сонгоно уу.");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та жагсаалтаас хасах хүмүүсээ эхлээд сонгоно уу.");
         }
 
         void addMeeting(object sender, RoutedEventArgs e)
@@ -947,7 +967,15 @@ namespace IrtsBurtgel
             stackPanel.Children.Add(pStack);
             stackPanel.Children.Add(saveStack);
 
-            RightSide.Children.Add(stackPanel);
+            ScrollViewer scrollViewer = new ScrollViewer();
+            scrollViewer.Content = stackPanel;
+            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            if (FindName("scroll") != null) UnregisterName("scroll");
+            RegisterName("scroll", scrollViewer);
+
+            scrollViewer.Height = ActualHeight - 50;
+            scrollViewer.Margin = new Thickness(0, 0, 0, 0);
+            RightSide.Children.Add(scrollViewer);
         }
         void insertMeeting(object sender, RoutedEventArgs e)
         {
@@ -1505,9 +1533,9 @@ namespace IrtsBurtgel
             if (FindName("scroll") != null) UnregisterName("scroll");
             RegisterName("scroll", scrollViewer);
 
-            scrollViewer.Margin = new Thickness(0, 0, -20, 0);
+            scrollViewer.Height = ActualHeight - 50;
+            scrollViewer.Margin = new Thickness(0, 0, 0, 0);
             RightSide.Children.Add(scrollViewer);
-            scrollViewer.Height = ActualHeight-50;
         }
         void setMeeting(object sender, RoutedEventArgs e)
         {
@@ -2060,6 +2088,7 @@ namespace IrtsBurtgel
          */
         void ShowMeetings(object sender = null, RoutedEventArgs e = null)
         {
+            is_home = false;
             LeftSide.Children.Clear();
             Label label = new Label();
             label.Content = "Нийт хурлууд:";
@@ -2094,7 +2123,7 @@ namespace IrtsBurtgel
                 UnregisterName("listbox");
                 RegisterName("listbox", listbox);
             }
-            listbox.Margin = new Thickness(10, 10, 10, 10);
+            listbox.Margin = new Thickness(10, 10, 10, 20);
             listbox.HorizontalAlignment = HorizontalAlignment.Stretch;
 
             List<Meeting> meetings = meetingModel.GetAll();
@@ -2179,12 +2208,20 @@ namespace IrtsBurtgel
             grid.RowDefinitions.Add(row2);
             grid.RowDefinitions.Add(row3);
 
-            var webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
+            BitmapImage webImage;
+            try
+            {
+                webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
+            }
+            catch(Exception ex)
+            {
+                webImage = new BitmapImage(new Uri("images/user.png",UriKind.Relative));
+            }
             float scaleHeight = (float)350 / (float)webImage.Height;
             float scaleWidth = (float)350 / (float)webImage.Width;
             float scale = Math.Min(scaleHeight, scaleWidth);
 
-            var imageControl = new Image
+            Image imageControl = new Image
             {
                 Source = webImage,
                 Height = (int)(webImage.Width * scale),
@@ -2233,6 +2270,29 @@ namespace IrtsBurtgel
             changeStatus.Uid = id;
             changeStatus.Click += setStatus;
 
+            Label status = new Label();
+
+            List<Attendance> allAtts = attModel.GetByFK(user.IDName, user.id);
+            List<Attendance> atts = new List<Attendance>();
+            foreach(Attendance att in allAtts)
+            {
+                if(archModel.Get(att.archivedMeetingId).meetingDatetime > DateTime.Today.AddMonths(-1))
+                {
+                    atts.Add(att);
+                }
+            }
+            int came = 0;
+            int lateMin = 0;
+            foreach(Attendance att in atts)
+            {
+                if (att.statusId == 1) came++;
+                if (att.statusId == 2) lateMin += att.regTime;
+            }
+            status.Content = "Өнгөрсөн сард нийт ";
+            status.Content += atts.Count.ToString() + "хуралд оролцох ёстой байснаас ";
+            status.Content += came.ToString() + "хуралд оролцсон ба нийт ";
+            status.Content += lateMin.ToString() + " минут хоцорсон.";
+
             RightSide.Children.Add(changeStatus);
         }
         void setStatus(object sender,RoutedEventArgs e)
@@ -2255,6 +2315,7 @@ namespace IrtsBurtgel
         }
         void ShowMembers(object sender, RoutedEventArgs e)
         {
+            is_home = false;
             LeftSide.Children.Clear();
 
             Label label = new Label();
@@ -2290,7 +2351,7 @@ namespace IrtsBurtgel
                 UnregisterName("listbox");
                 RegisterName("listbox", listbox);
             }
-            listbox.Margin = new Thickness(10, 10, 10, 10);
+            listbox.Margin = new Thickness(10, 10, 10, 20);
 
             List<User> users = userModel.GetAll();
             users = users.OrderBy(x => x.departmentId).ToList();
@@ -2340,6 +2401,7 @@ namespace IrtsBurtgel
         }
         void ShowReport(object sender, RoutedEventArgs e)
         {
+            is_home = false;
             RightSide.Children.Clear();
 
             List<Object> controls = new List<Object>();
@@ -2461,7 +2523,6 @@ namespace IrtsBurtgel
         }
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            meetingController.aTimer.Stop();
 
             if (meetingController.onGoingMeetingUserAttendance != null && meetingController.onGoingMeetingUserAttendance.Count > 0)
             {
