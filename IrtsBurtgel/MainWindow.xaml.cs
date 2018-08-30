@@ -2261,7 +2261,6 @@ namespace IrtsBurtgel
             }
 
             border.Child = grid;
-            RightSide.Children.Add(border);
 
             Button changeStatus = new Button();
             changeStatus.Content = "Хэрэглэгчийн төлөв өөрчлөх";
@@ -2269,9 +2268,6 @@ namespace IrtsBurtgel
             changeStatus.Height = 30;
             changeStatus.Uid = id;
             changeStatus.Click += setStatus;
-
-            TextBox status = new TextBox();
-            status.TextWrapping = TextWrapping.Wrap;
 
             List<Attendance> allAtts = attModel.GetByFK(user.IDName, user.id);
             List<Attendance> atts = new List<Attendance>();
@@ -2284,18 +2280,64 @@ namespace IrtsBurtgel
             }
             int came = 0;
             int lateMin = 0;
+            int abs = 0;
             foreach(Attendance att in atts)
             {
                 if (att.statusId == 1) came++;
                 if (att.statusId == 2) lateMin += att.regTime;
+                if (att.statusId == 14) abs++;
             }
-            status.Text = "Өнгөрсөн сард нийт ";
-            status.Text += atts.Count.ToString() + "хуралд оролцох ёстой байснаас ";
-            status.Text += came.ToString() + "хуралд оролцсон ба нийт ";
-            status.Text += lateMin.ToString() + " минут хоцорсон.";
 
-            RightSide.Children.Add(changeStatus);
-            RightSide.Children.Add(status);
+            Label statHeader = new Label();
+            statHeader.Content = "Сүүлийн сард:";
+            statHeader.FontSize = 20;
+
+            Grid statGrid = new Grid();
+
+            ColumnDefinition scol0 = new ColumnDefinition();
+            ColumnDefinition scol1 = new ColumnDefinition();
+            scol0.Width =new  GridLength(1, GridUnitType.Star);
+            scol1.Width =new  GridLength(40);
+
+            statGrid.ColumnDefinitions.Add(scol0);
+            statGrid.ColumnDefinitions.Add(scol1);
+
+            RowDefinition[] srow = new RowDefinition[4];
+            for(int i=0;i<4;i++)
+            {
+                srow[i] = new RowDefinition();
+                srow[i].Height = new GridLength(30);
+                statGrid.RowDefinitions.Add(srow[i]);
+            }
+            string[] names = {"Нийт хурлын тоо:","Ирсэн хурлын тоо:","Тасалсан тоо:","Хоцорсон минут:" };
+            string[] values = { atts.Count.ToString(), came.ToString(), abs.ToString(), lateMin.ToString() };
+            for(int i=0;i<4;i++)
+            {
+                Label nameLabel = new Label();
+                Label valueLabel = new Label();
+                nameLabel.Content = names[i];
+                valueLabel.Content = values[i];
+
+                Grid.SetRow(nameLabel, i);
+                Grid.SetRow(valueLabel, i);
+                Grid.SetColumn(nameLabel, 0);
+                Grid.SetColumn(valueLabel, 1);
+                statGrid.Children.Add(nameLabel);
+                statGrid.Children.Add(valueLabel);
+            }
+            StackPanel stackPanel = new StackPanel();
+            stackPanel.Children.Add(border);
+            stackPanel.Children.Add(changeStatus);
+            stackPanel.Children.Add(statHeader);
+            stackPanel.Children.Add(statGrid);
+            
+            ScrollViewer scv = new ScrollViewer();
+            scv.Height = ActualHeight-50;
+            if (FindName("scroll") != null) UnregisterName("scroll");
+            RegisterName("scroll", scv);
+
+            scv.Content = stackPanel;
+            RightSide.Children.Add(scv);
         }
         void setStatus(object sender,RoutedEventArgs e)
         {
