@@ -152,6 +152,7 @@
     <Compile Include="MeetingStatus.xaml.cs">
       <DependentUpon>MeetingStatus.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserDataItem.cs" />
     <Compile Include="Userstatus.cs" />
     <Compile Include="AskTheReason.xaml.cs">
       <DependentUpon>AskTheReason.xaml</DependentUpon>
@@ -259,6 +260,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\jquery.timepicker.css" />
+    <Resource Include="images\user.png" />
     <Content Include="Scripts\jquery-1.7-vsdoc.js" />
     <Content Include="Scripts\jquery-1.7.js" />
     <Content Include="Scripts\jquery-1.7.min.js" />
