@@ -98,7 +98,9 @@ namespace IrtsBurtgel
                             Console.WriteLine("Setted Status = " + status.ToString());
                             return;
                         }
-
+                        Console.WriteLine(meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).TimeOfDay);
+                        Console.WriteLine(now.TimeOfDay);
+                        Console.WriteLine(meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay);
                         if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).TimeOfDay < now.TimeOfDay && meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay > now.TimeOfDay)
                         {
                             Console.WriteLine("Detected ongoing meeting. Fast forwarding meeting.");
@@ -439,7 +441,6 @@ namespace IrtsBurtgel
 
         public bool StopMeeting()
         {
-
             if (onGoingMeetingUserAttendance != null && onGoingMeetingUserAttendance.Count > 0)
             {
                 foreach (Object[] userAttendance in onGoingMeetingUserAttendance)

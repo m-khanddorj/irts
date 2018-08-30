@@ -11,9 +11,16 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Button Content="Нэмэх" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Click="Add"/>
-        <TextBox HorizontalAlignment="Stretch" x:Name="searchBox" Height="23" Margin="10,10,38,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,38,10,38" x:Name="listbox"/>
-        <Button HorizontalAlignment="Right" Click="Search" Background="White" Margin="10,10,10,10" VerticalAlignment="Top" Width="23" Height="23">
+        <TextBox HorizontalAlignment="Stretch" x:Name="searchBox" Height="23" Margin="10,10,38,0" TextWrapping="Wrap" VerticalAlignment="Top" ForceCursor="True"/>
+        <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,38" x:Name="listbox" SelectionMode="Multiple">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <EventSetter Event="MouseEnter" Handler="ListBoxItem_MouseEnter"/>
+                    <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListBoxItem_PreviewMouseLeftButtonDown"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+        <Button IsDefault="True" HorizontalAlignment="Right" Click="Search" Background="White" Margin="10,10,10,10" VerticalAlignment="Top" Width="23" Height="23">
             <Image Source="images/search.png"></Image>
         </Button>
 

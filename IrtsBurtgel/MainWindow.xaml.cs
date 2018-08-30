@@ -59,8 +59,13 @@ namespace IrtsBurtgel
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            time.Text = meetingController.TextToDisplay();
+            string texttodisplay = meetingController.TextToDisplay();
+            time.Text = texttodisplay;
             meetingController.CheckMeeting();
+            foreach (MeetingStatus ms in meetingStatusWindows)
+            {
+                //ms.DisplayCountDown(texttodisplay);
+            }
         }
 
         public void login(object sender, RoutedEventArgs e)
@@ -468,19 +473,7 @@ namespace IrtsBurtgel
 
             ListBox listbox = new ListBox();
             listbox.Margin = new Thickness(10, 10, 10, 10);
-            if ((DateTime)calendar.SelectedDate < DateTime.Today)
-            {
-                List<ArchivedMeeting> meetings = meetingController.GetArchivedMeetingByDate((DateTime)calendar.SelectedDate);
-                foreach (ArchivedMeeting meeting in meetings)
-                {
-                    ListBoxItem listBoxItem = new ListBoxItem();
-                    listBoxItem.Content = meeting.name;
-                    listBoxItem.Uid = meeting.id.ToString();
-                    listBoxItem.Height = 25;
-                    listbox.Items.Add(listBoxItem);
-                }
-            }
-            else
+            if ((DateTime)calendar.SelectedDate >= DateTime.Today)
             {
                 List<Meeting> meetings = meetingController.FindByDate((DateTime)calendar.SelectedDate);
                 int i = 1;
@@ -602,8 +595,15 @@ namespace IrtsBurtgel
         void RemoveFromList(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)((Button)sender).Tag;
-            listBox.Items.Remove(listBox.SelectedItem);
-            return;
+            var selectedItems = listBox.SelectedItems;
+
+            if (listBox.SelectedIndex != -1)
+            {
+                for (int i = selectedItems.Count - 1; i >= 0; i--)
+                    listBox.Items.Remove(selectedItems[i]);
+            }
+            else
+                MessageBox.Show("Та жагсаалтаас хасах хүмүүсээ эхлээд сонгоно уу.");
         }
 
         void addMeeting(object sender, RoutedEventArgs e)
@@ -782,6 +782,7 @@ namespace IrtsBurtgel
             ListBox pGroupList = new ListBox();
             controls.Add(pGroupList);
             pGroupList.Margin = new Thickness(0, 0, 0, 10);
+            pGroupList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Groups", pGroupList);
@@ -828,6 +829,7 @@ namespace IrtsBurtgel
             ListBox pUserList = new ListBox();
             controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
+            pUserList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Users", pUserList);
@@ -875,6 +877,7 @@ namespace IrtsBurtgel
             ListBox pPositionList = new ListBox();
             controls.Add(pPositionList);
             pPositionList.Margin = new Thickness(0, 0, 0, 10);
+            pPositionList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Positions", pPositionList);
@@ -1177,7 +1180,6 @@ namespace IrtsBurtgel
 
             regStartStack.Children.Add(regStartLabel);
             regStartStack.Children.Add(regStart);
-            
             /**
                 * ending time Stack
                 */
@@ -1301,6 +1303,7 @@ namespace IrtsBurtgel
             }
             controls.Add(pGroupList);
             pGroupList.Margin = new Thickness(0, 0, 0, 10);
+            pGroupList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Groups", pGroupList);
@@ -1348,6 +1351,7 @@ namespace IrtsBurtgel
             pUserList.MaxHeight = 105;
             controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
+            pUserList.SelectionMode = SelectionMode.Multiple;
             List<MeetingAndUser> maus = mauModel.GetByFK(meeting.IDName, meeting.id);
             foreach (MeetingAndUser mau in maus)
             {
@@ -1413,6 +1417,7 @@ namespace IrtsBurtgel
             }
             controls.Add(pPositionList);
             pPositionList.Margin = new Thickness(0, 0, 0, 10);
+            pPositionList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Positions", pPositionList);
@@ -1990,35 +1995,47 @@ namespace IrtsBurtgel
             addWindow.ShowDialog();
             if (type == "group")
             {
-                ListBox pGroupList = (ListBox)this.FindName("Groups");
-                ListBoxItem newGroup = new ListBoxItem();
+                ListBox gGroupList = (ListBox)this.FindName("Groups");
                 if ((bool)addWindow.DialogResult)
                 {
-                    newGroup.Content = depModel.Get(addWindow.id).name;
-                    newGroup.Tag = addWindow.id;
-                    pGroupList.Items.Add(newGroup);
+                    List<Department> departments = depModel.Get(addWindow.ids);
+                    foreach (Department department in departments)
+                    {
+                        ListBoxItem newGroup = new ListBoxItem();
+                        newGroup.Content = department.name;
+                        newGroup.Tag = department.id;
+                        gGroupList.Items.Add(newGroup);
+                    }
                 }
             }
             else if (type == "user")
             {
-                ListBox pGroupList = (ListBox)this.FindName("Users");
-                ListBoxItem newGroup = new ListBoxItem();
-                if (userModel.Get(addWindow.id) != null)
+                ListBox uGroupList = (ListBox)this.FindName("Users");
+                if ((bool)addWindow.DialogResult)
                 {
-                    newGroup.Content = userModel.Get(addWindow.id).fname + " " + userModel.Get(addWindow.id).lname;
-                    newGroup.Tag = addWindow.id;
-                    pGroupList.Items.Add(newGroup);
+                    List<User> users = userModel.Get(addWindow.ids);
+                    foreach (User user in users)
+                    {
+                        ListBoxItem newGroup = new ListBoxItem();
+                        newGroup.Content = user.fname + " " + user.lname;
+                        newGroup.Tag = user.id;
+                        uGroupList.Items.Add(newGroup);
+                    }
                 }
             }
             else
             {
                 ListBox pGroupList = (ListBox)FindName("Positions");
-                ListBoxItem newGroup = new ListBoxItem();
-                if (posModel.Get(addWindow.id) != null)
+                if ((bool)addWindow.DialogResult)
                 {
-                    newGroup.Content = posModel.Get(addWindow.id).name;
-                    newGroup.Tag = addWindow.id;
-                    pGroupList.Items.Add(newGroup);
+                    List<Position> positions = posModel.Get(addWindow.ids);
+                    foreach (Position position in positions)
+                    {
+                        ListBoxItem newGroup = new ListBoxItem();
+                        newGroup.Content = position.name;
+                        newGroup.Tag = position.id;
+                        pGroupList.Items.Add(newGroup);
+                    }
                 }
             }
         }
@@ -2081,7 +2098,7 @@ namespace IrtsBurtgel
             listbox.HorizontalAlignment = HorizontalAlignment.Stretch;
 
             List<Meeting> meetings = meetingModel.GetAll();
-
+            int i = 1;
             foreach (Meeting meeting in meetings)
             {
                 if (meeting.isDeleted)
@@ -2089,11 +2106,12 @@ namespace IrtsBurtgel
                     continue;
                 }
                 ListBoxItem listBoxItem = new ListBoxItem();
-
-                listBoxItem.Content = meeting.name;
+                if (meeting.duration == 0) listBoxItem.Content = listBoxItem.Content = i + ". " + meeting.name + ", " + meeting.startDatetime.ToString("HH:mm") + " цагийн хурал цуцлагдсан";
+                else listBoxItem.Content = i + ". " + meeting.name + ", " + meeting.startDatetime.ToString("HH:mm") + ", " + meeting.duration + " минут";
                 listBoxItem.Uid = meeting.id.ToString();
                 listBoxItem.Height = 25;
                 listbox.Items.Add(listBoxItem);
+                i++;
             }
             listbox.SelectionChanged += onMeetingNameChanged;
 
@@ -2135,7 +2153,6 @@ namespace IrtsBurtgel
             List<Object> controls = new List<Object>();
 
             Grid grid = new Grid();
-            grid.ShowGridLines = true;
             Border border = new Border();
             border.BorderBrush = Brushes.Black;
             border.BorderThickness = new Thickness(.5);
@@ -2143,7 +2160,7 @@ namespace IrtsBurtgel
             ColumnDefinition col0 = new ColumnDefinition();
             col0.Width = new GridLength(1, GridUnitType.Star);
             ColumnDefinition col1 = new ColumnDefinition();
-            col1.Width = new GridLength(1, GridUnitType.Star);
+            col1.Width = new GridLength(2, GridUnitType.Star);
 
             grid.ColumnDefinitions.Add(col0);
             grid.ColumnDefinitions.Add(col1);
@@ -2162,7 +2179,24 @@ namespace IrtsBurtgel
             grid.RowDefinitions.Add(row2);
             grid.RowDefinitions.Add(row3);
 
-            for (int i = 0; i < 5; i++)
+            var webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
+            float scaleHeight = (float)350 / (float)webImage.Height;
+            float scaleWidth = (float)350 / (float)webImage.Width;
+            float scale = Math.Min(scaleHeight, scaleWidth);
+
+            var imageControl = new Image
+            {
+                Source = webImage,
+                Height = (int)(webImage.Width * scale),
+                Width = (int)(webImage.Height * scale)
+            };
+
+            Grid.SetColumn(imageControl, 0);
+            Grid.SetColumnSpan(imageControl, 2);
+            Grid.SetRow(imageControl, 0);
+            grid.Children.Add(imageControl);
+
+            for (int i = 1; i < 5; i++)
             {
                 Label nameLabel = new Label();
                 Label valueLabel = new Label();
@@ -2172,10 +2206,6 @@ namespace IrtsBurtgel
                 Grid.SetRow(valueLabel, i);
                 switch (i)
                 {
-                    case 0:
-                        nameLabel.Content = "Овог:";
-                        valueLabel.Content = user.lname;
-                        break;
                     case 1:
                         nameLabel.Content = "Нэр:";
                         valueLabel.Content = user.fname;
@@ -2263,14 +2293,18 @@ namespace IrtsBurtgel
             listbox.Margin = new Thickness(10, 10, 10, 10);
 
             List<User> users = userModel.GetAll();
+            users = users.OrderBy(x => x.departmentId).ToList();
+            Dictionary<int, string> departmentNames = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
+            int i = 1;
             foreach (User user in users)
             {
                 ListBoxItem listBoxItem = new ListBoxItem();
 
-                listBoxItem.Content = user.lname + " " + user.fname;
+                listBoxItem.Content = i + ". " + user.lname + " " + user.fname + ", " + (user.departmentId != -1? departmentNames[user.departmentId]:"Хэлтэсгүй");
                 listBoxItem.Uid = user.id.ToString();
                 listBoxItem.Height = 25;
                 listbox.Items.Add(listBoxItem);
+                i++;
             }
             listbox.SelectionChanged += onUserChanged;
 
@@ -2428,7 +2462,11 @@ namespace IrtsBurtgel
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             meetingController.aTimer.Stop();
-            meetingController.StopMeeting();
+
+            if (meetingController.onGoingMeetingUserAttendance != null && meetingController.onGoingMeetingUserAttendance.Count > 0)
+            {
+                meetingController.scannerHandler.Stop();
+            }
             base.OnClosing(e);
         }
     }

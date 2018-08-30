@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +24,8 @@ namespace IrtsBurtgel
         MeetingController meetingController;
         Dictionary<int, string> statuses;
         Dictionary<int, string> departments;
-        Dictionary<int, Grid> departmentGrids;
+        Dictionary<int, ObservableCollection<UserDataItem>> userDataItemsByDepId;
+        Dictionary<int, UserDataItem> userDataItems;
 
         //dummy data
         public MeetingStatus(MeetingController mc)
@@ -36,9 +38,10 @@ namespace IrtsBurtgel
             meetingController = mc;
             statuses = meetingController.statusModel.GetAll().ToDictionary(x => x.id, x => x.name);
             departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
-            if(meetingController.status == MeetingController.MEETING_STARTED)
+            userDataItemsByDepId = new Dictionary<int, ObservableCollection<UserDataItem>>();
+            userDataItems = new Dictionary<int, UserDataItem>();
+            if (meetingController.status == MeetingController.MEETING_STARTED)
             {
-                departmentGrids = new Dictionary<int, Grid>();
                 BuildDepartControls();
                 PlaceUsers(meetingController.onGoingMeetingUserAttendance);
             }
@@ -66,10 +69,30 @@ namespace IrtsBurtgel
                 this.WindowStyle = WindowStyle.ThreeDBorderWindow;
             }
         }
+        /*
+        public void DisplayCountDown(string textToDisplay)
+        {
+            ColumnDefinition gridCol = new ColumnDefinition();
+            gridCol.Width = new GridLength(1, GridUnitType.Star);
+            gridDeparts.ColumnDefinitions.Add(gridCol);
+            RowDefinition gridRow = new RowDefinition();
+            gridRow.Height = new GridLength(1, GridUnitType.Star);
+            gridDeparts.RowDefinitions.Add(gridRow);
+
+            TextBlock textBlock = new TextBlock();
+            textBlock.TextWrapping = TextWrapping.Wrap;
+            textBlock.Text = textToDisplay;
+            textBlock.Margin = new Thickness(5, 5, 5, 5);
+            textBlock.FontSize = 25;
+            textBlock.FontWeight = FontWeights.Light;
+            textBlock.Foreground = Brushes.White;
+        }*/
 
         public void BuildDepartControls()
         {
-            for(int i = 0; i < 5; i++)
+            gridDeparts.Children.Clear();
+
+            for (int i = 0; i < 5; i++)
             {
                 ColumnDefinition gridCol = new ColumnDefinition();
                 gridCol.Width = new GridLength(1, GridUnitType.Star);
@@ -85,116 +108,145 @@ namespace IrtsBurtgel
                     gridDeparts.RowDefinitions.Add(gridRow);
                 }
 
+                Border border1 = new Border
+                {
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(1, 1, 1, 1)
+                };
+
                 Grid DynamicGrid = new Grid();
                 DynamicGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
                 DynamicGrid.VerticalAlignment = VerticalAlignment.Top;
-                DynamicGrid.ShowGridLines = true;
                 DynamicGrid.Background = new SolidColorBrush(Colors.White);
 
                 ColumnDefinition gridCol1 = new ColumnDefinition();
                 gridCol1.Width = new GridLength(1, GridUnitType.Star);
                 DynamicGrid.ColumnDefinitions.Add(gridCol1);
 
-                ColumnDefinition gridCol2 = new ColumnDefinition();
-                gridCol2.Width = new GridLength(70);
-                DynamicGrid.ColumnDefinitions.Add(gridCol2);
-
                 RowDefinition gridRow1 = new RowDefinition();
                 gridRow1.Height = new GridLength(50);
                 DynamicGrid.RowDefinitions.Add(gridRow1);
+                
+                RowDefinition gridRow2 = new RowDefinition();
+                gridRow2.Height = new GridLength(1, GridUnitType.Star);
+                DynamicGrid.RowDefinitions.Add(gridRow2);
 
+                Border border = new Border
+                {
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(1, 1, 1, 1)
+                };
+                
                 TextBlock textBlock = new TextBlock();
                 textBlock.TextWrapping = TextWrapping.Wrap;
                 textBlock.Text = entry.Value;
                 textBlock.Margin = new Thickness(5, 5, 5, 5);
-                Grid.SetRow(textBlock, 0);
-                Grid.SetColumn(textBlock, 0);
-                Grid.SetColumnSpan(textBlock, 2);
-                Grid.SetRowSpan(textBlock, 2);
-              
-                DynamicGrid.Children.Add(textBlock);
+                border.Child = textBlock;
 
-                Grid.SetRow(DynamicGrid, count/5);
-                Grid.SetColumn(DynamicGrid, count%5);
+                Grid.SetRow(border, 0);
+                Grid.SetColumn(border, 0);
+
+                ObservableCollection<UserDataItem> udi = new ObservableCollection<UserDataItem>();
+                userDataItemsByDepId.Add(entry.Key, udi);
+
+                var datagrid = new DataGrid();
+                datagrid.ItemsSource = udi;
+                datagrid.IsReadOnly = true;
+                datagrid.AutoGenerateColumns = false;
+                datagrid.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+                datagrid.Columns.Add(new DataGridTextColumn()
+                {
+                    Header = "Нэр",
+                    Width = new DataGridLength(1, DataGridLengthUnitType.Star),
+                    Binding = new Binding("Name")
+                });
+                datagrid.Columns.Add(new DataGridTextColumn()
+                {
+                    Header = "Төлөв",
+                    Width = new DataGridLength(100),
+                    Binding = new Binding("Status")
+                });
+
+                Grid.SetRow(datagrid, 1);
+                Grid.SetColumn(datagrid, 0);
+
+                DynamicGrid.Children.Add(border);
+                DynamicGrid.Children.Add(datagrid);
+
+                Grid.SetRow(DynamicGrid, count / 5);
+                Grid.SetColumn(DynamicGrid, count % 5);
                 gridDeparts.Children.Add(DynamicGrid);
-
-                departmentGrids.Add(entry.Key, DynamicGrid);
                 count++;
             }
         }
 
         public void PlaceUsers(List<object[]> userAttendances)
         {
+            userAttendances = userAttendances.OrderBy(x => ((Attendance)x[1]).statusId).ToList();
+
+            foreach (KeyValuePair<int, string> entry in departments) {
+                userDataItemsByDepId[entry.Key].Clear();
+            }
+
             foreach (object[] obj in userAttendances)
             {
                 RowDefinition tmprow = new RowDefinition();
                 tmprow.Height = new GridLength(40, GridUnitType.Pixel);
-                
 
                 User user = (User)obj[0];
                 Attendance att = (Attendance)obj[1];
-                
-                Label userlabel = new Label
-                {
-                    Content = user.fname + " " + user.lname,
-                };
-                Label latelabel = new Label
-                {
-                    Content = att.statusId == 2 ? statuses[att.statusId] + " (" + att.regTime + ")" : statuses[att.statusId]
-                };
 
-                Grid.SetRow(userlabel, departmentGrids[user.departmentId].RowDefinitions.Count);
-                Grid.SetRow(latelabel, departmentGrids[user.departmentId].RowDefinitions.Count);
-                Grid.SetColumn(userlabel, 0);
-                Grid.SetColumn(latelabel, 1);
+                if(att.statusId == 1)
+                {
+                    continue;
+                }
 
-                departmentGrids[user.departmentId].RowDefinitions.Add(tmprow);
-                departmentGrids[user.departmentId].Children.Add(userlabel);
-                departmentGrids[user.departmentId].Children.Add(latelabel);
+                UserDataItem userData = new UserDataItem
+                {
+                    Name = user.fname + " " + user.lname,
+                    Status = att.statusId == 2 ? statuses[att.statusId] + " (" + att.regTime + ")" : statuses[att.statusId],
+                    StatusID = att.statusId.ToString()
+                };
+                userDataItemsByDepId[user.departmentId].Add(userData);
+                userDataItems.Add(user.id, userData);
             }
         }
 
-        //public void Update(List<object[]> latepeople)
-        //{
-        //    attendancelabel.content = latepeople.count;
-        //    status1.rowdefinitions.clear();
-        //    status1.children.clear();
+        public void Update(object[] identifiedUserAttendance)
+        {
+            User user = (User)identifiedUserAttendance[0];
+            Attendance attendance = (Attendance)identifiedUserAttendance[1];
+            if (meetingController.status == MeetingController.MEETING_STARTED)
+            {
+                if (attendance.statusId == 1)
+                {
+                    userDataItemsByDepId[user.departmentId].Remove(userDataItems[user.id]);
+                }
+                else
+                {
+                    userDataItems[user.id].Status = attendance.statusId == 2 ? statuses[attendance.statusId] + " (" + attendance.regTime + ")" : statuses[attendance.statusId];
+                    if (attendance.statusId == 2)
+                    {
+                        int len = userDataItemsByDepId[user.departmentId].Count;
+                        int i;
+                        for (i = 0; i < len; i++)
+                        {
+                            if(userDataItemsByDepId[user.departmentId][i].statusId != 15)
+                            {
+                                userDataItemsByDepId[user.departmentId].Move(userDataItemsByDepId[user.departmentId].IndexOf(userDataItems[user.id]), i);
+                                break;
+                            }
+                        }
 
-        //    rowdefinition row = new rowdefinition();
-        //    row.height = new gridlength(1, gridunittype.star);
-
-        //    status1.rowdefinitions.add(row);
-        //    label namelabel = new label();
-        //    namelabel.content = "ажилтны нэр";
-        //    label lateminute = new label();
-        //    lateminute.content = "төлөв";
-
-        //    foreach (object[] obj in latepeople)
-        //    {
-        //        rowdefinition tmprow = new rowdefinition();
-        //        tmprow.height = new gridlength(40, gridunittype.pixel);
-
-        //        user user = (user)obj[0];
-        //        attendance att = (attendance)obj[1];
-
-        //        label userlabel = new label();
-        //        userlabel.content = user.fname + " " + user.lname;
-        //        label latelabel = new label();
-        //        latelabel.content = statuses[att.statusid];
-
-        //        status1.rowdefinitions.add(tmprow);
-        //        int rownum = status1.rowdefinitions.count - 1;
-
-        //        grid.setcolumn(userlabel, 0);
-        //        grid.setcolumn(latelabel, 1);
-
-        //        grid.setrow(userlabel, rownum);
-        //        grid.setrow(latelabel, rownum);
-
-        //        status1.children.add(userlabel);
-        //        status1.children.add(latelabel);
-
-        //    }
-        //}
+                        if(i == len)
+                        {
+                            userDataItemsByDepId[user.departmentId].Move(userDataItemsByDepId[user.departmentId].IndexOf(userDataItems[user.id]), i - 1);
+                        }
+                    }
+                }
+            }
+        }
+        
     }
 }
