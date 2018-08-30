@@ -68,6 +68,7 @@ namespace IrtsBurtgel
             Console.WriteLine("Status = " + status.ToString());
             if (status == IDLE)
             {
+                Console.WriteLine(now.TimeOfDay);
                 List<Meeting> meetings = FindByDate(now);
                 if (meetings.Count == 0)
                 {
@@ -81,7 +82,10 @@ namespace IrtsBurtgel
                     if (meeting.duration > 0)
                     {
                         int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
-                        
+
+                        Console.WriteLine(meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).TimeOfDay);
+                        Console.WriteLine(now.TimeOfDay);
+                        Console.WriteLine(meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay);
                         if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).Hour == now.Hour && meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).Minute == now.Minute)
                         {
                             Console.WriteLine("Meeting time occured. Start meeting registration.");
@@ -91,9 +95,6 @@ namespace IrtsBurtgel
                             Console.WriteLine("Setted Status = " + status.ToString());
                             return;
                         }
-                        Console.WriteLine(meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).TimeOfDay);
-                        Console.WriteLine(now.TimeOfDay);
-                        Console.WriteLine(meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay);
                         if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)).TimeOfDay < now.TimeOfDay && meeting.startDatetime.AddMinutes(meeting.duration).TimeOfDay > now.TimeOfDay)
                         {
                             Console.WriteLine("Detected ongoing meeting. Fast forwarding meeting.");

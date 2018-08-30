@@ -25,6 +25,7 @@ namespace IrtsBurtgel
         Dictionary<int, string> statuses;
         Dictionary<int, string> departments;
         Dictionary<int, WrapPanel> departmentWrapPanels;
+        Dictionary<int, TextBlock> departmentAttendance;
         Dictionary<int, Grid> userGrids;
         Dictionary<int, int[]> last;
 
@@ -41,6 +42,7 @@ namespace IrtsBurtgel
             departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
             departments.Add(-1, "Хэлтэсгүй");
             departmentWrapPanels = new Dictionary<int, WrapPanel>();
+            departmentAttendance = new Dictionary<int, TextBlock>();
             userGrids = new Dictionary<int, Grid>(); 
             last = new Dictionary<int, int[]>();
             if (meetingController.status == MeetingController.MEETING_STARTED)
@@ -95,10 +97,11 @@ namespace IrtsBurtgel
                 {
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     VerticalAlignment = VerticalAlignment.Top,
-                    ShowGridLines = true
+                    Background = new SolidColorBrush(Colors.White)
                 };
 
                 DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(200) });
                 DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(50) });
                 DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
@@ -107,7 +110,17 @@ namespace IrtsBurtgel
                 {
                     TextWrapping = TextWrapping.Wrap,
                     Text = entry.Value,
-                    Margin = new Thickness(5, 5, 5, 5)
+                    Margin = new Thickness(5, 5, 5, 5),
+                    FontWeight = FontWeights.Bold
+                };
+
+                Border border2 = new Border { BorderBrush = Brushes.Black, BorderThickness = new Thickness(1, 1, 1, 1) };
+                border2.Child = new TextBlock
+                {
+                    TextWrapping = TextWrapping.Wrap,
+                    Text = "0/0",
+                    Margin = new Thickness(5, 5, 5, 5),
+                    FontWeight = FontWeights.Bold
                 };
 
                 WrapPanel wp = new WrapPanel
@@ -127,9 +140,13 @@ namespace IrtsBurtgel
                 Grid.SetRow(border, 0);
                 Grid.SetColumn(border, 0);
                 DynamicGrid.Children.Add(border);
+                Grid.SetRow(border2, 0);
+                Grid.SetColumn(border2, 1);
+                DynamicGrid.Children.Add(border2);
 
                 Grid.SetRow(sv, 1);
                 Grid.SetColumn(sv, 0);
+                Grid.SetColumnSpan(sv, 2);
                 DynamicGrid.Children.Add(sv);
 
                 Grid.SetRow(DynamicGrid, count / 5);
@@ -138,6 +155,7 @@ namespace IrtsBurtgel
                 DynamicGrid.Name = "dynamicGrid" + count;
 
                 departmentWrapPanels.Add(entry.Key, wp);
+                departmentAttendance.Add(entry.Key, (TextBlock)border2.Child);
 
                 count++;
             }
@@ -220,7 +238,16 @@ namespace IrtsBurtgel
                 userGrids.Add(user.id, DynamicGrid);
             }
 
-            AttendanceLabel.Content = last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]);
+            foreach (KeyValuePair<int, string> entry in departments)
+            {
+                if (!last.ContainsKey(entry.Key))
+                {
+                    last.Add(entry.Key, new int[4]);
+                }
+                departmentAttendance[entry.Key].Text = "Хоцорсон-" + last[entry.Key][1] + " Ирээгүй-" + last[entry.Key][0];
+            }
+
+            AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]) + "\nОролцох боломжгүй: " + last.Sum(x => x.Value[2]);
         }
 
         public void Update(object[] identifiedUserAttendance)
@@ -262,7 +289,11 @@ namespace IrtsBurtgel
                     last[user.departmentId][2]++;
                 }
             }
-            AttendanceLabel.Content = last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]);
+            foreach (KeyValuePair<int, string> entry in departments)
+            {
+                departmentAttendance[entry.Key].Text = "Хоцорсон-" + last[entry.Key][1] + " Ирээгүй-" + last[entry.Key][0];
+            }
+            AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]) + "\nОролцох боломжгүй: " + last.Sum(x => x.Value[2]);
         }
     }
 }

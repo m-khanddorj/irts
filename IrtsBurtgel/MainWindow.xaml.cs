@@ -2289,12 +2289,13 @@ namespace IrtsBurtgel
                 if (att.statusId == 1) came++;
                 if (att.statusId == 2) lateMin += att.regTime;
             }
-            status.Content = "Өнгөрсөн сард нийт ";
-            status.Content += atts.Count.ToString() + "хуралд оролцох ёстой байснаас ";
-            status.Content += came.ToString() + "хуралд оролцсон ба нийт ";
-            status.Content += lateMin.ToString() + " минут хоцорсон.";
+            status.Text = "Өнгөрсөн сард нийт ";
+            status.Text += atts.Count.ToString() + "хуралд оролцох ёстой байснаас ";
+            status.Text += came.ToString() + "хуралд оролцсон ба нийт ";
+            status.Text += lateMin.ToString() + " минут хоцорсон.";
 
             RightSide.Children.Add(changeStatus);
+            RightSide.Children.Add(status);
         }
         void setStatus(object sender,RoutedEventArgs e)
         {
