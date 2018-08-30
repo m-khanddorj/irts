@@ -179,7 +179,8 @@ namespace IrtsBurtgel
 
             Button back = new Button();
 
-            back.Content = "<";
+            back.Content = "⯇";
+            back.FontSize = 20;
             back.Click += showMenu;
             back.Foreground = Brushes.White;
             back.BorderBrush = Brushes.Transparent;
@@ -466,6 +467,9 @@ namespace IrtsBurtgel
             dockPanel.Children.Add(ll);
 
             Calendar calendar = new Calendar();
+            ImageBrush calendarBackround = new ImageBrush(new BitmapImage(new Uri(BaseUriHelper.GetBaseUri(this), "images/time-logo.png")));
+            calendarBackround.Opacity = 0.3;
+            calendar.Background = calendarBackround;
             Viewbox viewbox = new Viewbox();
             viewbox.Stretch = Stretch.Uniform;
             viewbox.Child = calendar;
@@ -491,6 +495,8 @@ namespace IrtsBurtgel
 
             dockPanel.Children.Add(listbox);
         }
+
+        
 
         void RemoveFromList(object sender, RoutedEventArgs e)
         {
