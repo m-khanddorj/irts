@@ -88,7 +88,6 @@ namespace IrtsBurtgel
                 Grid DynamicGrid = new Grid();
                 DynamicGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
                 DynamicGrid.VerticalAlignment = VerticalAlignment.Top;
-                DynamicGrid.ShowGridLines = true;
                 DynamicGrid.Background = new SolidColorBrush(Colors.White);
 
                 ColumnDefinition gridCol1 = new ColumnDefinition();
@@ -103,6 +102,11 @@ namespace IrtsBurtgel
                 gridRow1.Height = new GridLength(50);
                 DynamicGrid.RowDefinitions.Add(gridRow1);
 
+                Border border = new Border
+                {
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(1, 1, 1, 1)
+                };
                 TextBlock textBlock = new TextBlock();
                 textBlock.TextWrapping = TextWrapping.Wrap;
                 textBlock.Text = entry.Value;
