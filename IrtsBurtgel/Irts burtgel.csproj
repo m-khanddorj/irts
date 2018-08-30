@@ -81,6 +81,7 @@
       <HintPath>..\packages\System.Text.Encoding.CodePages.4.5.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -237,6 +238,7 @@
     <Resource Include="images\tick.png" />
     <Resource Include="images\search.png" />
     <Resource Include="images\searchwhite.png" />
+    <Resource Include="images\time-logo.png" />
     <Content Include="libzkfpcsharp.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

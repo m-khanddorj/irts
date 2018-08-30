@@ -9,7 +9,7 @@
     <Grid Background="#FF007ACC">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
-            <RowDefinition Height="8*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
             <Button DockPanel.Dock="Right" Width="58" Height="58" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">

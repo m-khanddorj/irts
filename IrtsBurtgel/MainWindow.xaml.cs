@@ -598,7 +598,7 @@ namespace IrtsBurtgel
             regStartStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label regStartLabel = new Label();
-            regStartLabel.Content = "Хурлын бүртгэл хэдэн минутын өмнө эхлэх:";
+            regStartLabel.Content = "Хурлын бүртгэл эхлэх:";
             regStartLabel.Width = 215;
             TextBox regStart = new TextBox();
             regStart.Width = 215;
@@ -1076,18 +1076,20 @@ namespace IrtsBurtgel
             sdStack.Children.Add(sdLabel);
             sdStack.Children.Add(sd);
             /**Registration start time
-             */
+ */
             StackPanel regStartStack = new StackPanel();
             regStartStack.Orientation = Orientation.Horizontal;
             regStartStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label regStartLabel = new Label();
-            regStartLabel.Content = "Хурал эхлэх цаг:";
+            regStartLabel.Content = "Хурлын бүртгэл эхлэх:";
             regStartLabel.Width = 215;
             TextBox regStart = new TextBox();
             regStart.Width = 215;
-            regStart.Text = ((DateTime)meeting.startDatetime).ToShortTimeString();
-            //controls.Add(regStart);
+            controls.Add(regStart);
+
+            regStartStack.Children.Add(regStartLabel);
+            regStartStack.Children.Add(regStart);
 
             regStartStack.Children.Add(regStartLabel);
             regStartStack.Children.Add(regStart);
@@ -1394,6 +1396,7 @@ namespace IrtsBurtgel
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
             stackPanel.Children.Add(sdStack);
+            stackPanel.Children.Add(regStartStack);
             stackPanel.Children.Add(durationStack);
             stackPanel.Children.Add(edStack);
             stackPanel.Children.Add(fStack);
@@ -1412,14 +1415,15 @@ namespace IrtsBurtgel
             TextBox name = (TextBox)controls[0];
             TextBox st = (TextBox)controls[1];
             DatePicker sd = (DatePicker)controls[2];
+            DatePicker rs = (DatePicker)controls[3];
 
-            TextBox duration = (TextBox)controls[3];
-            DatePicker ed = (DatePicker)controls[4];
-            ComboBox freqType = (ComboBox)controls[5];
-            ListBox deps = (ListBox)controls[6];
-            ListBox users = (ListBox)controls[7];
-            ListBox positions = (ListBox)controls[8];
-            Meeting meeting = (Meeting)controls[9];
+            TextBox duration = (TextBox)controls[4];
+            DatePicker ed = (DatePicker)controls[5];
+            ComboBox freqType = (ComboBox)controls[6];
+            ListBox deps = (ListBox)controls[7];
+            ListBox users = (ListBox)controls[8];
+            ListBox positions = (ListBox)controls[9];
+            Meeting meeting = (Meeting)controls[10];
 
             meeting.name = name.Text;
 
@@ -1443,6 +1447,16 @@ namespace IrtsBurtgel
             catch (Exception ex)
             {
                 MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
+                return;
+            }
+            //check and set meeting rs
+            try
+            {
+                meeting.regMinBefMeeting = Int32.Parse(rs.Text);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Та хурлын бүртгэл эхлэх хугацаагаа шалгана уу", "Өөрчилсөнгүй");
                 return;
             }
             //check and set meeting duration
