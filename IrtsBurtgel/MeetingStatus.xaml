@@ -18,17 +18,8 @@
             <Label x:Name="AttendanceLabel" Content="12" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="36" Foreground="#fff"/>
             <Label x:Name="OrgTitle" Content="Org" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="36" Foreground="White"/>
         </DockPanel>
-        <Grid Grid.Row="1" Background="White" ShowGridLines="True" x:Name="status">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
-            </Grid.RowDefinitions>
-            <Label Grid.Column="0" Grid.Row="0" Content="Ажилтны нэр"/>
-            <Label Grid.Column="1" Grid.Row="0" Content="Хоцорсон минут"/>
+        <Grid Grid.Row="1" Background="White" ShowGridLines="True" x:Name="gridDeparts">
+            
         </Grid>
     </Grid>
 </Window>
