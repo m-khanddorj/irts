@@ -1789,7 +1789,32 @@ namespace IrtsBurtgel
 
             durationStack.Children.Add(durationLabel);
             durationStack.Children.Add(duration);
+            /**Changed or not */
+            StackPanel isChangedStack = new StackPanel();
+            isChangedStack.Orientation = Orientation.Horizontal;
+            Label isChangedLabel = new Label();
+            isChangedLabel.Content = "Өөрчлөгдсөн эсэх";
+            isChangedLabel.Width = 215;
+            Label isChanged = new Label();
+            isChanged.Content = ((ListBoxItem)listBox.SelectedItem).Tag is ModifiedMeeting ? "Тийм" : "Үгүй";
 
+            isChangedStack.Children.Add(isChangedLabel);
+            isChangedStack.Children.Add(isChanged);
+
+            StackPanel reasonStack = new StackPanel();
+            reasonStack.Orientation = Orientation.Horizontal;
+            Label reasonLabel = new Label();
+            reasonLabel.Content = ((ListBoxItem)listBox.SelectedItem).Tag is ModifiedMeeting ? "Өөрчлөгдсөн шалтгаан:":"Өөрчлөх шалтгаан";
+            reasonLabel.Width = 215;
+
+            TextBox reason = new TextBox();
+            reason.TextWrapping = TextWrapping.Wrap;
+            reason.Text = ((ListBoxItem)listBox.SelectedItem).Tag is ModifiedMeeting ? ((ModifiedMeeting)((ListBoxItem)listBox.SelectedItem).Tag).reason : "";
+            controls.Add(reason);
+            reason.Height = 60;
+            reason.Width = 215;
+            reasonStack.Children.Add(reasonLabel);
+            reasonStack.Children.Add(reason);
             /**
             * Save button 
             */
@@ -1823,6 +1848,9 @@ namespace IrtsBurtgel
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
             stackPanel.Children.Add(durationStack);
+            stackPanel.Children.Add(isChangedStack);
+            stackPanel.Children.Add(reasonStack);
+
             stackPanel.Children.Add(saveStack);
 
             RightSide.Children.Add(stackPanel);
@@ -1833,15 +1861,18 @@ namespace IrtsBurtgel
             TextBox name = (TextBox)controls[0];
             TextBox st = (TextBox)controls[1];
             TextBox duration = (TextBox)controls[2];
-            Object meeting = controls[3];
+            TextBox reason = (TextBox)controls[3];
+
+            Object meeting = controls[4];
             if (meeting is ModifiedMeeting)
             {
-                Meeting mmeeting = (Meeting)meeting;
+                ModifiedMeeting mmeeting = (ModifiedMeeting)meeting;
                 mmeeting.name = name.Text;
                 mmeeting.startDatetime = DateTime.Parse(((DateTime)LeftSide.Tag).ToShortDateString() +
                     " " + st.Text);
                 mmeeting.duration = Int32.Parse(duration.Text);
-                modifiedMeetingModel.Set((ModifiedMeeting)meeting);
+                mmeeting.reason = reason.Text;
+                modifiedMeetingModel.Set(mmeeting);
                 MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
             else
@@ -1852,6 +1883,7 @@ namespace IrtsBurtgel
                 mmeeting.startDatetime = DateTime.Parse(((DateTime)LeftSide.Tag).ToShortDateString() +
                     " " + st.Text);
                 mmeeting.duration = Int32.Parse(duration.Text);
+                mmeeting.reason = reason.Text;
                 modifiedMeetingModel.Add(mmeeting);
                 MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
