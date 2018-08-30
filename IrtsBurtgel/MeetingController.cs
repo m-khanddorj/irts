@@ -666,5 +666,120 @@ namespace IrtsBurtgel
             }
             return new Object[] { toUpdate, toInsert, toDelete };
         }
+
+        public List<Object[]> getClosestMeetings(int count)
+        {
+            List<Meeting> allMeetings = meetingModel.GetAll();
+            //Meetings that will happen in the future
+            List<Meeting> meetings = new List<Meeting>();
+            //filtering allMeetings to meetings
+            foreach(Meeting meeting in allMeetings)
+            {
+                if (meeting.intervalType != 0 || DateTime.Today<meeting.startDatetime) meetings.Add(meeting);
+            }
+            //Dates and meetings of closest occuring meetings
+            List<Object[]> closestDates = new List<Object[]>();
+            //filling ClosestDates
+            foreach (Meeting meeting in meetings)
+            {
+                DateTime date = meeting.startDatetime;
+                Object[] obj = new Object[2];
+                while(date<DateTime.Today)
+                {
+                    switch (meeting.intervalType)
+                    {
+                        case 7:
+                            date = date.AddDays(meeting.intervalDay);
+                            break;
+                        case 3:
+                        case 4:
+                        case 5:
+                            date = date.AddMonths(1);
+                            break;
+                        case 6:
+                            meeting.startDatetime = meeting.startDatetime.AddYears(1);
+                            break;
+                        case 1:
+                            date = date.AddDays(7);
+                            break;
+                        case 2:
+                            date = date.AddDays(14);
+                            break;
+                    }
+                }
+
+                obj[0] = date;
+                obj[1] = meeting;
+
+                closestDates.Add(obj);
+            }
+            //sorting and cutting
+            if (closestDates.Count > count) closestDates = closestDates.OrderBy(o => o[0]).ToList().GetRange(0, count);
+            else closestDates = closestDates.OrderBy(o => (DateTime)o[0]).ToList();
+            //if the array has length below count, fills it
+            for(int i=0;i<count;i++)
+            {
+                int n = closestDates.Count;
+                //closest date and meeting
+                DateTime date = ((DateTime)closestDates[n - 1][0]).AddYears(2);
+                Meeting meeting = (Meeting)closestDates[n - 1][1];
+
+                for (int j = 0 ; j < n ; j++)
+                {
+                    DateTime nextOccurance = new DateTime();
+
+                    switch ( ((Meeting)closestDates[j][1]).intervalType )
+                    {
+                        case 0:
+                            continue;
+                            break;
+                        case 7:
+                            nextOccurance = ((DateTime)closestDates[j][0]).AddDays(((Meeting)closestDates[j][1]).intervalDay);
+                            break;
+                        case 3:
+                        case 4:
+                        case 5:
+                            nextOccurance = ((DateTime)closestDates[j][0]).AddMonths(1);
+                            break;
+                        case 6:
+                            nextOccurance = ((DateTime)closestDates[j][0]).AddYears(1);
+                            break;
+                        case 1:
+                            nextOccurance = ((DateTime)closestDates[j][0]).AddDays(7);
+                            break;
+                        case 2:
+                            nextOccurance = ((DateTime)closestDates[j][0]).AddDays(14);
+                            break;
+
+                    }
+
+                    bool is_overlapping = false;
+
+                    foreach(Object[] obj in closestDates)
+                    {
+                        if(nextOccurance == (DateTime)obj[0] &&
+                            ((Meeting)obj[1]).id == ((Meeting)closestDates[j][1]).id)
+                        {
+                            is_overlapping = true;
+                            break;
+                        }
+                    }
+
+                    if(!is_overlapping && date>nextOccurance)
+                    {
+                        date = nextOccurance;
+                        meeting = (Meeting)closestDates[j][1];       
+                    }
+                }
+                Object[] newObj = new Object[2];
+                newObj[0] = date;
+                newObj[1] = meeting;
+                closestDates.Add(newObj);
+                //sorting and cutting
+                if (closestDates.Count > count) closestDates = closestDates.OrderBy(o => o[0]).ToList().GetRange(0, count);
+                else closestDates = closestDates.OrderBy(o => (DateTime)o[0]).ToList();
+            }
+            return closestDates;
+        }
     }
 }

@@ -110,6 +110,9 @@
     <Compile Include="ArchivedMeeting.cs" />
     <Compile Include="Attendance.cs" />
     <Compile Include="BitmapFormat.cs" />
+    <Compile Include="ChangeUserStatus.xaml.cs">
+      <DependentUpon>ChangeUserStatus.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Department.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Event.cs" />
@@ -137,6 +140,10 @@
     </Compile>
     <Compile Include="Utils.cs" />
     <Page Include="AddParticipantToMeeting.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ChangeUserStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -233,12 +240,13 @@
     <Resource Include="images\shrink.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\calendar.png" />
-    <Resource Include="images\x.png" />
     <Resource Include="images\tick.png" />
     <Resource Include="images\search.png" />
     <Resource Include="images\searchwhite.png" />
     <Resource Include="images\time-logo.png" />
+    <Resource Include="images\cal-+.png" />
+    <Resource Include="images\cal-x.png" />
+    <Resource Include="images\logo.jpg" />
     <Content Include="libzkfpcsharp.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
