@@ -18,8 +18,8 @@
             <Label x:Name="AttendanceLabel" Content="12" DockPanel.Dock="Left" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="36" Foreground="#fff"/>
             <Label x:Name="OrgTitle" Content="Org" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="36" Foreground="White"/>
         </DockPanel>
-        <Grid Grid.Row="1" Background="White" ShowGridLines="True" x:Name="gridDeparts">
-            
+        <Grid Grid.Row="1" x:Name="gridDeparts">
+
         </Grid>
     </Grid>
 </Window>

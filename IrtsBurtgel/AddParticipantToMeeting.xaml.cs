@@ -21,7 +21,7 @@ namespace IrtsBurtgel
     public partial class AddParticipantToMeeting : Window
     {
         string type;
-        public int id;
+        public int[] ids;
         ListBox cList;
 
         Model<Department> model = new Model<Department>();
@@ -47,12 +47,14 @@ namespace IrtsBurtgel
                         }
                     }
                 }
+                int i = 1;
                 foreach (Department dep in deps)
                 {
                     ListBoxItem listBoxItem = new ListBoxItem();
-                    listBoxItem.Content = dep.name;
+                    listBoxItem.Content = i + ". " + dep.name;
                     listBoxItem.Tag = dep.id;
                     listbox.Items.Add(listBoxItem);
+                    i++;
                 }
             }
             else if(type == "user")
@@ -69,12 +71,16 @@ namespace IrtsBurtgel
                         }
                     }
                 }
+
+                Dictionary<int, string> departments = model.GetAll().ToDictionary(x => x.id, x => x.name);
+                int i = 1;
                 foreach (User user in users)
                 {
                     ListBoxItem listBoxItem = new ListBoxItem();
-                    listBoxItem.Content = user.fname + " " + user.lname;
+                    listBoxItem.Content = i + ". " + user.fname + " " + user.lname + ", " + (user.departmentId != -1 ? departments[user.departmentId] : "Хэлтэсгүй");
                     listBoxItem.Tag = user.id;
                     listbox.Items.Add(listBoxItem);
+                    i++;
                 }
             }
             else
@@ -91,20 +97,41 @@ namespace IrtsBurtgel
                         }
                     }
                 }
+                int i = 1;
                 foreach (Position user in users)
                 {
                     ListBoxItem listBoxItem = new ListBoxItem();
-                    listBoxItem.Content = user.name;
+                    listBoxItem.Content = i + ". " + user.name;
                     listBoxItem.Tag = user.id;
                     listbox.Items.Add(listBoxItem);
+                    i++;
                 }
+            }
+        }
+        private void ListBoxItem_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                ListBoxItem lbi = sender as ListBoxItem;
+                lbi.IsSelected = !lbi.IsSelected;
+                lbi.Focus();
+                listbox.SelectedItems.Add(lbi);
             }
         }
         void Add(object sender,RoutedEventArgs e)
         {
             DialogResult = listbox.SelectedItem !=null;
-            if((bool)DialogResult) id = (Int32)((ListBoxItem)listbox.SelectedItem).Tag;
+            List<int> selectedIds = new List<int>();
+            if ((bool)DialogResult)
+            {
+                foreach (ListBoxItem lbi in listbox.SelectedItems)
+                {
+                    selectedIds.Add((int)lbi.Tag);
+                }
+            }
+            ids = selectedIds.ToArray();
         }
+
         void Search(object sender, RoutedEventArgs e)
         {
             string searchText = searchBox.Text;
@@ -124,16 +151,19 @@ namespace IrtsBurtgel
                     }
 
                 }
+                int i = 1;
                 foreach (Department dep in deps)
                 {
                     if (!Regex.IsMatch(dep.name.ToString().ToLower(), "[a-zA-Z\\d]*" + searchText.ToLower() + "[a-zA-Z\\d]*"))
                     {
                         continue;
                     }
+
                     ListBoxItem listBoxItem = new ListBoxItem();
-                    listBoxItem.Content = dep.name;
+                    listBoxItem.Content = i + ". " + dep.name;
                     listBoxItem.Tag = dep.id;
                     listbox.Items.Add(listBoxItem);
+                    i++;
                 }
             }
             else if (type == "user")
@@ -150,6 +180,8 @@ namespace IrtsBurtgel
                         }
                     }
                 }
+                Dictionary<int, string> departments = model.GetAll().ToDictionary(x => x.id, x => x.name);
+                int i = 1;
                 foreach (User user in users)
                 {
                     if (!Regex.IsMatch(user.fname.ToString().ToLower(), "[a-zA-Z\\d]*" + searchText.ToLower() + "[a-zA-Z\\d]*")
@@ -159,37 +191,46 @@ namespace IrtsBurtgel
                         continue;
                     }
                     ListBoxItem listBoxItem = new ListBoxItem();
-                    listBoxItem.Content = user.fname + " " + user.lname;
+                    listBoxItem.Content = i + ". " + user.fname + " " + user.lname + ", " + (user.departmentId != -1 ? departments[user.departmentId]:"Хэлтэсгүй");
                     listBoxItem.Tag = user.id;
                     listbox.Items.Add(listBoxItem);
+                    i++;
                 }
             }
             else
             {
-                List<Position> users = pModel.GetAll();
+                List<Position> positions = pModel.GetAll();
                 foreach (ListBoxItem listBoxItem in cList.Items)
                 {
-                    foreach (Position user in users)
+                    foreach (Position position in positions)
                     {
-                        if (user.id == Int32.Parse(listBoxItem.Tag.ToString()))
+                        if (position.id == Int32.Parse(listBoxItem.Tag.ToString()))
                         {
-                            users.Remove(user);
+                            positions.Remove(position);
                             break;
                         }
                     }
                 }
-                foreach (Position user in users)
+                int i = 1;
+                foreach (Position position in positions)
                 {
-                    if (!Regex.IsMatch(user.name.ToString().ToLower(), "[a-zA-Z\\d]*" + searchText.ToLower() + "[a-zA-Z\\d]*"))
+                    if (!Regex.IsMatch(position.name.ToString().ToLower(), "[a-zA-Z\\d]*" + searchText.ToLower() + "[a-zA-Z\\d]*"))
                     {
                         continue;
                     }
                     ListBoxItem listBoxItem = new ListBoxItem();
-                    listBoxItem.Content = user.name;
-                    listBoxItem.Tag = user.id;
+                    listBoxItem.Content = i + ". " + position.name;
+                    listBoxItem.Tag = position.id;
                     listbox.Items.Add(listBoxItem);
+                    i++;
                 }
             }
+        }
+
+        private void ListBoxItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.Control)
+                listbox.SelectedItems.Clear();
         }
     }
 }

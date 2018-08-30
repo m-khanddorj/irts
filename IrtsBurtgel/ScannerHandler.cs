@@ -205,18 +205,20 @@ namespace IrtsBurtgel
                         ((Attendance)identifiedAttendance[1]).regTime = -1;
                     }
                     meetingController.attendanceModel.Set(((Attendance)identifiedAttendance[1]));
-                }
-                
-                if(meetingController.mainWindow != null)
-                {
-                    meetingController.mainWindow.Dispatcher.Invoke(() => {
-                        foreach(MeetingStatus ms in meetingController.mainWindow.meetingStatusWindows)
-                        {
-                            //ms.Update(meetingController.onGoingMeetingUserAttendance);
-                        }
-                    });
-                }
 
+                    if (meetingController.mainWindow != null)
+                    {
+                        meetingController.mainWindow.Dispatcher.Invoke(() => {
+                            foreach (MeetingStatus ms in meetingController.mainWindow.meetingStatusWindows)
+                            {
+                                if (ms.IsLoaded)
+                                {
+                                    ms.Update(identifiedAttendance);
+                                }
+                            }
+                        });
+                    }
+                }
             }
             else
             {
