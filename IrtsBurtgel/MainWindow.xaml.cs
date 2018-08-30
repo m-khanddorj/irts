@@ -2270,7 +2270,8 @@ namespace IrtsBurtgel
             changeStatus.Uid = id;
             changeStatus.Click += setStatus;
 
-            Label status = new Label();
+            TextBox status = new TextBox();
+            status.TextWrapping = TextWrapping.Wrap;
 
             List<Attendance> allAtts = attModel.GetByFK(user.IDName, user.id);
             List<Attendance> atts = new List<Attendance>();
