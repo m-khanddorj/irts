@@ -24,8 +24,9 @@ namespace IrtsBurtgel
         MeetingController meetingController;
         Dictionary<int, string> statuses;
         Dictionary<int, string> departments;
-        Dictionary<int, ObservableCollection<UserDataItem>> userDataItemsByDepId;
-        Dictionary<int, UserDataItem> userDataItems;
+        Dictionary<int, WrapPanel> departmentWrapPanels;
+        Dictionary<int, Grid> userGrids;
+        Dictionary<int, int[]> last;
 
         //dummy data
         public MeetingStatus(MeetingController mc)
@@ -38,8 +39,10 @@ namespace IrtsBurtgel
             meetingController = mc;
             statuses = meetingController.statusModel.GetAll().ToDictionary(x => x.id, x => x.name);
             departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
-            userDataItemsByDepId = new Dictionary<int, ObservableCollection<UserDataItem>>();
-            userDataItems = new Dictionary<int, UserDataItem>();
+            departments.Add(-1, "Хэлтэсгүй");
+            departmentWrapPanels = new Dictionary<int, WrapPanel>();
+            userGrids = new Dictionary<int, Grid>(); 
+            last = new Dictionary<int, int[]>();
             if (meetingController.status == MeetingController.MEETING_STARTED)
             {
                 BuildDepartControls();
@@ -49,13 +52,13 @@ namespace IrtsBurtgel
 
         private void Expand(object sender, RoutedEventArgs e)
         {
-            if(this.WindowState != WindowState.Maximized && this.WindowStyle != WindowStyle.None)
+            if (this.WindowState != WindowState.Maximized && this.WindowStyle != WindowStyle.None)
             {
                 fullScreenToggleImage.Source = new BitmapImage(new Uri("images/shrink.png", UriKind.Relative));
                 this.WindowStyle = WindowStyle.None;
                 this.WindowState = WindowState.Maximized;
             }
-            else if ( this.WindowState == WindowState.Maximized &&this.WindowStyle != WindowStyle.None)
+            else if (this.WindowState == WindowState.Maximized && this.WindowStyle != WindowStyle.None)
             {
                 fullScreenToggleImage.Source = new BitmapImage(new Uri("images/shrink.png", UriKind.Relative));
                 this.WindowStyle = WindowStyle.None;
@@ -69,24 +72,6 @@ namespace IrtsBurtgel
                 this.WindowStyle = WindowStyle.ThreeDBorderWindow;
             }
         }
-        /*
-        public void DisplayCountDown(string textToDisplay)
-        {
-            ColumnDefinition gridCol = new ColumnDefinition();
-            gridCol.Width = new GridLength(1, GridUnitType.Star);
-            gridDeparts.ColumnDefinitions.Add(gridCol);
-            RowDefinition gridRow = new RowDefinition();
-            gridRow.Height = new GridLength(1, GridUnitType.Star);
-            gridDeparts.RowDefinitions.Add(gridRow);
-
-            TextBlock textBlock = new TextBlock();
-            textBlock.TextWrapping = TextWrapping.Wrap;
-            textBlock.Text = textToDisplay;
-            textBlock.Margin = new Thickness(5, 5, 5, 5);
-            textBlock.FontSize = 25;
-            textBlock.FontWeight = FontWeights.Light;
-            textBlock.Foreground = Brushes.White;
-        }*/
 
         public void BuildDepartControls()
         {
@@ -94,123 +79,148 @@ namespace IrtsBurtgel
 
             for (int i = 0; i < 5; i++)
             {
-                ColumnDefinition gridCol = new ColumnDefinition();
-                gridCol.Width = new GridLength(1, GridUnitType.Star);
-                gridDeparts.ColumnDefinitions.Add(gridCol);
+                gridDeparts.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             }
             int count = 0;
             foreach (KeyValuePair<int, string> entry in departments)
             {
                 if (count % 5 == 0)
                 {
-                    RowDefinition gridRow = new RowDefinition();
-                    gridRow.Height = new GridLength(1, GridUnitType.Star);
-                    gridDeparts.RowDefinitions.Add(gridRow);
+                    gridDeparts.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                 }
 
-                Border border1 = new Border
+                Border border1 = new Border { BorderBrush = Brushes.Black, BorderThickness = new Thickness(1, 1, 1, 1) };
+
+                Grid DynamicGrid = new Grid
                 {
-                    BorderBrush = Brushes.Black,
-                    BorderThickness = new Thickness(1, 1, 1, 1)
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    ShowGridLines = true
                 };
 
-                Grid DynamicGrid = new Grid();
-                DynamicGrid.HorizontalAlignment = HorizontalAlignment.Stretch;
-                DynamicGrid.VerticalAlignment = VerticalAlignment.Top;
-                DynamicGrid.Background = new SolidColorBrush(Colors.White);
+                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(50) });
+                DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-                ColumnDefinition gridCol1 = new ColumnDefinition();
-                gridCol1.Width = new GridLength(1, GridUnitType.Star);
-                DynamicGrid.ColumnDefinitions.Add(gridCol1);
-
-                RowDefinition gridRow1 = new RowDefinition();
-                gridRow1.Height = new GridLength(50);
-                DynamicGrid.RowDefinitions.Add(gridRow1);
-                
-                RowDefinition gridRow2 = new RowDefinition();
-                gridRow2.Height = new GridLength(1, GridUnitType.Star);
-                DynamicGrid.RowDefinitions.Add(gridRow2);
-
-                Border border = new Border
+                Border border = new Border { BorderBrush = Brushes.Black, BorderThickness = new Thickness(1, 1, 1, 1) };
+                border.Child = new TextBlock
                 {
-                    BorderBrush = Brushes.Black,
-                    BorderThickness = new Thickness(1, 1, 1, 1)
+                    TextWrapping = TextWrapping.Wrap,
+                    Text = entry.Value,
+                    Margin = new Thickness(5, 5, 5, 5)
                 };
-                
-                TextBlock textBlock = new TextBlock();
-                textBlock.TextWrapping = TextWrapping.Wrap;
-                textBlock.Text = entry.Value;
-                textBlock.Margin = new Thickness(5, 5, 5, 5);
-                border.Child = textBlock;
+
+                WrapPanel wp = new WrapPanel
+                {
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Orientation = Orientation.Horizontal
+                };
+
+                ScrollViewer sv = new ScrollViewer
+                {
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Name = "scroll" + count
+                };
+                sv.Content = wp;
 
                 Grid.SetRow(border, 0);
                 Grid.SetColumn(border, 0);
-
-                ObservableCollection<UserDataItem> udi = new ObservableCollection<UserDataItem>();
-                userDataItemsByDepId.Add(entry.Key, udi);
-
-                var datagrid = new DataGrid();
-                datagrid.ItemsSource = udi;
-                datagrid.IsReadOnly = true;
-                datagrid.AutoGenerateColumns = false;
-                datagrid.HorizontalAlignment = HorizontalAlignment.Stretch;
-
-                datagrid.Columns.Add(new DataGridTextColumn()
-                {
-                    Header = "Нэр",
-                    Width = new DataGridLength(1, DataGridLengthUnitType.Star),
-                    Binding = new Binding("Name")
-                });
-                datagrid.Columns.Add(new DataGridTextColumn()
-                {
-                    Header = "Төлөв",
-                    Width = new DataGridLength(100),
-                    Binding = new Binding("Status")
-                });
-
-                Grid.SetRow(datagrid, 1);
-                Grid.SetColumn(datagrid, 0);
-
                 DynamicGrid.Children.Add(border);
-                DynamicGrid.Children.Add(datagrid);
+
+                Grid.SetRow(sv, 1);
+                Grid.SetColumn(sv, 0);
+                DynamicGrid.Children.Add(sv);
 
                 Grid.SetRow(DynamicGrid, count / 5);
                 Grid.SetColumn(DynamicGrid, count % 5);
                 gridDeparts.Children.Add(DynamicGrid);
+                DynamicGrid.Name = "dynamicGrid" + count;
+
+                departmentWrapPanels.Add(entry.Key, wp);
+
                 count++;
             }
         }
 
         public void PlaceUsers(List<object[]> userAttendances)
         {
-            userAttendances = userAttendances.OrderBy(x => ((Attendance)x[1]).statusId).ToList();
-
-            foreach (KeyValuePair<int, string> entry in departments) {
-                userDataItemsByDepId[entry.Key].Clear();
-            }
-
+            last = new Dictionary<int, int[]>();
             foreach (object[] obj in userAttendances)
             {
-                RowDefinition tmprow = new RowDefinition();
-                tmprow.Height = new GridLength(40, GridUnitType.Pixel);
-
                 User user = (User)obj[0];
                 Attendance att = (Attendance)obj[1];
 
-                if(att.statusId == 1)
+                Grid DynamicGrid = new Grid
                 {
-                    continue;
+                    Background = new SolidColorBrush(Colors.White),
+                    Margin = new Thickness(10, 10, 10, 10),
+                    Width = 100
+                };
+
+                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+
+                Image image = new Image { Source = new BitmapImage(new Uri(meetingController.GetUserImage(user))), HorizontalAlignment = HorizontalAlignment.Center };
+                Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center };
+                Label status = new Label
+                {
+                    Content = att.statusId == 2 ? statuses[att.statusId] + " (" + att.regTime + ")" : statuses[att.statusId],
+                    Foreground = Brushes.White,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    FontWeight = FontWeights.Bold
+                };
+
+                switch (att.statusId)
+                {
+                    case 1: status.Background = Brushes.DarkGreen; break;
+                    case 2: status.Background = Brushes.DarkOrange; break;
+                    case 15: status.Background = Brushes.DarkRed; break;
+                    default: status.Background = Brushes.DarkTurquoise; break;
                 }
 
-                UserDataItem userData = new UserDataItem
+                Grid.SetColumn(image, 0);
+                Grid.SetColumn(name, 0);
+                Grid.SetColumn(status, 0);
+                Grid.SetRow(image, 0);
+                Grid.SetRow(name, 1);
+                Grid.SetRow(status, 2);
+                DynamicGrid.Children.Add(image);
+                DynamicGrid.Children.Add(name);
+                DynamicGrid.Children.Add(status);
+
+                if (!last.ContainsKey(user.departmentId))
                 {
-                    Name = user.fname + " " + user.lname,
-                    Status = att.statusId == 2 ? statuses[att.statusId] + " (" + att.regTime + ")" : statuses[att.statusId],
-                    StatusID = att.statusId.ToString()
-                };
-                userDataItemsByDepId[user.departmentId].Add(userData);
-                userDataItems.Add(user.id, userData);
+                    last.Add(user.departmentId, new int[4]);
+                }
+
+                if (att.statusId == 1)
+                {
+                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1] + last[user.departmentId][2], DynamicGrid);
+                    last[user.departmentId][1]++;
+                }
+                else if (att.statusId == 2)
+                {
+                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0], DynamicGrid);
+                    last[user.departmentId][1]++; 
+                }
+                else if (att.statusId == 15)
+                {
+                    departmentWrapPanels[user.departmentId].Children.Insert(0, DynamicGrid);
+                    last[user.departmentId][0]++;
+                }
+                else
+                {
+                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1], DynamicGrid);
+                    last[user.departmentId][2]++;
+                }
+                userGrids.Add(user.id, DynamicGrid);
             }
+
+            AttendanceLabel.Content = last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]);
         }
 
         public void Update(object[] identifiedUserAttendance)
@@ -219,34 +229,40 @@ namespace IrtsBurtgel
             Attendance attendance = (Attendance)identifiedUserAttendance[1];
             if (meetingController.status == MeetingController.MEETING_STARTED)
             {
+                ((Label)userGrids[user.id].Children[2]).Content = attendance.statusId == 2 ? statuses[attendance.statusId] + " (" + attendance.regTime + ")" : statuses[attendance.statusId];
+
+                switch (attendance.statusId)
+                {
+                    case 1: ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkGreen; break;
+                    case 2: ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkOrange; break;
+                    case 15: ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkRed; break;
+                    default: ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkTurquoise; break;
+                }
+
+                departmentWrapPanels[user.departmentId].Children.Remove(userGrids[user.id]);
+                last[user.departmentId][0]--;
+
                 if (attendance.statusId == 1)
                 {
-                    userDataItemsByDepId[user.departmentId].Remove(userDataItems[user.id]);
+                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1] + last[user.departmentId][2], userGrids[user.id]);
+                }
+                else if (attendance.statusId == 2)
+                {
+                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0], userGrids[user.id]);
+                    last[user.departmentId][1]++;
+                }
+                else if (attendance.statusId == 15)
+                {
+                    departmentWrapPanels[user.departmentId].Children.Insert(0, userGrids[user.id]);
+                    last[user.departmentId][0]++;
                 }
                 else
                 {
-                    userDataItems[user.id].Status = attendance.statusId == 2 ? statuses[attendance.statusId] + " (" + attendance.regTime + ")" : statuses[attendance.statusId];
-                    if (attendance.statusId == 2)
-                    {
-                        int len = userDataItemsByDepId[user.departmentId].Count;
-                        int i;
-                        for (i = 0; i < len; i++)
-                        {
-                            if(userDataItemsByDepId[user.departmentId][i].statusId != 15)
-                            {
-                                userDataItemsByDepId[user.departmentId].Move(userDataItemsByDepId[user.departmentId].IndexOf(userDataItems[user.id]), i);
-                                break;
-                            }
-                        }
-
-                        if(i == len)
-                        {
-                            userDataItemsByDepId[user.departmentId].Move(userDataItemsByDepId[user.departmentId].IndexOf(userDataItems[user.id]), i - 1);
-                        }
-                    }
+                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1], userGrids[user.id]);
+                    last[user.departmentId][2]++;
                 }
             }
+            AttendanceLabel.Content = last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]);
         }
-        
     }
 }
