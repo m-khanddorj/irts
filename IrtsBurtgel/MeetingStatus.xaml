@@ -8,15 +8,23 @@
         Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Ирц бүртгэлийн төлөв" Height="450" Width="800" WindowStartupLocation="Manual" Icon="images/time-logo.png">
     <Grid Background="#FF007ACC">
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="110"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <StackPanel>
+            <Image Source="images/logo.png"  Width="80" Height="80"></Image>
+            <Label x:Name="OrgTitle" Content="Org" HorizontalAlignment="Center" FontSize="16" Foreground="White"/>
+        </StackPanel>
         <DockPanel Grid.Row="0">
-            <Button DockPanel.Dock="Right" Width="58" Height="58" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
-                <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
-            </Button>
-            <Label x:Name="AttendanceLabel" Content="Ирц" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="16" Foreground="#fff"/>
-            <Label x:Name="OrgTitle" Content="Org" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="36" Foreground="White"/>
+            <Label x:Name="AttendanceLabel" DockPanel.Dock="Left" Content="Ирц" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" Foreground="#fff"/>
+            <StackPanel HorizontalAlignment="Right" DockPanel.Dock="Right">
+                <Button VerticalAlignment="Center" HorizontalAlignment="Right"  Width="30" Height="30" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
+                    <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
+                </Button>
+                <Label HorizontalAlignment="Right" x:Name="meetingName" Foreground="White">Meeting name</Label>
+                <Label HorizontalAlignment="Right" x:Name="meetingDate" Foreground="White">Date</Label>
+                <Label HorizontalAlignment="Right" x:Name="currentTime" Foreground="White">sme</Label>
+            </StackPanel>
         </DockPanel>
         <Grid Grid.Row="1" x:Name="gridDeparts">
 
