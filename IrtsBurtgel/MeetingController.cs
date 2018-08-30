@@ -141,7 +141,7 @@ namespace IrtsBurtgel
             //Checking todays meetings
             List<Meeting> meetings = meetingModel.GetAll();
             if (meetings == null || meetings.Count == 0) return "Хурал байхгүй байна.";
-
+            /**
             for (int i = 0; i < 31; i++)
             {
                 meetings = FindByDate(day);
@@ -162,7 +162,8 @@ namespace IrtsBurtgel
                 }
                 day = day.AddDays(1);
             }
-
+            */
+            meeting = (Meeting)getClosestMeetings(1)[0][1];
             if(meeting == null)
             {
                 return "Энэ сард хурал байхгүй.";
@@ -769,6 +770,7 @@ namespace IrtsBurtgel
                             break;
 
                     }
+                    if (nextOccurance > ((Meeting)closestDates[j][1]).endDate) continue;
 
                     bool is_overlapping = false;
                     //checking overlap
@@ -853,6 +855,7 @@ namespace IrtsBurtgel
                         meeting = (Meeting)evOccurances[j][1];
                     }
                 }
+
                 Object[] newObj = new Object[2];
                 newObj[0] = date;
                 newObj[1] = meeting;
