@@ -16,6 +16,7 @@ using System.Data.SqlClient;
 using System.IO;
 using Sample;
 using System.Text.RegularExpressions;
+using Xceed.Wpf.Toolkit;
 
 namespace IrtsBurtgel
 {
@@ -54,6 +55,7 @@ namespace IrtsBurtgel
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
+            
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
@@ -71,14 +73,14 @@ namespace IrtsBurtgel
             if (username.Text == "admin" && password.Password == "admin") showMenu();
             else
             {
-                MessageBox.Show("Та нэр, нууц үгээ дахин шалгана уу!", "Нэр эсвэл нууц үг буруу байна");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та нэр, нууц үгээ дахин шалгана уу!", "Нэр эсвэл нууц үг буруу байна");
             }
         }
         private void showStatus(object sender, RoutedEventArgs e)
         {
             MeetingStatus meetingStatus = new MeetingStatus(meetingController);
             meetingStatusWindows.Add(meetingStatus);
-            meetingStatus.WindowStartupLocation = WindowStartupLocation.Manual;
+            //meetingStatus.WindowStartupLocation = WindowStartupLocation.Manual;
 
             //Debug.Assert(System.Windows.Forms.SystemInformation.MonitorCount > 1);
             if (System.Windows.Forms.Screen.AllScreens.Length > 1)
@@ -88,7 +90,7 @@ namespace IrtsBurtgel
                 meetingStatus.Top = workingArea.Top;
                 meetingStatus.Width = workingArea.Width;
                 meetingStatus.Height = workingArea.Height;
-                meetingStatus.WindowState = WindowState.Maximized;
+                //meetingStatus.WindowState = WindowState.Maximized;
                 meetingStatus.WindowStyle = WindowStyle.None;
                 meetingStatus.Topmost = true;
                 meetingStatus.Show();
@@ -624,9 +626,9 @@ namespace IrtsBurtgel
 
             Label nameLabel = new Label();
             nameLabel.Content = "Хурлын нэр:";
-            nameLabel.Width = 215;
+            nameLabel.Width = 200;
             TextBox name = new TextBox();
-            name.Width = 215;
+            name.Width = 200;
             controls.Add(name);
 
             nameStack.Children.Add(nameLabel);
@@ -642,9 +644,9 @@ namespace IrtsBurtgel
 
             Label stLabel = new Label();
             stLabel.Content = "Хурал эхлэх цаг:";
-            stLabel.Width = 215;
-            TextBox st = new TextBox();
-            st.Width = 215;
+            stLabel.Width = 200;
+            TimePicker st = new TimePicker();
+            st.Width = 200;
             controls.Add(st);
 
             stStack.Children.Add(stLabel);
@@ -659,9 +661,9 @@ namespace IrtsBurtgel
 
             Label sdLabel = new Label();
             sdLabel.Content = "Хурал эхлэх өдөр:";
-            sdLabel.Width = 215;
+            sdLabel.Width = 200;
             DatePicker sd = new DatePicker();
-            sd.Width = 215;
+            sd.Width = 200;
             controls.Add(sd);
 
             sdStack.Children.Add(sdLabel);
@@ -676,9 +678,9 @@ namespace IrtsBurtgel
             TextBlock regStartLabel = new TextBlock();
             regStartLabel.Text = "Хурлаас хэдэн минутын өмнө бүртгэл эхлэх:";
             regStartLabel.TextWrapping = TextWrapping.Wrap;
-            regStartLabel.Width = 215;
+            regStartLabel.Width = 200;
             TextBox regStart = new TextBox();
-            regStart.Width = 215;
+            regStart.Width = 200;
             controls.Add(regStart);
 
             regStartStack.Children.Add(regStartLabel);
@@ -693,7 +695,7 @@ namespace IrtsBurtgel
 
             Label durationLabel = new Label();
             durationLabel.Content = "Хурал үргэлжлэх хугацаа минутаар:";
-            durationLabel.Width = 215;
+            durationLabel.Width = 200;
             TextBox duration = new TextBox();
             duration.Width = 100;
             controls.Add(duration);
@@ -714,9 +716,9 @@ namespace IrtsBurtgel
 
             Label edLabel = new Label();
             edLabel.Content = "Хурал дуусах өдөр:";
-            edLabel.Width = 215;
+            edLabel.Width = 200;
             DatePicker ed = new DatePicker();
-            ed.Width = 215;
+            ed.Width = 200;
             controls.Add(ed);
             edStack.Children.Add(edLabel);
             edStack.Children.Add(ed);
@@ -728,7 +730,7 @@ namespace IrtsBurtgel
             fStack.Orientation = Orientation.Horizontal;
             Label fLabel = new Label();
             fLabel.Content = "Хурал болох давтамж";
-            fLabel.Width = 215;
+            fLabel.Width = 200;
             ComboBox freqType = new ComboBox();
             for (int i = 0; i < 7; i++)
             {
@@ -766,7 +768,7 @@ namespace IrtsBurtgel
                 }
                 freqType.Items.Add(item);
             }
-            freqType.Width = 215;
+            freqType.Width = 200;
             controls.Add(freqType);
 
 
@@ -954,12 +956,12 @@ namespace IrtsBurtgel
             {
                 if (controls[i] == null)
                 {
-                    MessageBox.Show("Та бүрэн бөглөнө үү", "Амжилтгүй");
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Та бүрэн бөглөнө үү", "Амжилтгүй");
                     return;
                 }
             }
             string name = ((TextBox)controls[0]).Text;
-            string st = ((TextBox)controls[1]).Text;
+            string st = ((TimePicker)controls[1]).Text;
             string sd = ((DateTime)((DatePicker)controls[2]).SelectedDate).ToShortDateString();
             string regStart = ((TextBox)controls[3]).Text;
             string duration = ((TextBox)controls[4]).Text;
@@ -978,7 +980,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та хурал эхлэх цагаа цаг:минут гэсэн хэлбэртэйгээр оруулна уу!");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та хурал эхлэх цагаа цаг:минут гэсэн хэлбэртэйгээр оруулна уу!");
                 return;
             }
             /**checking time and inserting*/
@@ -988,7 +990,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Хурлын бүртгэл хэдэн минутын өмнө эхлэх талбарыг зөв бөглөнө үү");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Хурлын бүртгэл хэдэн минутын өмнө эхлэх талбарыг зөв бөглөнө үү");
                 return;
             }
             /** checking and inserting duration*/
@@ -998,7 +1000,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та үргэлжлэх хугацаагаа зөв оруулна уу!\n" +
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та үргэлжлэх хугацаагаа зөв оруулна уу!\n" +
                       "Зөвхөн үргэлжлэх хугацааг минутаар илэхийлэх тоо байхыг анхаарна уу!");
                 return;
             }
@@ -1024,14 +1026,14 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
                 return;
             }
             /** checking and inserting meeting itself*/
             int meetingid = meetingModel.Add(meeting);
             if (meetingid != -1)
             {
-                MessageBox.Show("Амжилттай нэмлээ!");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай нэмлээ!");
 
                 /**Checking and inserting ppositions*/
                 try
@@ -1046,7 +1048,7 @@ namespace IrtsBurtgel
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Бүтэлгүйтлээ.");
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Бүтэлгүйтлээ.");
                 }
                 try
                 {
@@ -1060,7 +1062,7 @@ namespace IrtsBurtgel
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Бүтэлгүйтлээ.");
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Бүтэлгүйтлээ.");
                 }
                 try
                 {
@@ -1074,13 +1076,13 @@ namespace IrtsBurtgel
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Бүтэлгүйтлээ.");
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Бүтэлгүйтлээ.");
                 }
                 ShowMeetings();
             }
             else
             {
-                MessageBox.Show("Өгөгдлийн сантай холбоотой асуудал гарлаа.",
+                Xceed.Wpf.Toolkit.MessageBox.Show("Өгөгдлийн сантай холбоотой асуудал гарлаа.",
                     "Бүтэлгүйтлээ!");
             }
 
@@ -1100,6 +1102,8 @@ namespace IrtsBurtgel
             List<Object> controls = new List<Object>();
 
             StackPanel stackPanel = new StackPanel();
+            stackPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            stackPanel.VerticalAlignment = VerticalAlignment.Center;
             stackPanel.Orientation = Orientation.Vertical;
             stackPanel.Margin = new Thickness(10, 10, 10, 10);
 
@@ -1113,9 +1117,9 @@ namespace IrtsBurtgel
 
             Label nameLabel = new Label();
             nameLabel.Content = "Хурлын нэр:";
-            nameLabel.Width = 215;
+            nameLabel.Width = 200;
             TextBox name = new TextBox();
-            name.Width = 215;
+            name.Width = 200;
             name.Text = meeting.name;
             controls.Add(name);
 
@@ -1132,9 +1136,9 @@ namespace IrtsBurtgel
 
             Label stLabel = new Label();
             stLabel.Content = "Хурал эхлэх цаг:";
-            stLabel.Width = 215;
-            TextBox st = new TextBox();
-            st.Width = 215;
+            stLabel.Width = 200;
+            TimePicker st = new TimePicker();
+            st.Width = 200;
             st.Text = ((DateTime)meeting.startDatetime).ToShortTimeString();
             controls.Add(st);
 
@@ -1150,9 +1154,9 @@ namespace IrtsBurtgel
 
             Label sdLabel = new Label();
             sdLabel.Content = "Хурал эхлэх өдөр:";
-            sdLabel.Width = 215;
+            sdLabel.Width = 200;
             DatePicker sd = new DatePicker();
-            sd.Width = 215;
+            sd.Width = 200;
             sd.DisplayDate = ((DateTime)meeting.startDatetime);
             sd.Text = ((DateTime)meeting.startDatetime).ToShortDateString();
             controls.Add(sd);
@@ -1168,10 +1172,10 @@ namespace IrtsBurtgel
             TextBlock regStartLabel = new TextBlock();
             regStartLabel.Text = "Хурлаас хэдэн минутын өмнө бүртгэл эхлэх:";
             regStartLabel.TextWrapping = TextWrapping.Wrap;
-            regStartLabel.Width = 215;
+            regStartLabel.Width = 200;
             TextBox regStart = new TextBox();
-            regStart.Width = 215;
             regStart.Text = meeting.regMinBefMeeting.ToString();
+            regStart.Width = 200;
             controls.Add(regStart);
 
             regStartStack.Children.Add(regStartLabel);
@@ -1186,7 +1190,7 @@ namespace IrtsBurtgel
 
             Label durationLabel = new Label();
             durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
-            durationLabel.Width = 215;
+            durationLabel.Width = 200;
             TextBox duration = new TextBox();
             duration.Width = 100;
             duration.Text = meeting.duration.ToString();
@@ -1207,9 +1211,9 @@ namespace IrtsBurtgel
 
             Label edLabel = new Label();
             edLabel.Content = "Хурал дуусах өдөр:";
-            edLabel.Width = 215;
+            edLabel.Width = 200;
             DatePicker ed = new DatePicker();
-            ed.Width = 215;
+            ed.Width = 200;
             ed.DisplayDate = ((DateTime)meeting.startDatetime);
             ed.Text = ((DateTime)meeting.endDate).ToShortDateString();
             controls.Add(ed);
@@ -1225,7 +1229,7 @@ namespace IrtsBurtgel
 
             Label fLabel = new Label();
             fLabel.Content = "Хурал болох давтамж";
-            fLabel.Width = 215;
+            fLabel.Width = 200;
             ComboBox freqType = new ComboBox();
             for (int i = 0; i < 8; i++)
             {
@@ -1263,7 +1267,7 @@ namespace IrtsBurtgel
                 }
                 freqType.Items.Add(item);
             }
-            freqType.Width = 215;
+            freqType.Width = 200;
             int it = meeting.intervalType;
             if (meeting.intervalType == 7)
             {
@@ -1288,6 +1292,7 @@ namespace IrtsBurtgel
             Label pGroupsLabel = new Label();
             pGroupsLabel.Content = "Оролцогч албууд:";
             ListBox pGroupList = new ListBox();
+            pGroupList.MaxHeight = 105;
             List<MeetingAndDepartment> mads = madModel.GetByFK(meeting.IDName, meeting.id);
             foreach (MeetingAndDepartment mad in mads)
             {
@@ -1343,6 +1348,7 @@ namespace IrtsBurtgel
             Label participantsLabel = new Label();
             participantsLabel.Content = "Оролцогч гишүүд:";
             ListBox pUserList = new ListBox();
+            pUserList.MaxHeight = 105;
             controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
             pUserList.SelectionMode = SelectionMode.Multiple;
@@ -1399,6 +1405,7 @@ namespace IrtsBurtgel
             Label pPositionLabel = new Label();
             pPositionLabel.Content = "Оролцогч албан тушаалтнууд:";
             ListBox pPositionList = new ListBox();
+            pPositionList.MaxHeight = 105;
 
             List<MeetingAndPosition> maps = mapModel.GetByFK(meeting.IDName, meeting.id);
             foreach (MeetingAndPosition map in maps)
@@ -1494,16 +1501,19 @@ namespace IrtsBurtgel
 
             ScrollViewer scrollViewer = new ScrollViewer();
             scrollViewer.Content = stackPanel;
+            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            if (FindName("scroll") != null) UnregisterName("scroll");
+            RegisterName("scroll", scrollViewer);
+
             scrollViewer.Margin = new Thickness(0, 0, -20, 0);
             RightSide.Children.Add(scrollViewer);
-            scrollViewer.Height = this.ActualHeight;
-            scrollViewer.VerticalAlignment = VerticalAlignment.Stretch;
+            scrollViewer.Height = ActualHeight-50;
         }
         void setMeeting(object sender, RoutedEventArgs e)
         {
             List<Object> controls = (List<Object>)((Button)sender).Tag;
             TextBox name = (TextBox)controls[0];
-            TextBox st = (TextBox)controls[1];
+            TimePicker st = (TimePicker)controls[1];
             DatePicker sd = (DatePicker)controls[2];
             TextBox rs = (TextBox)controls[3];
 
@@ -1525,7 +1535,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
                 return;
             }
             string endDateString = ed.Text + " " + meeting.endDate.ToShortTimeString();
@@ -1536,7 +1546,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
                 return;
             }
             //check and set meeting rs
@@ -1546,7 +1556,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та хурлын бүртгэл эхлэх хугацаагаа шалгана уу", "Өөрчилсөнгүй");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та хурлын бүртгэл эхлэх хугацаагаа шалгана уу", "Өөрчилсөнгүй");
                 return;
             }
             //check and set meeting duration
@@ -1556,7 +1566,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та хурал болох хугацаагаа шалгана уу", "Өөрчилсөнгүй");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та хурал болох хугацаагаа шалгана уу", "Өөрчилсөнгүй");
                 return;
             }
             //check and set meeting intervalType(frq)
@@ -1566,7 +1576,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
                 return;
             }
             //check and update meeting
@@ -1610,11 +1620,11 @@ namespace IrtsBurtgel
                     mapModel.Add(newMap);
                 }
                 meetingModel.Set(meeting);
-                MessageBox.Show("Амжилттай өөрчиллөө.", "Өөрчлөгдлөө");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай өөрчиллөө.", "Өөрчлөгдлөө");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та программ ажиллуулж буй орчиноо шалгана уу", "Өөрчилсөнгүй");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та программ ажиллуулж буй орчиноо шалгана уу", "Өөрчилсөнгүй");
             }
             ShowMeetings(sender, null);
         }
@@ -1637,7 +1647,7 @@ namespace IrtsBurtgel
             {
                 Content = "Тэмдэглэлт өдөр нэмэх",
                 FontWeight = FontWeights.Bold,
-                Width = 215
+                Width = 200
             };
 
             StackPanel nameStack = new StackPanel();
@@ -1647,12 +1657,12 @@ namespace IrtsBurtgel
             Label nameLabel = new Label
             {
                 Content = "Тэмдэглэлт өдрийн нэр:",
-                Width = 215
+                Width = 200
             };
 
             TextBox name = new TextBox
             {
-                Width = 215
+                Width = 200
             };
             controls.Add(name);
 
@@ -1669,11 +1679,11 @@ namespace IrtsBurtgel
 
             Label sdLabel = new Label();
             sdLabel.Content = "Эхлэх огноо:";
-            sdLabel.Width = 215;
+            sdLabel.Width = 200;
             DatePicker sd = new DatePicker
             {
                 SelectedDate = DateTime.Today,
-                Width = 215
+                Width = 200
             };
             controls.Add(sd);
 
@@ -1690,11 +1700,11 @@ namespace IrtsBurtgel
 
             Label edLabel = new Label();
             edLabel.Content = "Дуусах огноо:";
-            edLabel.Width = 215;
+            edLabel.Width = 200;
             DatePicker ed = new DatePicker
             {
                 SelectedDate = DateTime.Today,
-                Width = 215
+                Width = 200
             };
             controls.Add(ed);
 
@@ -1711,11 +1721,11 @@ namespace IrtsBurtgel
             Label itLabel = new Label
             {
                 Content = "Давтамжийн төрөл:",
-                Width = 215
+                Width = 200
             };
             ComboBox it = new ComboBox
             {
-                Width = 215
+                Width = 200
             };
             it.Items.Insert(0, "Жилийн энэ өдрүүдэд");
             it.Items.Insert(1, "Сарын энэ өдрүүдэд");
@@ -1784,17 +1794,17 @@ namespace IrtsBurtgel
 
                 if (id != -1)
                 {
-                    MessageBox.Show("Тэмдэглэлт өдөр амжилттай нэмэгдлээ.");
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Тэмдэглэлт өдөр амжилттай нэмэгдлээ.");
                     ShowCalendar(null, null);
                 }
                 else
                 {
-                    MessageBox.Show("Тэмдэглэлт өдөр нэмэхэд алдаа гарлаа.");
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Тэмдэглэлт өдөр нэмэхэд алдаа гарлаа.");
                 }
             }
             catch(Exception ex)
             {
-                MessageBox.Show("Тэмдэглэлт өдөр нэмэхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+                Xceed.Wpf.Toolkit.MessageBox.Show("Тэмдэглэлт өдөр нэмэхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
             }
         }
         
@@ -1830,9 +1840,9 @@ namespace IrtsBurtgel
 
             Label nameLabel = new Label();
             nameLabel.Content = "Хурлын нэр:";
-            nameLabel.Width = 215;
+            nameLabel.Width = 200;
             TextBox name = new TextBox();
-            name.Width = 215;
+            name.Width = 200;
             name.Text = ((Meeting)meeting).name;
             name.IsEnabled = false;
             controls.Add(name);
@@ -1850,9 +1860,9 @@ namespace IrtsBurtgel
 
             Label stLabel = new Label();
             stLabel.Content = "Хурал эхлэх цаг:";
-            stLabel.Width = 215;
+            stLabel.Width = 200;
             TextBox st = new TextBox();
-            st.Width = 215;
+            st.Width = 200;
             st.Text = ((Meeting)meeting).startDatetime.ToShortTimeString();
             controls.Add(st);
 
@@ -1869,9 +1879,9 @@ namespace IrtsBurtgel
 
             Label durationLabel = new Label();
             durationLabel.Content = "Хурал үргэлжлэх хугацаа минутаар:";
-            durationLabel.Width = 215;
+            durationLabel.Width = 200;
             TextBox duration = new TextBox();
-            duration.Width = 215;
+            duration.Width = 200;
             duration.Text = ((Meeting)meeting).duration.ToString();
             controls.Add(duration);
 
@@ -1882,7 +1892,7 @@ namespace IrtsBurtgel
             isChangedStack.Orientation = Orientation.Horizontal;
             Label isChangedLabel = new Label();
             isChangedLabel.Content = "Өөрчлөгдсөн эсэх";
-            isChangedLabel.Width = 215;
+            isChangedLabel.Width = 200;
             Label isChanged = new Label();
             isChanged.Content = ((ListBoxItem)listBox.SelectedItem).Tag is ModifiedMeeting ? "Тийм" : "Үгүй";
 
@@ -1893,14 +1903,14 @@ namespace IrtsBurtgel
             reasonStack.Orientation = Orientation.Horizontal;
             Label reasonLabel = new Label();
             reasonLabel.Content = ((ListBoxItem)listBox.SelectedItem).Tag is ModifiedMeeting ? "Өөрчлөгдсөн шалтгаан:":"Өөрчлөх шалтгаан";
-            reasonLabel.Width = 215;
+            reasonLabel.Width = 200;
 
             TextBox reason = new TextBox();
             reason.TextWrapping = TextWrapping.Wrap;
             reason.Text = ((ListBoxItem)listBox.SelectedItem).Tag is ModifiedMeeting ? ((ModifiedMeeting)((ListBoxItem)listBox.SelectedItem).Tag).reason : "";
             controls.Add(reason);
             reason.Height = 60;
-            reason.Width = 215;
+            reason.Width = 200;
             reasonStack.Children.Add(reasonLabel);
             reasonStack.Children.Add(reason);
             /**
@@ -1961,7 +1971,7 @@ namespace IrtsBurtgel
                 mmeeting.duration = Int32.Parse(duration.Text);
                 mmeeting.reason = reason.Text;
                 modifiedMeetingModel.Set(mmeeting);
-                MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
+                Xceed.Wpf.Toolkit.MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
             else
             {
@@ -1973,7 +1983,7 @@ namespace IrtsBurtgel
                 mmeeting.duration = Int32.Parse(duration.Text);
                 mmeeting.reason = reason.Text;
                 modifiedMeetingModel.Add(mmeeting);
-                MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
+                Xceed.Wpf.Toolkit.MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
         }
 
@@ -2035,12 +2045,12 @@ namespace IrtsBurtgel
             Meeting meeting = (Meeting)((Button)sender).Tag;
             if (meetingModel.MarkAsDeleted(meeting.id))
             {
-                MessageBox.Show("Амжилттай устгалаа");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай устгалаа");
                 ShowMeetings();
             }
             else
             {
-                MessageBox.Show("Та орчноо шалгаад дахин оролдоно уу!", "Бүтэлгүйтлээ");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та орчноо шалгаад дахин оролдоно уу!", "Бүтэлгүйтлээ");
             }
 
 
@@ -2124,11 +2134,11 @@ namespace IrtsBurtgel
             try
             {
                 userModel.Set(user);
-                MessageBox.Show("Амжилттай өөрчлөгдлөө", "Өөрчлөгдлөө");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай өөрчлөгдлөө", "Өөрчлөгдлөө");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Та программ ажиллуулж байгаа орчиноо шалгана уу", "Өөрчилсөнгүй");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та программ ажиллуулж байгаа орчиноо шалгана уу", "Өөрчилсөнгүй");
             }
             ShowMembers(sender, null);
         }
@@ -2310,7 +2320,7 @@ namespace IrtsBurtgel
             DatePicker et = (DatePicker)controls[2];
             if (listBox == null || st == null || et == null)
             {
-                MessageBox.Show("Та дээрх бүх талбарыг бөглөнө үү!", "Алдаа");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та дээрх бүх талбарыг бөглөнө үү!", "Алдаа");
                 return;
             }
             ReportExporter re = new ReportExporter(meetingController);
@@ -2423,6 +2433,8 @@ namespace IrtsBurtgel
             saveButton.Click += getReport;
             saveButton.Margin = new Thickness(10, 0, 0, 0);
             saveButton.HorizontalAlignment = HorizontalAlignment.Right;
+            
+
 
             timeSelector.Children.Add(startTime);
             timeSelector.Children.Add(label);
@@ -2440,7 +2452,13 @@ namespace IrtsBurtgel
 
             RightSide.Children.Add(grid);
         }
-
+        void MainWindow_SizeChanged(object sender, EventArgs e)
+        {
+            if(FindName("scroll")!=null)
+            {
+                ((ScrollViewer)FindName("scroll")).Height = ActualHeight-50;
+            }
+        }
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             meetingController.aTimer.Stop();

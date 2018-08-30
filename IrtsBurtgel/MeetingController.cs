@@ -141,7 +141,7 @@ namespace IrtsBurtgel
 
         public string TextToDisplay()
         {
-            DateTime time = DateTime.Today;
+            DateTime time = DateTime.Now;
             Meeting meeting = null;
             DateTime now = DateTime.Now; //Don't change it
             DateTime day = DateTime.Today;
@@ -675,7 +675,7 @@ namespace IrtsBurtgel
             //filtering allMeetings to meetings
             foreach(Meeting meeting in allMeetings)
             {
-                if (meeting.intervalType != 0 || DateTime.Today<meeting.startDatetime) meetings.Add(meeting);
+                if (meeting.intervalType != 0 || DateTime.Now<meeting.startDatetime) meetings.Add(meeting);
             }
             //Dates and meetings of closest occuring meetings
             List<Object[]> closestDates = new List<Object[]>();
@@ -684,7 +684,7 @@ namespace IrtsBurtgel
             {
                 DateTime date = meeting.startDatetime;
                 Object[] obj = new Object[2];
-                while(date<DateTime.Today)
+                while(date<DateTime.Now)
                 {
                     switch (meeting.intervalType)
                     {
