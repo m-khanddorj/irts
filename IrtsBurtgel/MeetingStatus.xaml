@@ -8,9 +8,8 @@
         Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Ирц бүртгэлийн төлөв" Height="450" Width="800" WindowStartupLocation="Manual" Icon="images/time-logo.png">
     <Grid Background="#FF007ACC">
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="8*"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
             <Button DockPanel.Dock="Right" Width="58" Height="58" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
@@ -25,12 +24,11 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
             <Label Grid.Column="0" Grid.Row="0" Content="Ажилтны нэр"/>
             <Label Grid.Column="1" Grid.Row="0" Content="Хоцорсон минут"/>
-        </Grid>
-        <Grid Grid.Row="2" Name="departs">
         </Grid>
     </Grid>
 </Window>
