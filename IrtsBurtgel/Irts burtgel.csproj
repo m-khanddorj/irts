@@ -240,12 +240,13 @@
     <Resource Include="images\shrink.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="images\calendar.png" />
-    <Resource Include="images\x.png" />
     <Resource Include="images\tick.png" />
     <Resource Include="images\search.png" />
     <Resource Include="images\searchwhite.png" />
     <Resource Include="images\time-logo.png" />
+    <Resource Include="images\cal-+.png" />
+    <Resource Include="images\cal-x.png" />
+    <Resource Include="images\logo.jpg" />
     <Content Include="libzkfpcsharp.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -111,6 +111,11 @@ namespace IrtsBurtgel
             Thickness margin = new Thickness();
             margin.Bottom = 10;
 
+            Image img = new Image();
+            img.Source = new BitmapImage(new Uri("images/time-logo.png", UriKind.Relative));
+            img.Width = 210;
+            img.Margin = margin;
+
             Button Calendar = new Button();
             Calendar.Content = "Календар";
             Calendar.Margin = margin;
@@ -144,6 +149,7 @@ namespace IrtsBurtgel
             Report.Height = 30;
             Report.Background = Brushes.White;
 
+            Menu.Children.Add(img);
             Menu.Children.Add(Calendar);
             Menu.Children.Add(Meetings);
             Menu.Children.Add(Members);
@@ -154,16 +160,103 @@ namespace IrtsBurtgel
             RightSide.Children.Clear();
             RightSide.HorizontalAlignment = HorizontalAlignment.Stretch;
 
-            TextBlock time = new TextBlock();
-            time.Margin = new Thickness(10);
-            time.HorizontalAlignment = HorizontalAlignment.Stretch;
-            time.TextWrapping = TextWrapping.Wrap;
-            time.Text = meetingController.TextToDisplay();
-            time.FontSize = 20;
-            if (FindName("time") != null) UnregisterName("time");
-            RegisterName("time", time);
+            List<Object[]> closestMeetings = meetingController.getClosestMeetings(10);
 
-            RightSide.Children.Add(time);
+            Label headerLabel = new Label();
+            headerLabel.Content = "Хамгийн ойрын 10 хурал";
+            headerLabel.Margin = new Thickness(0,0,0,10);
+            headerLabel.FontSize = 20;
+            headerLabel.HorizontalAlignment = HorizontalAlignment.Center;
+
+            Border border = new Border();
+            border.BorderThickness = new Thickness(1);
+            border.BorderBrush = Brushes.Black;
+            border.HorizontalAlignment = HorizontalAlignment.Center;
+
+            Grid grid = new Grid();
+            grid.ShowGridLines = true;
+
+            ColumnDefinition col0 = new ColumnDefinition();
+            col0.Width = new GridLength(1,GridUnitType.Star);
+            ColumnDefinition col1 = new ColumnDefinition();
+            col1.Width = new GridLength(1, GridUnitType.Star);
+
+            grid.ColumnDefinitions.Add(col0);
+            grid.ColumnDefinitions.Add(col1);
+
+            RowDefinition header = new RowDefinition();
+            header.Height = new GridLength(30);
+
+            grid.RowDefinitions.Add(header);
+
+            Label timeHeaderLabel = new Label();
+            timeHeaderLabel.Content = "Огноо";
+
+            Grid.SetRow(timeHeaderLabel, 0);
+            Grid.SetColumn(timeHeaderLabel, 0);
+
+            Label closestMeetingLabel = new Label();
+            closestMeetingLabel.Content = "Хурлын нэр";
+
+            Grid.SetRow(closestMeetingLabel,0);
+            Grid.SetColumn(closestMeetingLabel, 1);
+
+            grid.Children.Add(timeHeaderLabel);
+            grid.Children.Add(closestMeetingLabel);
+
+            int rowNum = 1;
+            foreach( Object[] obj in closestMeetings)
+            {
+                RowDefinition row = new RowDefinition();
+                row.Height = new GridLength(30);
+                grid.RowDefinitions.Add(row);
+
+                Label timeLabel = new Label();
+                timeLabel.HorizontalAlignment = HorizontalAlignment.Center;
+                timeLabel.Content = ((DateTime)obj[0]).ToString();
+
+                Grid.SetColumn(timeLabel, 0);
+                Grid.SetRow(timeLabel, rowNum);
+
+                Label nameLabel = new Label();
+                nameLabel.HorizontalAlignment = HorizontalAlignment.Center;
+                nameLabel.Content = ((Meeting)obj[1]).name;
+
+                Grid.SetColumn(nameLabel, 1);
+                Grid.SetRow(nameLabel, rowNum);
+                rowNum++;
+
+                grid.Children.Add(timeLabel);
+                grid.Children.Add(nameLabel);
+            }
+            border.Child = grid;
+
+            Button status = new Button();
+            status.Margin = new Thickness(0, 10, 0, 0);
+            status.Height = 30;
+            status.Background = new SolidColorBrush(Color.FromArgb(0xFF, 00, 0x7A, 0xCC));
+
+            Image eyeImage = new Image();
+            eyeImage.Source = new BitmapImage(new Uri("images/eye.png",UriKind.Relative));
+            eyeImage.Width = 30;
+
+            StackPanel tmp = new StackPanel();
+            tmp.Orientation = Orientation.Horizontal;
+            tmp.Children.Add(eyeImage);
+
+            Label label = new Label();
+            label.Content = "Ирц харах";
+            label.Foreground = Brushes.White;
+            tmp.Children.Add(label);
+            
+            status.Click += showStatus;
+            status.Content = tmp;
+
+            status.HorizontalAlignment = HorizontalAlignment.Center;
+
+            RightSide.Children.Add(headerLabel);
+            RightSide.Children.Add(border);
+            RightSide.Children.Add(status);
         }
 
         DockPanel addHeader(List<Object> controls = null, List<Object> rControls = null)
@@ -187,26 +280,10 @@ namespace IrtsBurtgel
             back.Background = Brushes.Transparent;
             back.Height = 30;
             back.Width = 30;
+            back.HorizontalAlignment = HorizontalAlignment.Left;
 
             headerPanel.Children.Add(back);
-
-            Button status = new Button();
-
-            Image eyeImage = new Image();
-            eyeImage.Source = new BitmapImage(new Uri("images/eye.png", UriKind.Relative));
-            eyeImage.Width = 20;
-            eyeImage.Height = 20;
-
-            status.Content = eyeImage;
-
-            status.Click += showStatus;
-            status.Foreground = Brushes.White;
-            status.BorderBrush = Brushes.Transparent;
-            status.Background = Brushes.Transparent;
-            status.Height = 30;
-            status.Width = 30;
-            status.HorizontalAlignment = HorizontalAlignment.Right;
-
+            
             DockPanel.SetDock(headerPanel, Dock.Left);
 
             if (controls != null)
@@ -258,9 +335,6 @@ namespace IrtsBurtgel
                     }
                 }
             }
-
-            DockPanel.SetDock(status, Dock.Right);
-            headerPanel.Children.Add(status);
 
             DockPanel.SetDock(headerPanel, Dock.Top);
             dockPanel.Children.Add(headerPanel);
@@ -348,6 +422,10 @@ namespace IrtsBurtgel
             ask.ShowDialog();
             if ((bool)ask.DialogResult)
             {
+                if ((DateTime)calendar.SelectedDate == null)
+                {
+                    meetingController.CancelMeetingsByDate(DateTime.Today, ask.text);
+                }
                 meetingController.CancelMeetingsByDate((DateTime)calendar.SelectedDate, ask.text);
             }
         }
@@ -366,7 +444,7 @@ namespace IrtsBurtgel
             Button rButton = new Button();
 
             Image calendarImage = new Image();
-            calendarImage.Source = new BitmapImage(new Uri("images/calendar.png", UriKind.Relative));
+            calendarImage.Source = new BitmapImage(new Uri("images/cal-+.png", UriKind.Relative));
             calendarImage.Width = 20;
             calendarImage.Height = 20;
             rButton.Content = calendarImage;
@@ -374,7 +452,7 @@ namespace IrtsBurtgel
 
             Button xButton = new Button();
             Image xImage = new Image();
-            xImage.Source = new BitmapImage(new Uri("images/x.png", UriKind.Relative));
+            xImage.Source = new BitmapImage(new Uri("images/cal-x.png", UriKind.Relative));
             xImage.Width = 20;
             xImage.Height = 20;
             xButton.Tag = calendar;
@@ -442,13 +520,13 @@ namespace IrtsBurtgel
 
             Button rButton = new Button();
             Image calendarImage = new Image();
-            calendarImage.Source = new BitmapImage(new Uri("images/calendar.png", UriKind.Relative));
+            calendarImage.Source = new BitmapImage(new Uri("images/cal-+.png", UriKind.Relative));
             calendarImage.Width = 20;
             calendarImage.Height = 20;
 
             Button xButton = new Button();
             Image xImage = new Image();
-            xImage.Source = new BitmapImage(new Uri("images/x.png", UriKind.Relative));
+            xImage.Source = new BitmapImage(new Uri("images/cal-x.png", UriKind.Relative));
             xImage.Width = 20;
             xImage.Height = 20;
             xButton.Content = xImage;
@@ -518,9 +596,7 @@ namespace IrtsBurtgel
 
             dockPanel.Children.Add(listbox);
         }
-
         
-
         void RemoveFromList(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)((Button)sender).Tag;
@@ -597,8 +673,9 @@ namespace IrtsBurtgel
             regStartStack.Orientation = Orientation.Horizontal;
             regStartStack.Margin = new Thickness(0, 5, 0, 5);
 
-            Label regStartLabel = new Label();
-            regStartLabel.Content = "Хурлын бүртгэл эхлэх:";
+            TextBlock regStartLabel = new TextBlock();
+            regStartLabel.Text = "Хурлаас хэдэн минутын өмнө бүртгэл эхлэх:";
+            regStartLabel.TextWrapping = TextWrapping.Wrap;
             regStartLabel.Width = 215;
             TextBox regStart = new TextBox();
             regStart.Width = 215;
@@ -618,11 +695,15 @@ namespace IrtsBurtgel
             durationLabel.Content = "Хурал үргэлжлэх хугацаа минутаар:";
             durationLabel.Width = 215;
             TextBox duration = new TextBox();
-            duration.Width = 215;
+            duration.Width = 100;
             controls.Add(duration);
+
+            Label uDurationUnit = new Label();
+            uDurationUnit.Content = "Минут";
 
             durationStack.Children.Add(durationLabel);
             durationStack.Children.Add(duration);
+            durationStack.Children.Add(uDurationUnit);
 
             /**
                 * ending date Stack
@@ -1081,8 +1162,9 @@ namespace IrtsBurtgel
             regStartStack.Orientation = Orientation.Horizontal;
             regStartStack.Margin = new Thickness(0, 5, 0, 5);
 
-            Label regStartLabel = new Label();
-            regStartLabel.Content = "Хурлын бүртгэл эхлэх:";
+            TextBlock regStartLabel = new TextBlock();
+            regStartLabel.Text = "Хурлаас хэдэн минутын өмнө бүртгэл эхлэх:";
+            regStartLabel.TextWrapping = TextWrapping.Wrap;
             regStartLabel.Width = 215;
             TextBox regStart = new TextBox();
             regStart.Width = 215;
@@ -1090,9 +1172,7 @@ namespace IrtsBurtgel
 
             regStartStack.Children.Add(regStartLabel);
             regStartStack.Children.Add(regStart);
-
-            regStartStack.Children.Add(regStartLabel);
-            regStartStack.Children.Add(regStart);
+            
             /**
                 * ending time Stack
                 */
@@ -1102,15 +1182,18 @@ namespace IrtsBurtgel
             durationStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label durationLabel = new Label();
-            durationLabel.Content = "Хурал үргэлжлэх хугацаа минутаар:";
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
             durationLabel.Width = 215;
             TextBox duration = new TextBox();
-            duration.Width = 215;
+            duration.Width = 100;
             duration.Text = meeting.duration.ToString();
             controls.Add(duration);
+            Label uDurationUnit = new Label();
+            uDurationUnit.Content = "Минут";
 
             durationStack.Children.Add(durationLabel);
             durationStack.Children.Add(duration);
+            durationStack.Children.Add(uDurationUnit);
 
             /**
                 * ending date Stack
@@ -1407,7 +1490,8 @@ namespace IrtsBurtgel
             scrollViewer.Content = stackPanel;
             scrollViewer.Margin = new Thickness(0, 0, -20, 0);
             RightSide.Children.Add(scrollViewer);
-            scrollViewer.Height = this.ActualHeight + 50;
+            scrollViewer.Height = this.ActualHeight;
+            scrollViewer.VerticalAlignment = VerticalAlignment.Stretch;
         }
         void setMeeting(object sender, RoutedEventArgs e)
         {
@@ -1415,7 +1499,7 @@ namespace IrtsBurtgel
             TextBox name = (TextBox)controls[0];
             TextBox st = (TextBox)controls[1];
             DatePicker sd = (DatePicker)controls[2];
-            DatePicker rs = (DatePicker)controls[3];
+            TextBox rs = (TextBox)controls[3];
 
             TextBox duration = (TextBox)controls[4];
             DatePicker ed = (DatePicker)controls[5];
@@ -1707,9 +1791,7 @@ namespace IrtsBurtgel
                 MessageBox.Show("Тэмдэглэлт өдөр нэмэхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
             }
         }
-
-
-
+        
         void ModifyMeeting(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
@@ -2302,7 +2384,7 @@ namespace IrtsBurtgel
 
             Button saveButton = new Button();
             saveButton.Tag = controls;
-            saveButton.Content = "Тайлан авах";
+            saveButton.Content = "Тайлан харах";
             saveButton.Click += getReport;
             saveButton.Margin = new Thickness(10, 0, 0, 0);
             saveButton.HorizontalAlignment = HorizontalAlignment.Right;
