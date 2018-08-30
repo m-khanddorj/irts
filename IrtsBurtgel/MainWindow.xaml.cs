@@ -111,6 +111,15 @@ namespace IrtsBurtgel
         private void showMenu(object sender = null, RoutedEventArgs e = null)
         {
             is_home = true;
+
+            try
+            {
+                UnregisterName("SearchBox");
+            }
+            catch(Exception ex)
+            {
+
+            }
             //meetingController.StopMeeting();
             LeftSide.Children.Clear();
             LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -379,26 +388,18 @@ namespace IrtsBurtgel
         }
         void Search(object sender, RoutedEventArgs e)
         {
-            ListBox listbox;
-            try
-            {
-                listbox = (ListBox)FindName("listbox");
-            }
-            catch (Exception ex)
-            {
-                UnregisterName("listbox");
-                listbox = (ListBox)FindName("listbox");
-            }
+            ListBox listbox = (ListBox)FindName("listbox");
+            TextBox searchBox = (TextBox)FindName("SearchBox");
+            listbox.Items.Clear();
 
-            if (FindName("SearchBox") == null)
+            if (searchBox == null)
             {
-                TextBox searchBox = new TextBox();
+                searchBox = new TextBox();
                 RegisterName("SearchBox", searchBox);
                 ((DockPanel)FindName("headerPanel")).Children.Add(searchBox);
             }
             else
             {
-                listbox.Items.Clear();
                 if ((string)((Button)sender).Tag == "meeting")
                 {
                     foreach (Meeting meeting in meetingModel.GetAll())
@@ -406,6 +407,7 @@ namespace IrtsBurtgel
                         ListBoxItem lbi = new ListBoxItem();
                         lbi.Content = meeting.name;
                         lbi.Tag = meeting.id;
+                        lbi.Uid = meeting.id.ToString();
                         listbox.Items.Add(lbi);
                     }
                 }
@@ -416,23 +418,15 @@ namespace IrtsBurtgel
                         ListBoxItem lbi = new ListBoxItem();
                         lbi.Content = user.fname + " " + user.lname;
                         lbi.Tag = user.id;
+                        lbi.Uid = user.id.ToString();
                         listbox.Items.Add(lbi);
                     }
                 }
-                TextBox searchBox = (TextBox)FindName("SearchBox");
-                if (searchBox.Text == "" || searchBox.Text == null)
-                {
-                    if ((string)((Button)sender).Tag == "meeting")
-                        ShowMeetings();
-                    else
-                        ShowMembers(null, null);
-                    UnregisterName("SearchBox");
-                    return;
-                }
+                
                 for (int i = listbox.Items.Count - 1; i >= 0; i--)
                 {
-                    Regex regex = new Regex(@"[a-zA-Z0-9]*" + searchBox.Text + @"[a-zA-Z0-9]*");
-                    Match match = regex.Match((string)((ListBoxItem)listbox.Items[i]).Content);
+                    Regex regex = new Regex(@"[a-zA-Z0-9]*" + searchBox.Text.ToLower() + @"[a-zA-Z0-9]*");
+                    Match match = regex.Match(((string)((ListBoxItem)listbox.Items[i]).Content).ToLower());
                     if (!match.Success)
                     {
                         listbox.Items.Remove((ListBoxItem)listbox.Items[i]);
@@ -1121,6 +1115,10 @@ namespace IrtsBurtgel
         void onMeetingNameChanged(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
+            if ((ListBoxItem)listBox.SelectedValue == null)
+            {
+                return;
+            }
             Label label = new Label();
             string id = ((ListBoxItem)listBox.SelectedValue).Uid;
 
@@ -1385,8 +1383,7 @@ namespace IrtsBurtgel
             {
                 ListBoxItem listBoxItem = new ListBoxItem();
                 listBoxItem.Content = userModel.Get(mau.userId).fname + " " + userModel.Get(mau.userId).lname;
-                listBoxItem.Tag = userModel.Get(mau.userId
-).id;
+                listBoxItem.Tag = userModel.Get(mau.userId).id;
                 pUserList.Items.Add(listBoxItem);
             }
             //Registering the name
@@ -2174,6 +2171,10 @@ namespace IrtsBurtgel
         void onUserChanged(object sender, RoutedEventArgs e)
         {
             ListBox listBox = (ListBox)sender;
+            if ((ListBoxItem)listBox.SelectedValue == null)
+            {
+                return;
+            }
             string id = ((ListBoxItem)listBox.SelectedValue).Uid;
 
             RightSide.Children.Clear();
