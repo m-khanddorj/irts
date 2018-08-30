@@ -21,6 +21,8 @@ namespace IrtsBurtgel
     {
         Model<Admin> adminModel;
         MeetingController meetingController;
+        Dictionary<int, string> statuses;
+        Dictionary<int, string> departments;
         //dummy data
         public MeetingStatus(MeetingController mc)
         {
@@ -28,7 +30,11 @@ namespace IrtsBurtgel
             adminModel = new Model<Admin>();
             //Showing the org title
             OrgTitle.Content = adminModel.GetAll()[0].organizationName;
+
             meetingController = mc;
+            statuses = meetingController.statusModel.GetAll().ToDictionary(x => x.id, x => x.name);
+            departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
+            BuildDepartControls();
         }
 
         private void Expand(object sender, RoutedEventArgs e)
@@ -53,46 +59,64 @@ namespace IrtsBurtgel
                 this.WindowStyle = WindowStyle.ThreeDBorderWindow;
             }
         }
-        public void Update(List<Object[]> latePeople)
+
+        public void BuildDepartControls()
         {
-            AttendanceLabel.Content = latePeople.Count;
-            status.RowDefinitions.Clear();
-            status.Children.Clear();
-
-            RowDefinition row = new RowDefinition();
-            row.Height = new GridLength(1, GridUnitType.Star);
-
-            status.RowDefinitions.Add(row);
-            Label nameLabel = new Label();
-            nameLabel.Content = "Ажилтны нэр";
-            Label lateMinute = new Label();
-            lateMinute.Content = "Хоцорсон минут";
-
-            foreach(Object[] obj in latePeople)
+            foreach (KeyValuePair<int, string> entry in departments)
             {
-                RowDefinition tmpRow = new RowDefinition();
-                tmpRow.Height = new GridLength(1, GridUnitType.Star);
+                ColumnDefinition gridCol = new ColumnDefinition();
+                gridCol.Width = new GridLength(1, GridUnitType.Star);
+                gridDeparts.ColumnDefinitions.Add(gridCol);
 
-                User user = (User)obj[0];
-                Attendance att = (Attendance)obj[1];
-
-                Label userLabel = new Label();
-                userLabel.Content = user.fname + " " + user.lname;
-                Label lateLabel = new Label();
-                lateLabel.Content = att.regTime;
-
-                status.RowDefinitions.Add(tmpRow);
-                int rowNum = status.RowDefinitions.Count-1;
-
-                Grid.SetColumn(userLabel, 0);
-                Grid.SetColumn(lateLabel, 1);
-
-                Grid.SetRow(userLabel, rowNum);
-                Grid.SetRow(lateLabel, rowNum);
-
-                status.Children.Add(userLabel);
-                status.Children.Add(lateLabel);
+                TextBlock textBlock = new TextBlock();
+                textBlock.TextWrapping = TextWrapping.Wrap;
+                textBlock.Text = entry.Value;
+                textBlock.SetValue(Grid.ColumnProperty, entry.Key);
+                gridDeparts.Children.Add(textBlock);
             }
         }
+
+        //public void update(list<object[]> latepeople)
+        //{
+        //    attendancelabel.content = latepeople.count;
+        //    status1.rowdefinitions.clear();
+        //    status1.children.clear();
+
+        //    rowdefinition row = new rowdefinition();
+        //    row.height = new gridlength(1, gridunittype.star);
+
+        //    status1.rowdefinitions.add(row);
+        //    label namelabel = new label();
+        //    namelabel.content = "ажилтны нэр";
+        //    label lateminute = new label();
+        //    lateminute.content = "төлөв";
+
+        //    foreach(object[] obj in latepeople)
+        //    {
+        //        //rowdefinition tmprow = new rowdefinition();
+        //        //tmprow.height = new gridlength(40, gridunittype.pixel);
+
+        //        //user user = (user)obj[0];
+        //        //attendance att = (attendance)obj[1];
+
+        //        //label userlabel = new label();
+        //        //userlabel.content = user.fname + " " + user.lname;
+        //        //label latelabel = new label();
+        //        //latelabel.content = statuses[att.statusid];
+
+        //        //status1.rowdefinitions.add(tmprow);
+        //        //int rownum = status1.rowdefinitions.count - 1;
+
+        //        //grid.setcolumn(userlabel, 0);
+        //        //grid.setcolumn(latelabel, 1);
+
+        //        //grid.setrow(userlabel, rownum);
+        //        //grid.setrow(latelabel, rownum);
+
+        //        //status1.children.add(userlabel);
+        //        //status1.children.add(latelabel);
+
+        //    }
+        //}
     }
 }

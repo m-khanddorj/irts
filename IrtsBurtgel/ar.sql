@@ -41,8 +41,6 @@ CREATE TABLE event (
                 start_date DATETIME NOT NULL,
                 end_date DATETIME NOT NULL,
                 interval_type TINYINT NOT NULL,
-                interval_day INT,
-                week TINYINT,
                 is_deleted BIT DEFAULT 0 NOT NULL,
                 CONSTRAINT event_id PRIMARY KEY (event_id)
 )

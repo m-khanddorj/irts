@@ -14,8 +14,6 @@ namespace IrtsBurtgel
 
         public int id;
         public byte intervalType;
-        public byte week;
-        public int intervalDay;
         public string name;
         public DateTime startDate;
         public DateTime endDate;
@@ -24,9 +22,7 @@ namespace IrtsBurtgel
         public Event()
         {
             id = -1;
-            intervalDay = 0;
             intervalType = 0;
-            week = 0;
             name = "";
             startDate = new DateTime();
             endDate = new DateTime();
@@ -41,8 +37,6 @@ namespace IrtsBurtgel
                 list.Add(new Object[] { "event_id", id });
             }
             list.Add(new Object[] { "interval_type", intervalType });
-            list.Add(new Object[] { "interval_day", intervalDay });
-            list.Add(new Object[] { "week", week });
             list.Add(new Object[] { "is_deleted", isDeleted });
             list.Add(new Object[] { "start_date", startDate });
             if (DateTime.Compare(endDate, new DateTime()) != 0)
@@ -63,8 +57,6 @@ namespace IrtsBurtgel
                 startDate = (DateTime)reader["start_date"],
                 endDate = reader["end_date"].GetType() != typeof(DateTime) ? new DateTime() : (DateTime)reader["end_date"],
                 intervalType = (byte)reader["interval_type"],
-                intervalDay = (int)reader["interval_day"],
-                week = (byte)reader["week"],
                 isDeleted = (bool)reader["is_deleted"]
             };
         }
