@@ -603,7 +603,7 @@ namespace IrtsBurtgel
                     listBox.Items.Remove(selectedItems[i]);
             }
             else
-                MessageBox.Show("Та жагсаалтаас хасах хүмүүсээ эхлээд сонгоно уу.");
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та жагсаалтаас хасах хүмүүсээ эхлээд сонгоно уу.");
         }
 
         void addMeeting(object sender, RoutedEventArgs e)
