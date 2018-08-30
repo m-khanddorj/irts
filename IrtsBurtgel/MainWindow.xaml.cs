@@ -55,6 +55,7 @@ namespace IrtsBurtgel
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
+            
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
@@ -1099,6 +1100,7 @@ namespace IrtsBurtgel
 
             StackPanel stackPanel = new StackPanel();
             stackPanel.HorizontalAlignment = HorizontalAlignment.Center;
+            stackPanel.VerticalAlignment = VerticalAlignment.Center;
             stackPanel.Orientation = Orientation.Vertical;
             stackPanel.Margin = new Thickness(10, 10, 10, 10);
 
@@ -1169,6 +1171,7 @@ namespace IrtsBurtgel
             regStartLabel.TextWrapping = TextWrapping.Wrap;
             regStartLabel.Width = 200;
             TextBox regStart = new TextBox();
+            regStart.Text = meeting.regMinBefMeeting.ToString();
             regStart.Width = 200;
             controls.Add(regStart);
 
@@ -1287,6 +1290,7 @@ namespace IrtsBurtgel
             Label pGroupsLabel = new Label();
             pGroupsLabel.Content = "Оролцогч албууд:";
             ListBox pGroupList = new ListBox();
+            pGroupList.MaxHeight = 105;
             List<MeetingAndDepartment> mads = madModel.GetByFK(meeting.IDName, meeting.id);
             foreach (MeetingAndDepartment mad in mads)
             {
@@ -1341,6 +1345,7 @@ namespace IrtsBurtgel
             Label participantsLabel = new Label();
             participantsLabel.Content = "Оролцогч гишүүд:";
             ListBox pUserList = new ListBox();
+            pUserList.MaxHeight = 105;
             controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
             List<MeetingAndUser> maus = mauModel.GetByFK(meeting.IDName, meeting.id);
@@ -1396,6 +1401,7 @@ namespace IrtsBurtgel
             Label pPositionLabel = new Label();
             pPositionLabel.Content = "Оролцогч албан тушаалтнууд:";
             ListBox pPositionList = new ListBox();
+            pPositionList.MaxHeight = 105;
 
             List<MeetingAndPosition> maps = mapModel.GetByFK(meeting.IDName, meeting.id);
             foreach (MeetingAndPosition map in maps)
@@ -1490,9 +1496,13 @@ namespace IrtsBurtgel
 
             ScrollViewer scrollViewer = new ScrollViewer();
             scrollViewer.Content = stackPanel;
+            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            if (FindName("scroll") != null) UnregisterName("scroll");
+            RegisterName("scroll", scrollViewer);
+
             scrollViewer.Margin = new Thickness(0, 0, -20, 0);
             RightSide.Children.Add(scrollViewer);
-            scrollViewer.Height = ActualHeight-20;
+            scrollViewer.Height = ActualHeight-50;
         }
         void setMeeting(object sender, RoutedEventArgs e)
         {
@@ -2408,7 +2418,13 @@ namespace IrtsBurtgel
 
             RightSide.Children.Add(grid);
         }
-
+        void MainWindow_SizeChanged(object sender, EventArgs e)
+        {
+            if(FindName("scroll")!=null)
+            {
+                ((ScrollViewer)FindName("scroll")).Height = ActualHeight-50;
+            }
+        }
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             meetingController.aTimer.Stop();
