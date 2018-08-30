@@ -2071,6 +2071,20 @@ namespace IrtsBurtgel
             border.Child = grid;
             RightSide.Children.Add(border);
 
+            Button changeStatus = new Button();
+            changeStatus.Content = "Хэрэглэгчийн төлөв өөрчлөх";
+            changeStatus.Background = Brushes.White;
+            changeStatus.Height = 30;
+            changeStatus.Uid = id;
+            changeStatus.Click += setStatus;
+
+            RightSide.Children.Add(changeStatus);
+        }
+        void setStatus(object sender,RoutedEventArgs e)
+        {
+            string id = ((Button)sender).Uid;
+            ChangeUserStatus ch = new ChangeUserStatus(Int32.Parse(id));
+            ch.Visibility = Visibility.Visible;
         }
         void importData(object sender, RoutedEventArgs e)
         {
