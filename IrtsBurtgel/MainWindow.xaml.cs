@@ -2441,7 +2441,14 @@ namespace IrtsBurtgel
                 meetings = new List<Meeting>();
                 meetings.Add(meetingModel.Get(Int32.Parse(((ListBoxItem)listBox.SelectedItem).Uid)));
             }
-            re.ExportAttendance(meetings, (DateTime)st.SelectedDate, (DateTime)et.SelectedDate, "report");
+            try
+            {
+                re.ExportAttendance(meetings, (DateTime)st.SelectedDate, (DateTime)et.SelectedDate, "report");
+            }
+            catch(Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Тайлан гаргах явцад алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+            }
 
         }
         void ShowReport(object sender, RoutedEventArgs e)

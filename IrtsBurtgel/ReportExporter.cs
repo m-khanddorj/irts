@@ -38,13 +38,8 @@ namespace IrtsBurtgel
                 worksheet.Cells[1, 4].Value = "Албан тушаал";
 
                 List<ArchivedMeeting> archivedMeetings = meetingController.archivedMeetingModel.GetByFK(meetings.First().IDName, meetings.Select(x => x is ModifiedMeeting? (((ModifiedMeeting)x).meeting_id):x.id).ToArray());
-                foreach (ArchivedMeeting archivedMeeting in archivedMeetings)
-                {
-                    if (archivedMeeting.meetingDatetime.Date < startDate || archivedMeeting.meetingDatetime.Date > endDate)
-                    {
-                        archivedMeetings.Remove(archivedMeeting);
-                    }
-                }
+
+                archivedMeetings.RemoveAll(x => x.meetingDatetime.Date < startDate || x.meetingDatetime.Date > endDate);
 
                 if (archivedMeetings.Count == 0)
                 {
@@ -174,12 +169,32 @@ namespace IrtsBurtgel
 
                     worksheet2.Cells[1, archivedMeetings.Count + 3].Value = "Нийт ирц";
 
+                    Dictionary<int, double> departmentAttendancePercent = new Dictionary<int, double>();
+
+                    for (int i = 0; i < archivedMeetings.Count; i++)
+                    {
+                        int j = 0;
+                        foreach (KeyValuePair<int, int[]> entry in departmentAttendance)
+                        {
+                            worksheet2.Cells[j + 2, i + 3].Value = (entry.Value[1] + entry.Value[2]) + "/" + entry.Value[16];
+                            if (!departmentAttendancePercent.ContainsKey(entry.Key))
+                            {
+                                departmentAttendancePercent.Add(entry.Key, ((double)(entry.Value[1] + entry.Value[2]))/entry.Value[16]);
+                            }
+                            else
+                            {
+                                departmentAttendancePercent[entry.Key] += ((double)(entry.Value[1] + entry.Value[2])) / entry.Value[16];
+                            }
+                            j++;
+                        }
+                    }
+
                     {
                         int i = 0;
                         foreach (KeyValuePair<int, int[]> entry in departmentAttendance)
                         {
                             worksheet2.Cells[i + 2, 1].Value = i + 1;
-                            if(entry.Key != -1)
+                            if (entry.Key != -1)
                             {
                                 worksheet2.Cells[i + 2, 2].Value = departments[entry.Key];
                             }
@@ -192,21 +207,10 @@ namespace IrtsBurtgel
                             string columnName2 = GetExcelColumnName(archivedMeetings.Count + 2);
                             string columnRange = columnName1 + (i + 2).ToString() + ":" + columnName2 + (i + 2).ToString();
 
-                            worksheet2.Cells[i + 2, archivedMeetings.Count + 3].Formula = "SUM(" + columnRange + ")/COUNTA(" + columnRange + ")";
+                            worksheet2.Cells[i + 2, archivedMeetings.Count + 3].Value = departmentAttendancePercent[entry.Key] / departmentAttendance.Count;
                             worksheet2.Cells[i + 2, archivedMeetings.Count + 3].Style.Numberformat.Format = "#0%";
 
                             i++;
-                        }
-                    }
-
-                    for (int i = 0; i < archivedMeetings.Count; i++)
-                    {
-                        int j = 0;
-                        foreach (KeyValuePair<int, int[]> entry in departmentAttendance)
-                        {
-                            worksheet2.Cells[j + 2, i + 3].Value = (double)(entry.Value[1] + entry.Value[2]) / entry.Value[16];
-                            worksheet2.Cells[j + 2, i + 3].Style.Numberformat.Format = "#0%";
-                            j++;
                         }
                     }
 
