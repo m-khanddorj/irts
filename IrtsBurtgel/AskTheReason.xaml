@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="Window1" Height="185" Width="400
+        Title="" Height="185" Width="400
         ">
     <Grid>
         <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,10">
