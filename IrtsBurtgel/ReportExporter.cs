@@ -3,6 +3,7 @@ using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,9 +53,20 @@ namespace IrtsBurtgel
                     worksheet.Cells[1, i + 5].Style.TextRotation = 180;
                 }
 
-
+                List<User> users= new List<User>();
                 List<Attendance> attendances = meetingController.attendanceModel.GetByFK(archivedMeetings.First().IDName, archivedMeetings.Select(x => x.id).ToArray());
-                List<User> users = meetingController.userModel.Get(attendances.Select(x => x.userId).ToArray());
+                if (attendances.Count > 1900)
+                {
+                    IEnumerable<List<Attendance>> splitedAttendances = SplitList<Attendance>(attendances, 1900);
+                    foreach (List<Attendance> chunkAttendance in splitedAttendances)
+                    {
+                        users.AddRange(meetingController.userModel.Get(chunkAttendance.Select(x => x.userId).ToArray()));
+                    }
+                }
+                else
+                {
+                    users = meetingController.userModel.Get(attendances.Select(x => x.userId).ToArray());
+                }
                 Dictionary<int, string> positions = meetingController.positionModel.GetAll().ToDictionary(x => x.id, x => x.name);
                 Dictionary<int, string> departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
 
@@ -253,8 +265,18 @@ namespace IrtsBurtgel
                 var xlFile = Utils.GetFileInfo(filename + ".xlsx");
                 // save our new workbook in the output directory and we are done!
                 package.SaveAs(xlFile);
-                MessageBox.Show("Тайлан " + xlFile.FullName + " файлд амжилттай гарлаа.");
+                MessageBox.Show(startDate.ToString("yyyy / MM / dd") + " - с " + endDate.ToString("yyyy / MM / dd") + " хүртэлх " + (meetings.Count > 1 ? "бүх хурлын" : meetings.First().name + "-н") + " тайлан " + xlFile.FullName + " файлд амжилттай гарлаа.", "Тайлан амжилттай гарлаа");
+
+                System.Diagnostics.Process.Start(xlFile.FullName);
                 return xlFile.FullName;
+            }
+        }
+
+        public static IEnumerable<List<T>> SplitList<T>(List<T> locations, int nSize = 30)
+        {
+            for (int i = 0; i < locations.Count; i += nSize)
+            {
+                yield return locations.GetRange(i, Math.Min(nSize, locations.Count - i));
             }
         }
 

@@ -133,7 +133,7 @@ namespace IrtsBurtgel
             }
         }
 
-        public string TextToDisplay()
+        public string TextToDisplay(Object[] obj)
         {
             DateTime time = DateTime.Now;
             Meeting meeting = null;
@@ -142,29 +142,9 @@ namespace IrtsBurtgel
             //Checking todays meetings
             List<Meeting> meetings = meetingModel.GetAll();
             if (meetings == null || meetings.Count == 0) return "Хурал байхгүй байна.";
-            /**
-            for (int i = 0; i < 31; i++)
-            {
-                meetings = FindByDate(day);
-                if (meetings != null && meetings.Count > 0)
-                {
-                    foreach (Meeting m in meetings)
-                    {
-                        if (m.startDatetime.AddMinutes(m.duration).TimeOfDay > now.TimeOfDay)
-                        {
-                            meeting = m;
-                            break;
-                        }
-                    }
-                    if(meeting != null)
-                    {
-                        break;
-                    }
-                }
-                day = day.AddDays(1);
-            }
-            */
-            meeting = (Meeting)getClosestMeetings(1)[0][1];
+
+            meeting = (Meeting)obj[1];
+            DateTime date = (DateTime)obj[0];
             if(meeting == null)
             {
                 return "Энэ сард хурал байхгүй.";
@@ -172,17 +152,17 @@ namespace IrtsBurtgel
 
             int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
            
-            if (meeting.startDatetime < DateTime.Now && meeting.startDatetime.AddMinutes(meeting.duration) > DateTime.Now)
+            if (date < DateTime.Now && date.AddMinutes(meeting.duration) > DateTime.Now)
             {
-                return "Хурал эхлээд:\n" + Math.Floor((DateTime.Now - meeting.startDatetime).TotalMinutes).ToString() + " минут өнгөрч байна";
+                return "Хурал эхлээд:\n" + Math.Floor((DateTime.Now - date).TotalMinutes).ToString() + " минут өнгөрч байна";
             }
-            else if (meeting.startDatetime.Add(new TimeSpan(0, -regbefminute, 0)) < DateTime.Now && meeting.startDatetime > DateTime.Now)
+            else if (date.Add(new TimeSpan(0, -regbefminute, 0)) < DateTime.Now && date > DateTime.Now)
             {
-                return "Хурал эхлэхэд:\n" + Math.Floor((meeting.startDatetime - DateTime.Now).TotalMinutes) + ":" + Math.Floor((meeting.startDatetime - DateTime.Now).TotalSeconds) % 60 + " дутуу байна. Бүртгэл эхэлсэн.";
+                return "Хурал эхлэхэд:\n" + Math.Floor((date - DateTime.Now).TotalMinutes) + ":" + Math.Floor((date - DateTime.Now).TotalSeconds) % 60 + " дутуу байна. Бүртгэл эхэлсэн.";
             }
             else
             {
-                return "Дараагийн хурал:\n" + meeting.startDatetime.ToString("yyyy/MM/dd hh:mm");
+                return "Дараагийн хурал:\n" + date.ToString("yyyy/MM/dd hh:mm");
             }
         }
 
@@ -676,22 +656,31 @@ namespace IrtsBurtgel
             return new Object[] { toUpdate, toInsert, toDelete };
         }
 
-        public List<Object[]> getClosestMeetings(int count)
+        public List<Object[]> GetClosestMeetings(int count)
         {
+            DateTime today = DateTime.Today;
+            DateTime now = DateTime.Now;
+
             List<Meeting> allMeetings = meetingModel.GetAll();
             //Meetings that will happen in the future
             List<Meeting> meetings = new List<Meeting>();
 
             List<Event> allEvents = eventModel.GetAll();
             List<Event> events = new List<Event>();
+
+            if(allMeetings == null || allMeetings.Count == 0)
+            {
+                return new List<Object[]>();
+            }
+
             foreach (Event ev in allEvents)
             {
-                if (ev.intervalType != 2 || ev.endDate > DateTime.Today) events.Add(ev);
+                if ((ev.endDate.Date >= today) || (ev.startDate.Date >= today && ev.intervalType == 2)) events.Add(ev);
             }
             //filtering allMeetings to meetings
             foreach (Meeting meeting in allMeetings)
             {
-                if (meeting.intervalType != 0 || DateTime.Now<meeting.startDatetime) meetings.Add(meeting);
+                if ((meeting.intervalType == 0 && meeting.startDatetime.Date >= today) || (meeting.intervalType != 0 && today <= meeting.endDate.Date) || (meeting.endDate == new DateTime() && meeting.intervalType != 0)) meetings.Add(meeting);
             }
             //Dates and meetings of closest occuring meetings
             List<Object[]> closestDates = new List<Object[]>();
@@ -700,7 +689,7 @@ namespace IrtsBurtgel
             {
                 DateTime date = meeting.startDatetime;
                 Object[] obj = new Object[2];
-                while(date<DateTime.Now)
+                while (date < DateTime.Now)
                 {
                     switch (meeting.intervalType)
                     {
@@ -751,7 +740,6 @@ namespace IrtsBurtgel
                     {
                         case 0:
                             continue;
-                            break;
                         case 7:
                             nextOccurance = ((DateTime)closestDates[j][0]).AddDays(((Meeting)closestDates[j][1]).intervalDay);
                             break;
@@ -808,7 +796,6 @@ namespace IrtsBurtgel
                     {
                         case 0:
                             continue;
-                            break;
                         case 7:
                             nextOccurance = ((DateTime)evOccurances[j][0]).AddDays(((Meeting)evOccurances[j][1]).intervalDay);
                             break;

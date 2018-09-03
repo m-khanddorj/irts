@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="" Height="185" Width="400
+        Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Дэд цонх" WindowStartupLocation="Manual" Icon="images/time-logo.png" Height="185" Width="400
         ">
     <Grid>
         <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,10,10">

@@ -19,16 +19,6 @@
            (N'Ирээгүй', 1);				/*15*/
 
 
-INSERT INTO [dbo].[admin]
-			([username]
-			,[password]
-			,[organization_name]
-			,[reg_date]
-			)
- 	  VALUES
-			('admin', 'password', 'Name', NOW());
-
-
 
 
 

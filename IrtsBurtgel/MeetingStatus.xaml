@@ -13,10 +13,10 @@
         </Grid.RowDefinitions>
         <StackPanel>
             <Image Source="images/logo.png"  Width="80" Height="80"></Image>
-            <Label x:Name="OrgTitle" Content="Org" HorizontalAlignment="Center" FontSize="16" Foreground="White"/>
+            <Label HorizontalAlignment="Center" FontSize="16" Foreground="White">ЦЕГ-ын Эрүүгийн Цагдаагийн Алба</Label>
         </StackPanel>
         <DockPanel Grid.Row="0">
-            <Label x:Name="AttendanceLabel" DockPanel.Dock="Left" Content="Ирц" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="16" Foreground="#fff"/>
+            <Label x:Name="AttendanceLabel" DockPanel.Dock="Left" Content="Ирц" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="20" Foreground="#fff"/>
             <StackPanel HorizontalAlignment="Right" DockPanel.Dock="Right">
                 <Button VerticalAlignment="Center" HorizontalAlignment="Right"  Width="30" Height="30" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
                     <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
@@ -26,8 +26,13 @@
                 <Label HorizontalAlignment="Right" x:Name="currentTime" Foreground="White">sme</Label>
             </StackPanel>
         </DockPanel>
-        <Grid Grid.Row="1" x:Name="gridDeparts">
-
+        <Grid Grid.Row="1" x:Name="gridDeparts" Background="White">
         </Grid>
     </Grid>
+    <Window.Resources>
+        <Style TargetType="ScrollBar">
+            <Setter Property="MinWidth" Value="10" />
+            <Setter Property="Width" Value="10" />
+        </Style>
+    </Window.Resources>
 </Window>

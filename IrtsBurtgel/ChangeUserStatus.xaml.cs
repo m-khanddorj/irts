@@ -24,6 +24,8 @@ namespace IrtsBurtgel
         Model<Status> statModel;
         User user;
         int uid;
+        Dictionary<int, string> stats;
+
         public ChangeUserStatus(int uid)
         {
             InitializeComponent();
@@ -32,20 +34,61 @@ namespace IrtsBurtgel
             statModel = new Model<Status>();
             this.uid = uid;
 
-            List<Status> stats = statModel.GetAll();
-            foreach(Status stat in stats)
+            stats = statModel.GetAll().ToDictionary(x => x.id, x => x.name);
+            foreach (KeyValuePair<int, string> entry in stats)
             {
-                ComboBoxItem cbi = new ComboBoxItem();
-                cbi.Content = stat.name;
-                cbi.Uid = stat.id.ToString();
+                if (entry.Key != 1 && entry.Key != 2 && entry.Key != 14 && entry.Key != 15)
+                {
+                    ComboBoxItem cbi = new ComboBoxItem();
+                    cbi.Content = entry.Value;
+                    cbi.Uid = entry.Key.ToString();
 
-                combobox.Items.Add(cbi);
+                    combobox.Items.Add(cbi);
+                }
             }
 
             user = userModel.Get(uid);
 
-            userName.Content = user.fname + " " + user.lname;
+            Load();
         }
+
+        void Load()
+        {
+            userStatusStory.Items.Clear();
+            userName.Content = user.fname + " " + user.lname;
+            IEnumerable<UserStatus> userStatuses = usModel.GetByFK(user.IDName, user.id).OrderByDescending(x => x.endDate);
+            int i = 1;
+            DateTime maxDate = DateTime.Now;
+            int currentStatus = -1;
+            DateTime now = DateTime.Now;
+
+            foreach (UserStatus us in userStatuses)
+            {
+                userStatusStory.Items.Add(new ListBoxItem
+                {
+                    Content = i + ". " + us.startDate.ToString("yyyy/MM/dd") + "-с " + us.endDate.ToString("yyyy/MM/dd") + " хүртэл " + stats[us.statusId].ToLower()
+                });
+                if (us.endDate > maxDate)
+                {
+                    maxDate = us.endDate;
+                }
+                if (currentStatus == -1 && us.endDate.Date >= now.Date && now.Date >= us.startDate.Date)
+                {
+                    currentStatus = us.statusId;
+                }
+                i++;
+            }
+
+            switch (currentStatus)
+            {
+                case -1: currentState.Content = "Идэвхитэй"; currentState.Background = Brushes.DarkGreen; break;
+                default: currentState.Content = stats[currentStatus]; currentState.Background = Brushes.DarkOrange; break;
+            }
+
+            startDate.DisplayDateStart = maxDate;
+            endDate.DisplayDateStart = maxDate;
+        }
+
         void ChangeStatus(object sender, RoutedEventArgs e)
         {
             UserStatus us = new UserStatus();
@@ -70,7 +113,16 @@ namespace IrtsBurtgel
             us.userId = uid;
             usModel.Add(us);
             MessageBox.Show("Амжилттай");
-            this.Close();
+            startDate.SelectedDate = null;
+            endDate.SelectedDate = null;
+            combobox.SelectedItem = null;
+
+            Load();
+        }
+
+        private void startDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            endDate.DisplayDateStart = startDate.SelectedDate;
         }
     }
 }

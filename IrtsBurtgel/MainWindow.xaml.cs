@@ -64,12 +64,22 @@ namespace IrtsBurtgel
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            string texttodisplay = meetingController.TextToDisplay();
-            time.Text = texttodisplay;
-            meetingController.CheckMeeting();
-            foreach (MeetingStatus ms in meetingStatusWindows)
+            List<Object[]> objs = meetingController.GetClosestMeetings(1);
+            if (objs == null || objs.Count == 0)
             {
-                //ms.DisplayCountDown(texttodisplay);
+                time.Text = "Хурал байхгүй байна.";
+                return;
+            }
+            else
+            {
+                Object[] obj = objs[0];
+                string texttodisplay = meetingController.TextToDisplay(obj);
+                time.Text = texttodisplay;
+                meetingController.CheckMeeting();
+                foreach (MeetingStatus ms in meetingStatusWindows)
+                {
+                    ms.UpdateCountDown(obj);
+                }
             }
         }
 
@@ -182,7 +192,7 @@ namespace IrtsBurtgel
             RightSide.Children.Clear();
             RightSide.HorizontalAlignment = HorizontalAlignment.Stretch;
 
-            List<Object[]> closestMeetings = meetingController.getClosestMeetings(10);
+            List<Object[]> closestMeetings = meetingController.GetClosestMeetings(10);
 
             Label headerLabel = new Label();
             headerLabel.Content = "Хамгийн ойрын 10 хурал";
@@ -1026,7 +1036,15 @@ namespace IrtsBurtgel
                       "Зөвхөн үргэлжлэх хугацааг минутаар илэхийлэх тоо байхыг анхаарна уу!");
                 return;
             }
-            meeting.endDate = DateTime.Parse(ed);
+            /** checking and inserting duration*/
+            if (ed.Trim() != "" && ed != null)
+            {
+                meeting.endDate = DateTime.Parse(ed);
+            }
+            else
+            {
+                meeting.endDate = new DateTime();
+            }
             /** checking and inserting interval()freq*/
             try
             {
@@ -2181,6 +2199,19 @@ namespace IrtsBurtgel
 
             User user = userModel.Get(Int32.Parse(id));
             List<Object> controls = new List<Object>();
+            
+            IEnumerable<UserStatus> userStatuses = meetingController.userStatusModel.GetByFK(user.IDName, user.id).OrderBy(x => x.startDate);
+            int currentStatus = -1;
+            DateTime now = DateTime.Now;
+
+            foreach (UserStatus us in userStatuses)
+            {
+                if (currentStatus == -1 && us.endDate.Date >= now.Date && now.Date >= us.startDate.Date)
+                {
+                    currentStatus = us.statusId;
+                    break;
+                }
+            }
 
             Grid grid = new Grid();
             Border border = new Border();
@@ -2203,11 +2234,14 @@ namespace IrtsBurtgel
             row2.Height = new GridLength(1, GridUnitType.Star);
             RowDefinition row3 = new RowDefinition();
             row3.Height = new GridLength(1, GridUnitType.Star);
+            RowDefinition row4 = new RowDefinition();
+            row3.Height = new GridLength(1, GridUnitType.Star);
 
             grid.RowDefinitions.Add(row0);
             grid.RowDefinitions.Add(row1);
             grid.RowDefinitions.Add(row2);
             grid.RowDefinitions.Add(row3);
+            grid.RowDefinitions.Add(row4);
 
             BitmapImage webImage;
             try
@@ -2255,6 +2289,18 @@ namespace IrtsBurtgel
                     case 3:
                         nameLabel.Content = "Тушаал:";
                         valueLabel.Content = user.positionId != -1 ? meetingController.positionModel.Get(user.positionId).name : "";
+                        break;
+                    case 4:
+                        nameLabel.Content = "Одоогийн төлөв:";
+                        valueLabel.Content = user.positionId != -1 ? meetingController.positionModel.Get(user.positionId).name : "";
+                        if (currentStatus == -1)
+                        {
+                            valueLabel.Content = "Идэвхитэй";
+                        }
+                        else
+                        {
+                            valueLabel.Content = meetingController.statusModel.Get(currentStatus).name;
+                        }
                         break;
                 }
                 grid.Children.Add(nameLabel);
@@ -2344,6 +2390,7 @@ namespace IrtsBurtgel
         {
             string id = ((Button)sender).Uid;
             ChangeUserStatus ch = new ChangeUserStatus(Int32.Parse(id));
+            ch.Owner = this;
             ch.Visibility = Visibility.Visible;
         }
         void importData(object sender, RoutedEventArgs e)
@@ -2543,7 +2590,7 @@ namespace IrtsBurtgel
 
             Button saveButton = new Button();
             saveButton.Tag = controls;
-            saveButton.Content = "Тайлан харах";
+            saveButton.Content = "Тайлан гаргах";
             saveButton.Click += getReport;
             saveButton.Margin = new Thickness(10, 0, 0, 0);
             saveButton.HorizontalAlignment = HorizontalAlignment.Right;
