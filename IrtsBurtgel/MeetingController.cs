@@ -834,6 +834,23 @@ namespace IrtsBurtgel
                 else nextDates = nextDates.OrderBy(o => (DateTime)o[0]).ToList();
             }
 
+            //Check if it is in Modified meeting
+            for (int i = 0; i < closestDates.Count; i++)
+            {
+                List<ModifiedMeeting> mmeetings = modifiedMeetingModel.GetByFK( ((Meeting)closestDates[i][1]).IDName, ((Meeting)closestDates[i][1]).id);
+
+                foreach(ModifiedMeeting mmeeting in mmeetings)
+                {
+                    if(mmeeting.startDatetime.Date == ((Meeting)closestDates[i][1]).startDatetime.Date)
+                    {
+                        //is_modified = true;
+
+                        closestDates[i][1] = mmeeting;
+                        break;
+                    }
+                }
+                
+            }
             
             return closestDates;
         }

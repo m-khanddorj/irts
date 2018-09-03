@@ -56,13 +56,10 @@ namespace IrtsBurtgel
             archModel = new Model<ArchivedMeeting>();
             attModel = new Model<Attendance>();
             
-            /**
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
-            */
-            
         }
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
@@ -197,7 +194,7 @@ namespace IrtsBurtgel
             List<Object[]> closestMeetings = meetingController.GetClosestMeetings(10);
 
             Label headerLabel = new Label();
-            headerLabel.Content = "Хамгийн ойрын 10 хурал";
+            headerLabel.Content = "Хамгийн ойрын "+ closestMeetings.Count.ToString()+ " хурал";
             headerLabel.Margin = new Thickness(0,0,0,10);
             headerLabel.FontSize = 20;
             headerLabel.HorizontalAlignment = HorizontalAlignment.Center;
