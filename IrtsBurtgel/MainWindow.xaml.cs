@@ -531,20 +531,11 @@ namespace IrtsBurtgel
             import.Content = calendarImage;
             import.Click += ShowEventAdderSetter;
 
-            Button search = new Button();
-            Image searchImage = new Image();
-            searchImage.Source = new BitmapImage(new Uri("images/searchwhite.png", UriKind.Relative));
-            searchImage.Width = 20;
-            search.Content = searchImage;
-            search.Tag = "event";
-            search.Click += Search;
-
             List<Object> controls = new List<Object>();
             List<Object> rcontrols = new List<Object>();
-            controls.Add(import);
             controls.Add(label);
-
-            rcontrols.Add(search);
+            
+            rcontrols.Add(import);
             DockPanel dockPanel = addHeader(controls, rcontrols);
 
             ListBox listbox = new ListBox();
@@ -552,7 +543,7 @@ namespace IrtsBurtgel
             {
                 RegisterName("listbox", listbox);
             }
-            catch (Exception ex)
+            catch
             {
                 UnregisterName("listbox");
                 RegisterName("listbox", listbox);
@@ -571,9 +562,9 @@ namespace IrtsBurtgel
                 string content = i + ". " + ev.name + ", ";
                 switch (ev.intervalType)
                 {
-                    case 0: content += ev.startDate.ToString("yyyy/MM/dd") + "-с" + ev.endDate.ToString("yyyy/MM/dd") + " хооронд, жилд нэг удаа"; break;
+                    case 0: content += ev.startDate.ToString("MM/dd") + "-с " + ev.endDate.ToString("MM/dd") + " хооронд, жилд нэг удаа"; break;
                     case 1: content += ev.startDate.ToString("dd") + " өдрөөс" + ev.endDate.ToString("dd") + " өдөр хүртэл, сард нэг удаа"; break;
-                    case 2: content += ev.startDate.ToString("yyyy/MM/dd") + "-с" + ev.endDate.ToString("yyyy/MM/dd") + " хооронд, ганц удаа"; break;
+                    case 2: content += ev.startDate.ToString("yyyy/MM/dd") + "-с " + ev.endDate.ToString("yyyy/MM/dd") + " хооронд, ганц удаа"; break;
                     default: continue;
                 }
                 ListBoxItem listBoxItem = new ListBoxItem();
@@ -1910,7 +1901,8 @@ namespace IrtsBurtgel
             saveButton.Tag = controls;
             saveButton.Click += AddSetEvent;
 
-            if(ev != null)
+            saveStack.Children.Add(saveButton);
+            if (ev != null)
             {
                 Button deleteButton = new Button();
                 deleteButton.Content = "Устгах";
@@ -1919,19 +1911,9 @@ namespace IrtsBurtgel
                 deleteButton.Width = 100;
                 deleteButton.Tag = controls;
                 deleteButton.Click += RemoveEvent;
+                saveStack.Children.Add(deleteButton);
             }
-
-            Button backButton = new Button();
-            backButton.Content = "Буцах";
-            backButton.Background = Brushes.White;
-            backButton.Height = 25;
-            backButton.Width = 100;
-
-            backButton.Click += ShowCalendar;
-
-            saveStack.Children.Add(saveButton);
-            saveStack.Children.Add(backButton);
-
+            
             stackPanel.Children.Add(header);
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(sdStack);
@@ -2315,10 +2297,10 @@ namespace IrtsBurtgel
 
             List<Object> controls = new List<Object>();
             List<Object> rcontrols = new List<Object>();
-            controls.Add(import);
             controls.Add(label);
 
             rcontrols.Add(search);
+            rcontrols.Add(import);
             DockPanel dockPanel = addHeader(controls, rcontrols);
 
             ListBox listbox = new ListBox();

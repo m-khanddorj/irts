@@ -430,6 +430,18 @@ namespace IrtsBurtgel
 
         public bool StopMeeting()
         {
+            foreach (MeetingStatus ms in mainWindow.meetingStatusWindows)
+            {
+                ms.Dispatcher.Invoke(() =>
+                {
+                    foreach (KeyValuePair<int,DepartmentStatus> ds in ms.departmentStatusWindows)
+                    {
+                        ds.Value.Close();
+                    }
+                    ms.departmentStatusWindows.Clear();
+                });
+            }
+
             if (onGoingMeetingUserAttendance != null && onGoingMeetingUserAttendance.Count > 0)
             {
                 foreach (Object[] userAttendance in onGoingMeetingUserAttendance)
@@ -709,10 +721,10 @@ namespace IrtsBurtgel
                             obj[0] = meeting.startDatetime;
                             break;
                         case 1:
-                            obj[0] = meeting.startDatetime.AddDays( ( (today - meeting.startDatetime).Days /7 + 1)*7 );
+                            obj[0] = meeting.startDatetime.AddDays(((today - meeting.startDatetime).Days / 7 + 1) * 7);
                             break;
                         case 2:
-                            obj[0] = meeting.startDatetime.AddDays(((today - meeting.startDatetime).Days / 14 + 1 ) * 14);
+                            obj[0] = meeting.startDatetime.AddDays(((today - meeting.startDatetime).Days / 14 + 1) * 14);
                             break;
                         case 3:
                         case 4:
@@ -723,10 +735,11 @@ namespace IrtsBurtgel
                             obj[0] = meeting.startDatetime.AddYears(today.Year - meeting.startDatetime.Year);
                             break;
                         case 7:
-                            obj[0] = meeting.startDatetime.AddDays( (today-meeting.startDatetime).Days );
+                            obj[0] = meeting.startDatetime.AddDays((today - meeting.startDatetime).Days);
                             break;
                     }
                 }
+                else obj[0] = meeting.startDatetime;
                 obj[1] = meeting;
                 obj[2] = false;
 

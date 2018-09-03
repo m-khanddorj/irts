@@ -5,21 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Хэлтсийн ирц" Height="500" Width="500">
+        Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Хэлтсийн ирц" Height="500" Width="500" WindowStartupLocation="CenterOwner">
     <Grid Background="#FF007ACC">
         <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="100"/>
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="depNameTextBox" Grid.Column="0" Grid.Row="0" FontSize="17">Хурлын ирц бүртгэлийн систем
+        <TextBox x:Name="depNameTextBox" Grid.Column="0" Grid.Row="0" FontSize="17" Background="#FF007ACC" Foreground="White" FontWeight="Bold">Хурлын ирц бүртгэлийн систем
         </TextBox>
         <TextBox x:Name="depAttTextBox" Grid.Column="1" Grid.Row="0" FontSize="15">Ирц-35/45 Х-10 Ч-5
         </TextBox>
-        <WrapPanel x:Name="depAttWrapPanel" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2">
-        </WrapPanel>
+        <ScrollViewer Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <WrapPanel x:Name="depAttWrapPanel" Background="White">
+            </WrapPanel>
+        </ScrollViewer>
     </Grid>
+    <Window.Resources>
+        <Style TargetType="ScrollBar">
+            <Setter Property="MinWidth" Value="10" />
+            <Setter Property="Width" Value="10" />
+        </Style>
+    </Window.Resources>
 </Window>

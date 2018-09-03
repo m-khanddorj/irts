@@ -23,10 +23,11 @@ namespace IrtsBurtgel
         Dictionary<int, string> statuses;
         Dictionary<int, string> departments;
         Dictionary<int, Grid> userGrids;
+        int departmentId;
         int[] last;
         int status = 0;
 
-        public DepartmentStatus(MeetingController mc)
+        public DepartmentStatus(MeetingController mc, int depid)
         {
             InitializeComponent();
 
@@ -36,8 +37,10 @@ namespace IrtsBurtgel
             departments.Add(-1, "Хэлтэсгүй");
             userGrids = new Dictionary<int, Grid>();
             last = new int[4];
+            departmentId = depid;
             if (meetingController.status == MeetingController.MEETING_STARTED)
             {
+                depNameTextBox.Text = departments[departmentId];
                 status = 1;
                 PlaceUsers(meetingController.onGoingMeetingUserAttendance);
             }
@@ -60,48 +63,90 @@ namespace IrtsBurtgel
                     User user = (User)obj[0];
                     Attendance att = (Attendance)obj[1];
 
+                    if (user.departmentId != departmentId)
+                    {
+                        continue;
+                    }
+
                     Grid DynamicGrid = new Grid
                     {
                         Background = new SolidColorBrush(Colors.White),
-                        Width = 60
+                        Width = 120
                     };
 
-                    Border border = new Border { BorderThickness = new Thickness(1, 1, 1, 0), Margin = new Thickness(5, 5, 5, 5), CornerRadius = new CornerRadius(10, 10, 0, 0) };
+                    Border border = new Border { BorderThickness = new Thickness(1, 1, 1, 0), Margin = new Thickness(5, 5, 5, 5) };
                     border.Child = DynamicGrid;
 
                     DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                    DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(80) });
+                    DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(100) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
 
                     Image image = new Image { Source = new BitmapImage(new Uri(meetingController.GetUserImage(user))), HorizontalAlignment = HorizontalAlignment.Center };
-                    Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center };
-                    Label status = new Label
-                    {
-                        Content = att.statusId == 2 ? statuses[att.statusId] + " (" + att.regTime + ")" : statuses[att.statusId],
-                        Foreground = Brushes.White,
-                        HorizontalAlignment = HorizontalAlignment.Stretch,
-                        HorizontalContentAlignment = HorizontalAlignment.Center,
-                        FontWeight = FontWeights.Bold
+                    Label name = new Label {
+                        Content = user.fname + " " + user.lname,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        FontSize = 17
                     };
 
-                    switch (att.statusId)
+                    ComboBox combobox = new ComboBox();
+
+                    foreach(KeyValuePair<int, string> entry in statuses)
                     {
-                        case 1: border.BorderBrush = status.Background = Brushes.DarkGreen; break;
-                        case 2: border.BorderBrush = status.Background = Brushes.DarkOrange; break;
-                        case 15: border.BorderBrush = status.Background = Brushes.DarkRed; break;
-                        default: border.BorderBrush = status.Background = Brushes.DarkTurquoise; break;
+                        if (entry.Key == 14 || entry.Key == 15)
+                        {
+                            continue;
+                        }
+
+                        ComboBoxItem comboboxItem = new ComboBoxItem
+                        {
+                            Content = entry.Key == 2 ? statuses[entry.Key] + " (0)" : entry.Value,
+                            Foreground = Brushes.White,
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            HorizontalContentAlignment = HorizontalAlignment.Center,
+                            FontWeight = FontWeights.Bold,
+                            FontSize = 17
+                        };
+
+                        comboboxItem.Tag = entry.Key;
+
+                        switch (entry.Key)
+                        {
+                            case 1: comboboxItem.Background = Brushes.DarkGreen; break;
+                            case 2: comboboxItem.Background = Brushes.DarkOrange; break;
+                            case 15: comboboxItem.Background = Brushes.DarkRed; break;
+                            default: comboboxItem.Background = Brushes.DarkTurquoise; break;
+                        }
+
+                        combobox.Items.Add(comboboxItem);
+                        if (entry.Key == att.statusId)
+                        {
+                            combobox.SelectedItem = comboboxItem;
+
+                            switch (entry.Key)
+                            {
+                                case 1: border.BorderBrush = Brushes.DarkGreen; break;
+                                case 2: border.BorderBrush = Brushes.DarkOrange; break;
+                                case 15: border.BorderBrush = Brushes.DarkRed; break;
+                                default: border.BorderBrush = Brushes.DarkTurquoise; break;
+                            }
+                        }
                     }
+
+                    combobox.SelectionChanged += (e, o) =>
+                    {
+                        ChangeUserAttendance(obj, e);
+                    };
 
                     Grid.SetColumn(image, 0);
                     Grid.SetColumn(name, 0);
-                    Grid.SetColumn(status, 0);
+                    Grid.SetColumn(combobox, 0);
                     Grid.SetRow(image, 0);
                     Grid.SetRow(name, 1);
-                    Grid.SetRow(status, 2);
+                    Grid.SetRow(combobox, 2);
                     DynamicGrid.Children.Add(image);
                     DynamicGrid.Children.Add(name);
-                    DynamicGrid.Children.Add(status);
+                    DynamicGrid.Children.Add(combobox);
 
                     if (att.statusId == 1)
                     {
@@ -134,36 +179,53 @@ namespace IrtsBurtgel
             }
         }
 
-        public void Update(object[] identifiedUserAttendance)
+        public void Update(object[] identifiedUserAttendance, int oldstatusid = 15)
         {
             User user = (User)identifiedUserAttendance[0];
             Attendance attendance = (Attendance)identifiedUserAttendance[1];
+            if (user.departmentId != departmentId)
+            {
+                return;
+            }
+
             if (meetingController.status == MeetingController.MEETING_STARTED)
             {
-                ((Label)userGrids[user.id].Children[2]).Content = attendance.statusId == 2 ? statuses[attendance.statusId] + " (" + attendance.regTime + ")" : statuses[attendance.statusId];
-
                 switch (attendance.statusId)
                 {
-                    case 1: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkGreen; break;
-                    case 2: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkOrange; break;
-                    case 15: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkRed; break;
-                    default: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkTurquoise; break;
+                    case 1: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkGreen; break;
+                    case 2: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkOrange; break;
+                    case 15: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkRed; break;
+                    default: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkTurquoise; break;
+                }
+
+                ComboBox combobox = ((ComboBox)userGrids[user.id].Children[2]);
+                foreach (ComboBoxItem cbi in combobox.Items)
+                {
+                    if ((int)(cbi.Tag) == attendance.statusId)
+                    {
+                        combobox.SelectedItem = cbi;
+                        break;
+                    }
                 }
 
                 depAttWrapPanel.Children.Remove((Border)userGrids[user.id].Parent);
-                last[0]--;
+                switch (oldstatusid)
+                {
+                    case 1: last[3]--; break;
+                    case 2: last[1]--; break;
+                    case 15: last[0]--; break;
+                    default: last[2]--; break;
+                }
 
                 if (attendance.statusId == 1)
                 {
                     depAttWrapPanel.Children.Insert(last[0] + last[1] + last[2], (Border)userGrids[user.id].Parent);
                     last[3]++;
-                    last[0]--;
                 }
                 else if (attendance.statusId == 2)
                 {
                     depAttWrapPanel.Children.Insert(last[0], (Border)userGrids[user.id].Parent);
                     last[1]++;
-                    last[0]--;
                 }
                 else if (attendance.statusId == 15)
                 {
@@ -174,10 +236,38 @@ namespace IrtsBurtgel
                 {
                     depAttWrapPanel.Children.Insert(last[0] + last[1], (Border)userGrids[user.id].Parent);
                     last[2]++;
-                    last[0]--;
                 }
             }
             depAttTextBox.Text = "Ирц-" + last[1] + "/" + (last[0] + last[1] + last[3]) + "\nХ-" + last[1] + " Ч-" + last[2];
+        }
+
+        public void ChangeUserAttendance(object[] obj, object sender)
+        {
+            ComboBox comboBox = (ComboBox)sender;
+            User user = (User)obj[0];
+            Attendance attendance = (Attendance)obj[1];
+            int oldstatus = attendance.statusId;
+            attendance.statusId = (int)((ComboBoxItem)(comboBox.SelectedItem)).Tag;
+            switch (attendance.statusId)
+            {
+                case 1: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkGreen; break;
+                case 2: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkOrange; attendance.regTime = attendance.regTime < 0 ? 0:attendance.regTime; break;
+                case 15: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkRed; break;
+                default: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkTurquoise; break;
+            }
+
+            meetingController.attendanceModel.Set(attendance);
+
+            this.Dispatcher.Invoke(() =>
+            {
+                foreach (MeetingStatus ms in meetingController.mainWindow.meetingStatusWindows)
+                {
+                    if (ms.IsLoaded)
+                    {
+                        ms.Update(obj, oldstatus);
+                    }
+                }
+            });
         }
     }
 }
