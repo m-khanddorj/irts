@@ -441,6 +441,18 @@ namespace IrtsBurtgel
 
         public bool StopMeeting()
         {
+            foreach (MeetingStatus ms in mainWindow.meetingStatusWindows)
+            {
+                ms.Dispatcher.Invoke(() =>
+                {
+                    foreach (KeyValuePair<int,DepartmentStatus> ds in ms.departmentStatusWindows)
+                    {
+                        ds.Value.Close();
+                    }
+                    ms.departmentStatusWindows.Clear();
+                });
+            }
+
             if (onGoingMeetingUserAttendance != null && onGoingMeetingUserAttendance.Count > 0)
             {
                 foreach (Object[] userAttendance in onGoingMeetingUserAttendance)
@@ -687,7 +699,10 @@ namespace IrtsBurtgel
             //filtering allEvents to events
             foreach (Event ev in allEvents)
             {
-                if ((ev.endDate.Date >= today) || (ev.startDate.Date >= today && ev.intervalType == 2)) events.Add(ev);
+                if ((ev.endDate.Date >= today) || (ev.startDate.Date >= today && ev.intervalType == 2))
+                {
+                    events.Add(ev);
+                }
             }
 
             //filtering allMeetings to meetings

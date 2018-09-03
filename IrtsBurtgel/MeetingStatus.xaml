@@ -12,28 +12,38 @@
             <RowDefinition Height="110"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel>
-            <Image Source="images/logo.png"  Width="80" Height="80"></Image>
-            <Label HorizontalAlignment="Center" FontSize="16" Foreground="White">ЦЕГ-ын Эрүүгийн Цагдаагийн Алба</Label>
-        </StackPanel>
         <DockPanel Grid.Row="0">
-            <Label x:Name="AttendanceLabel" DockPanel.Dock="Left" Content="Ирц" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="20" Foreground="#fff"/>
-            <StackPanel HorizontalAlignment="Right" DockPanel.Dock="Right">
-                <Button VerticalAlignment="Center" HorizontalAlignment="Right"  Width="30" Height="30" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
-                    <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
-                </Button>
-                <Label HorizontalAlignment="Right" x:Name="meetingName" Foreground="White">Meeting name</Label>
-                <Label HorizontalAlignment="Right" x:Name="meetingDate" Foreground="White">Date</Label>
-                <Label HorizontalAlignment="Right" x:Name="currentTime" Foreground="White">sme</Label>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" x:Name="AttendanceLabel" Content="Ирц" VerticalAlignment="Center" FontSize="20" Foreground="#fff"/>
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" Source="images/logo.png"  Width="80" Height="80" Margin="10"></Image>
+                    <TextBlock Grid.Column="1" TextAlignment="Center" VerticalAlignment="Center" FontSize="25" Foreground="White" TextWrapping="Wrap" FontWeight="Bold">ЦЕГ-ын Эрүүгийн Цагдаагийн Алба</TextBlock>
+                </Grid>
+                <StackPanel Grid.Column="2" HorizontalAlignment="Right" DockPanel.Dock="Right" Margin="0 0 10 0">
+                    <Button VerticalAlignment="Center" HorizontalAlignment="Right"  Width="30" Height="30" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
+                        <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
+                    </Button>
+                    <TextBlock HorizontalAlignment="Right" x:Name="meetingName" Foreground="White" FontSize="17" FontStretch="Condensed">Meeting name</TextBlock>
+                    <TextBlock HorizontalAlignment="Right" x:Name="meetingDate" Foreground="White" FontSize="17">Date</TextBlock>
+                    <TextBlock HorizontalAlignment="Right" x:Name="currentTime" Foreground="White" FontSize="17">sme</TextBlock>
+                </StackPanel>
+            </Grid>
+            
+            
         </DockPanel>
         <Grid Grid.Row="1" x:Name="gridDeparts" Background="White">
-            <DVC:Chart Name="mcChart" 
-Background="LightSteelBlue">
+            <DVC:Chart Name="mcChart">
                 <DVC:Chart.Series>
-                    <DVC:PieSeries Title="Experience" 
-IndependentValueBinding="{Binding Path=Key}"
-DependentValueBinding="{Binding Path=Value}">
+                    <DVC:PieSeries Title="Experience" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
                 </DVC:PieSeries>
                 </DVC:Chart.Series>
                 </DVC:Chart>

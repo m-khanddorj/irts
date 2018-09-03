@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Controls.DataVisualization.Charting;
 
 namespace IrtsBurtgel
 {
@@ -29,6 +30,10 @@ namespace IrtsBurtgel
         Dictionary<int, TextBlock> departmentAttendance;
         Dictionary<int, Grid> userGrids;
         Dictionary<int, int[]> last;
+        Dictionary<string, int> keyValuePairs;
+        public Dictionary<int, DepartmentStatus> departmentStatusWindows;
+        StackPanel globalSP;
+        Chart chart;
         int status = 0;
         object[] ongoingObj;
 
@@ -44,13 +49,24 @@ namespace IrtsBurtgel
             departments.Add(-1, "Хэлтэсгүй");
             departmentWrapPanels = new Dictionary<int, WrapPanel>();
             departmentAttendance = new Dictionary<int, TextBlock>();
-            userGrids = new Dictionary<int, Grid>(); 
+            departmentStatusWindows = new Dictionary<int, DepartmentStatus>();
+            keyValuePairs = new Dictionary<string, int>();
+            keyValuePairs.Add("Ирээгүй", 0);
+            keyValuePairs.Add("Хоцорсон", 0);
+            keyValuePairs.Add("Чөлөөтэй", 0);
+            keyValuePairs.Add("Ирсэн", 0);
+            userGrids = new Dictionary<int, Grid>();
             last = new Dictionary<int, int[]>();
+            chart = new Chart
+            {
+                Title = "Ирц",
+                Background = Brushes.White
+            };
             try
             {
                 ongoingObj = meetingController.GetClosestMeetings(1)[0];
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("Хурлын цонх нээхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
             }
@@ -101,7 +117,8 @@ namespace IrtsBurtgel
                     gridDeparts.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                 }
 
-                Border border1 = new Border {
+                Border border1 = new Border
+                {
                     BorderBrush = Brushes.Gray,
                     BorderThickness = new Thickness(1, 1, 1, 1),
                     Margin = new Thickness(10, 10, 10, 10)
@@ -120,7 +137,8 @@ namespace IrtsBurtgel
                 DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                 border1.Child = DynamicGrid;
 
-                Border border = new Border {
+                Border border = new Border
+                {
                     BorderBrush = Brushes.Gray,
                     BorderThickness = new Thickness(0, 0, 1, 1)
                 };
@@ -130,18 +148,24 @@ namespace IrtsBurtgel
                     TextWrapping = TextWrapping.Wrap,
                     Text = entry.Value,
                     FontWeight = FontWeights.Bold,
-                    FontSize = 15,
+                    FontSize = 17,
                     Foreground = Brushes.White,
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     VerticalAlignment = VerticalAlignment.Stretch,
                     TextAlignment = TextAlignment.Center,
-                    Background = (Brush)converter.ConvertFromString("#FF007ACC")
+                    Background = (Brush)converter.ConvertFromString("#FF007ACC"),
+                };
+
+                border.PreviewMouseUp += (e, o) =>
+                {
+                    ShowDepartmentStatus(entry.Key);
+                    Console.WriteLine("Clicked textbox");
                 };
 
                 Border border2 = new Border { BorderBrush = Brushes.Gray, BorderThickness = new Thickness(0, 0, 0, 1) };
                 border2.Child = new TextBlock
                 {
-                    TextWrapping = TextWrapping.Wrap,
+                    TextWrapping = TextWrapping.Wrap,   
                     Text = "0/0",
                     Margin = new Thickness(5, 5, 5, 5),
                     FontWeight = FontWeights.Bold
@@ -176,118 +200,136 @@ namespace IrtsBurtgel
                 Grid.SetRow(border1, count / 5);
                 Grid.SetColumn(border1, count % 5);
                 gridDeparts.Children.Add(border1);
-                DynamicGrid.Name = "dynamicGrid" + count;
 
                 departmentWrapPanels.Add(entry.Key, wp);
                 departmentAttendance.Add(entry.Key, (TextBlock)border2.Child);
-                
+
                 count++;
             }
+
+            globalSP = new StackPanel();
+            
+            chart.Series.Add(new PieSeries
+            {
+                IndependentValueBinding = new Binding("Key"),
+                DependentValueBinding = new Binding("Value")
+            });
+
+            ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
+
+            globalSP.Children.Add(chart);
+            Grid.SetRow(globalSP, 1);
+            Grid.SetColumn(globalSP, 4);
+            gridDeparts.Children.Add(globalSP);
         }
 
         public void PlaceUsers(List<object[]> userAttendances)
         {
             try
             {
-            if(userAttendances == null || userAttendances.Count == 0)
-            {
-                return;
-            }
-            ArchivedMeeting archivedMeeting = meetingController.archivedMeetingModel.Get(((Attendance)(userAttendances.First()[1])).archivedMeetingId);
-            meetingName.Content = archivedMeeting.name;
-            meetingDate.Content = archivedMeeting.meetingDatetime.ToString("yyyy/MM/dd HH:mm");
-            last = new Dictionary<int, int[]>();
-            foreach (object[] obj in userAttendances)
-            {
-                User user = (User)obj[0];
-                Attendance att = (Attendance)obj[1];
-
-                Grid DynamicGrid = new Grid
+                if (userAttendances == null || userAttendances.Count == 0)
                 {
-                    Background = new SolidColorBrush(Colors.White),
-                    Width = 60
-                };
-
-                Border border = new Border { BorderThickness = new Thickness(1, 1, 1, 0), Margin = new Thickness(5, 5, 5, 5)};
-                border.Child = DynamicGrid;
-
-                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
-                DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-
-                Image image = new Image { Source = new BitmapImage(new Uri(meetingController.GetUserImage(user))), HorizontalAlignment = HorizontalAlignment.Center };
-                Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center };
-                Label status = new Label
-                {
-                    Content = att.statusId == 2 ? statuses[att.statusId] + " (" + att.regTime + ")" : statuses[att.statusId],
-                    Foreground = Brushes.White,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    HorizontalContentAlignment = HorizontalAlignment.Center,
-                    FontWeight = FontWeights.Bold
-                };
-
-                switch (att.statusId)
-                {
-                    case 1: border.BorderBrush = status.Background = Brushes.DarkGreen; break;
-                    case 2: border.BorderBrush = status.Background = Brushes.DarkOrange; break;
-                    case 15: border.BorderBrush = status.Background = Brushes.DarkRed; break;
-                    default: border.BorderBrush = status.Background = Brushes.DarkTurquoise; break;
+                    return;
                 }
 
-                Grid.SetColumn(image, 0);
-                Grid.SetColumn(name, 0);
-                Grid.SetColumn(status, 0);
-                Grid.SetRow(image, 0);
-                Grid.SetRow(name, 1);
-                Grid.SetRow(status, 2);
-                DynamicGrid.Children.Add(image);
-                DynamicGrid.Children.Add(name);
-                DynamicGrid.Children.Add(status);
-
-                if (!last.ContainsKey(user.departmentId))
-                {
-                    last.Add(user.departmentId, new int[4]);
-                }
-
-                if (att.statusId == 1)
-                {
-                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1] + last[user.departmentId][2], border);
-                    last[user.departmentId][3]++;
-                }
-                else if (att.statusId == 2)
-                {
-                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0], border);
-                    last[user.departmentId][1]++; 
-                }
-                else if (att.statusId == 15)
-                {
-                    departmentWrapPanels[user.departmentId].Children.Insert(0, border);
-                    last[user.departmentId][0]++;
-                }
-                else
-                {
-                    departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1], border);
-                    last[user.departmentId][2]++;
-                }
-                userGrids.Add(user.id, DynamicGrid);
-            }
-
-            foreach (KeyValuePair<int, string> entry in departments)
-            {
-                if (!last.ContainsKey(entry.Key))
+                last = new Dictionary<int, int[]>();
+                foreach (KeyValuePair<int, string> entry in departments)
                 {
                     last.Add(entry.Key, new int[4]);
                 }
-                departmentAttendance[entry.Key].Text = "Хоцорсон-" + last[entry.Key][1] + "\nИрээгүй-" + last[entry.Key][0];
-            }
 
-            AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]) + "\nОролцох боломжгүй: " + last.Sum(x => x.Value[2]);
+                ArchivedMeeting archivedMeeting = meetingController.archivedMeetingModel.Get(((Attendance)(userAttendances.First()[1])).archivedMeetingId);
+                meetingName.Text = archivedMeeting.name;
+                meetingDate.Text = archivedMeeting.meetingDatetime.ToString("yyyy/MM/dd HH:mm");
+                foreach (object[] obj in userAttendances)
+                {
+                    User user = (User)obj[0];
+                    Attendance att = (Attendance)obj[1];
 
+                    Grid DynamicGrid = new Grid
+                    {
+                        Background = new SolidColorBrush(Colors.White),
+                        Width = 60
+                    };
+
+                    Border border = new Border { BorderThickness = new Thickness(1, 1, 1, 0), Margin = new Thickness(5, 5, 5, 5)};
+                    border.Child = DynamicGrid;
+
+                    DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
+                    DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+
+                    Image image = new Image { Source = new BitmapImage(new Uri(meetingController.GetUserImage(user))), HorizontalAlignment = HorizontalAlignment.Center };
+                    Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center, FontSize = 15 };
+                    Label status = new Label
+                    {
+                        Content = att.statusId == 2 ? statuses[att.statusId] + " (" + att.regTime + ")" : statuses[att.statusId],
+                        Foreground = Brushes.White,
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+                        FontWeight = FontWeights.Bold
+                    };
+
+                    switch (att.statusId)
+                    {
+                        case 1: border.BorderBrush = status.Background = Brushes.DarkGreen; break;
+                        case 2: border.BorderBrush = status.Background = Brushes.DarkOrange; break;
+                        case 15: border.BorderBrush = status.Background = Brushes.DarkRed; break;
+                        default: border.BorderBrush = status.Background = Brushes.DarkTurquoise; break;
+                    }
+
+                    Grid.SetColumn(image, 0);
+                    Grid.SetColumn(name, 0);
+                    Grid.SetColumn(status, 0);
+                    Grid.SetRow(image, 0);
+                    Grid.SetRow(name, 1);
+                    Grid.SetRow(status, 2);
+                    DynamicGrid.Children.Add(image);
+                    DynamicGrid.Children.Add(name);
+                    DynamicGrid.Children.Add(status);
+
+                    if (att.statusId == 1)
+                    {
+                        departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1] + last[user.departmentId][2], border);
+                        last[user.departmentId][3]++;
+                    }
+                    else if (att.statusId == 2)
+                    {
+                        departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0], border);
+                        last[user.departmentId][1]++;
+                    }
+                    else if (att.statusId == 15)
+                    {
+                        departmentWrapPanels[user.departmentId].Children.Insert(0, border);
+                        last[user.departmentId][0]++;
+                    }
+                    else
+                    {
+                        departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1], border);
+                        last[user.departmentId][2]++;
+                    }
+                    userGrids.Add(user.id, DynamicGrid);
+                }
+
+                foreach (KeyValuePair<int, string> entry in departments)
+                {
+                    if (!last.ContainsKey(entry.Key))
+                    {
+                        last.Add(entry.Key, new int[4]);
+                    }
+                    departmentAttendance[entry.Key].Text = "Ирц-" + (last[entry.Key][1] + last[entry.Key][3]) + "/" + (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]) + "\nХ-" + last[entry.Key][1] + " Ч-" + last[entry.Key][2];
+                }
+
+                AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]) + "\nЧөлөөтэй: " + last.Sum(x => x.Value[2]);
+                keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
+                keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
+                keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
+                keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show("Хурлын цонх нээхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message );
+                MessageBox.Show("Хурлын цонх нээхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
             }
         }
 
@@ -300,21 +342,21 @@ namespace IrtsBurtgel
                 BuildDepartControls();
                 PlaceUsers(meetingController.onGoingMeetingUserAttendance);
             }
-            else if(meetingController.status == MeetingController.IDLE && status == 1)
+            else if (meetingController.status == MeetingController.IDLE && status == 1)
             {
                 status = 0;
                 ongoingObj = obj;
             }
-            else if(meetingController.status == MeetingController.IDLE && status == 0)
+            else if (meetingController.status == MeetingController.IDLE && status == 0)
             {
                 ongoingObj = obj;
             }
             
             string texttodisplay = meetingController.TextToDisplay().Replace("\n", " ");
-            currentTime.Content = texttodisplay;
+            currentTime.Text = texttodisplay;
         }
 
-        public void Update(object[] identifiedUserAttendance)
+        public void Update(object[] identifiedUserAttendance, int oldStatusId = 15)
         {
             User user = (User)identifiedUserAttendance[0];
             Attendance attendance = (Attendance)identifiedUserAttendance[1];
@@ -331,7 +373,13 @@ namespace IrtsBurtgel
                 }
 
                 departmentWrapPanels[user.departmentId].Children.Remove((Border)userGrids[user.id].Parent);
-                last[user.departmentId][0]--;
+                switch (oldStatusId)
+                {
+                    case 1: last[user.departmentId][3]--; break;
+                    case 2: last[user.departmentId][1]--; break;
+                    case 15: last[user.departmentId][0]--; break;
+                    default: last[user.departmentId][2]--; break;
+                }
 
                 if (attendance.statusId == 1)
                 {
@@ -353,12 +401,65 @@ namespace IrtsBurtgel
                     departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1], (Border)userGrids[user.id].Parent);
                     last[user.departmentId][2]++;
                 }
+
+                foreach (KeyValuePair<int, DepartmentStatus> entry in departmentStatusWindows)
+                {
+                    if(entry.Value != null && entry.Value.IsLoaded && entry.Value.IsActive)
+                    {
+                        entry.Value.Update(identifiedUserAttendance, oldStatusId);
+                    }
+                }
             }
             foreach (KeyValuePair<int, string> entry in departments)
             {
-                departmentAttendance[entry.Key].Text = "Хоцорсон-" + last[entry.Key][1] + "\nИрээгүй-" + last[entry.Key][0];
+                departmentAttendance[entry.Key].Text = "Ирц-" + (last[entry.Key][1] + last[entry.Key][3]) + "/" + (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]) + "\nХ-" + last[entry.Key][1] + " Ч-" + last[entry.Key][2];
             }
-            AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]) + "\nОролцох боломжгүй: " + last.Sum(x => x.Value[2]);
+            AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]) + "\nЧөлөөтэй: " + last.Sum(x => x.Value[2]);
+
+            globalSP.Children.Clear();
+
+            chart = new Chart
+            {
+                Title = "Ирц",
+                Background = Brushes.White
+            };
+
+            chart.Series.Add(new PieSeries
+            {
+                IndependentValueBinding = new Binding("Key"),
+                DependentValueBinding = new Binding("Value")
+            });
+            
+            keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
+            keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
+            keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
+            keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
+            ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
+            globalSP.Children.Add(chart);
+        }
+
+        public void ShowDepartmentStatus(int departmentId)
+        {
+            if (departmentStatusWindows.ContainsKey(departmentId))
+            {
+                if (departmentStatusWindows[departmentId].IsLoaded)
+                {
+                    departmentStatusWindows[departmentId].Focus();
+                    departmentStatusWindows[departmentId].Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    departmentStatusWindows[departmentId] = new DepartmentStatus(meetingController, departmentId);
+                    departmentStatusWindows[departmentId].Owner = this;
+                    departmentStatusWindows[departmentId].Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                departmentStatusWindows.Add(departmentId, new DepartmentStatus(meetingController, departmentId));
+                departmentStatusWindows[departmentId].Owner = this;
+                departmentStatusWindows[departmentId].Visibility = Visibility.Visible;
+            }
         }
     }
 }

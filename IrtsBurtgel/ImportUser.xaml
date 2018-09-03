@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="ImportUser" Height="152.667" Width="240">
+        Title="ImportUser" Height="152.667" Width="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid Background="#FF007ACC">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"></ColumnDefinition>
