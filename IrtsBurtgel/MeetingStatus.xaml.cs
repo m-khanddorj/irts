@@ -310,7 +310,7 @@ namespace IrtsBurtgel
                 ongoingObj = obj;
             }
             
-            string texttodisplay = meetingController.TextToDisplay(ongoingObj).Replace("\n", " ");
+            string texttodisplay = meetingController.TextToDisplay().Replace("\n", " ");
             currentTime.Content = texttodisplay;
         }
 

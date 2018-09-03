@@ -133,37 +133,44 @@ namespace IrtsBurtgel
             }
         }
 
-        public string TextToDisplay(Object[] obj)
+        public string TextToDisplay()
         {
-            DateTime time = DateTime.Now;
-            Meeting meeting = null;
-            DateTime now = DateTime.Now; //Don't change it
-            DateTime day = DateTime.Today;
+            DateTime now = DateTime.Now;
+
             //Checking todays meetings
-            List<Meeting> meetings = meetingModel.GetAll();
-            if (meetings == null || meetings.Count == 0) return "Хурал байхгүй байна.";
-
-            meeting = (Meeting)obj[1];
-            DateTime date = (DateTime)obj[0];
-            if(meeting == null)
+            List<Meeting> meetings = FindByDate(now);
+            
+            if (meetings == null || meetings.Count == 0) return "Өнөөдөр хуралгүй.";
+            int i;
+            for (i=0;i<meetings.Count;i++)
             {
-                return "Энэ сард хурал байхгүй.";
+                if(now.TimeOfDay > meetings[i].startDatetime.TimeOfDay.Add(new TimeSpan(0,meetings[i].duration,0)) )
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
             }
-
-            int regbefminute = meeting is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meeting).meeting_id).regMinBefMeeting : meeting.regMinBefMeeting;
-           
-            if (date < DateTime.Now && date.AddMinutes(meeting.duration) > DateTime.Now)
+            //i is now equal to present or next meeting index of meetings
+            if (i== meetings.Count)
             {
-                return "Хурал эхлээд:\n" + Math.Floor((DateTime.Now - date).TotalMinutes).ToString() + " минут өнгөрч байна";
+                return "Өнөөдрийн хурал дууссан.";
             }
-            else if (date.Add(new TimeSpan(0, -regbefminute, 0)) < DateTime.Now && date > DateTime.Now)
+            else if (meetings[i].startDatetime.TimeOfDay > now.TimeOfDay && now.AddMinutes(meetings[i].regMinBefMeeting).TimeOfDay > meetings[i].startDatetime.TimeOfDay)
             {
-                return "Хурал эхлэхэд:\n" + Math.Floor((date - DateTime.Now).TotalMinutes) + ":" + Math.Floor((date - DateTime.Now).TotalSeconds) % 60 + " дутуу байна. Бүртгэл эхэлсэн.";
+                return "Хурлын бүртгэл явагдаж байна.\n Хурал эхлэхэд: " + (meetings[i].startDatetime.TimeOfDay - now.TimeOfDay).ToString(@"mm\:ss");
             }
-            else
+            else if (meetings[i].startDatetime.TimeOfDay > now.TimeOfDay)
             {
-                return "Дараагийн хурал:\n" + date.ToString("yyyy/MM/dd hh:mm");
+                return "Дараагийн хурал " + meetings[i].startDatetime.ToShortTimeString() + "-с эхэлнэ.";
             }
+            else if (meetings[i].startDatetime.TimeOfDay < now.TimeOfDay && meetings[i].startDatetime.AddMinutes(meetings[i].duration).TimeOfDay > now.TimeOfDay)
+            {
+                return "Хурал эхлээд " + (now.TimeOfDay - meetings[i].startDatetime.TimeOfDay).ToString(@"mm\:ss") + "";
+            }
+            else return "";
         }
 
         public List<Meeting> FindByDate(DateTime date)
@@ -682,7 +689,11 @@ namespace IrtsBurtgel
             //filtering allMeetings to meetings
             foreach (Meeting meeting in allMeetings)
             {
-                if ((meeting.intervalType == 0 && meeting.startDatetime.Date >= today) || (meeting.intervalType != 0 && today <= meeting.endDate.Date) || (meeting.endDate == new DateTime() && meeting.intervalType != 0)) meetings.Add(meeting);
+                if (((meeting.intervalType == 0 && meeting.startDatetime.Date >= now) || 
+                    (meeting.intervalType != 0 && today <= meeting.endDate.Date) || 
+                    (meeting.endDate == new DateTime() && meeting.intervalType != 0)) &&
+                    meeting.isDeleted == false )
+                    meetings.Add(meeting);
             }
 
             //Dates and meetings of closest occuring meetings
@@ -703,10 +714,10 @@ namespace IrtsBurtgel
                             obj[0] = meeting.startDatetime;
                             break;
                         case 1:
-                            obj[0] = meeting.startDatetime.AddDays( ( (today - meeting.startDatetime).Days /7 + 1)*7 );
+                            obj[0] = meeting.startDatetime.AddDays(((today - meeting.startDatetime).Days / 7 + 1) * 7);
                             break;
                         case 2:
-                            obj[0] = meeting.startDatetime.AddDays(((today - meeting.startDatetime).Days / 14 + 1 ) * 14);
+                            obj[0] = meeting.startDatetime.AddDays(((today - meeting.startDatetime).Days / 14 + 1) * 14);
                             break;
                         case 3:
                         case 4:
@@ -717,10 +728,11 @@ namespace IrtsBurtgel
                             obj[0] = meeting.startDatetime.AddYears(today.Year - meeting.startDatetime.Year);
                             break;
                         case 7:
-                            obj[0] = meeting.startDatetime.AddDays( (today-meeting.startDatetime).Days );
+                            obj[0] = meeting.startDatetime.AddDays((today - meeting.startDatetime).Days);
                             break;
                     }
                 }
+                else obj[0] = meeting.startDatetime;
                 obj[1] = meeting;
                 obj[2] = false;
 

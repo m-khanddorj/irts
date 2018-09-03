@@ -72,7 +72,7 @@ namespace IrtsBurtgel
             else
             {
                 Object[] obj = objs[0];
-                string texttodisplay = meetingController.TextToDisplay(obj);
+                string texttodisplay = meetingController.TextToDisplay();
                 time.Text = texttodisplay;
                 meetingController.CheckMeeting();
                 foreach (MeetingStatus ms in meetingStatusWindows)
@@ -248,7 +248,7 @@ namespace IrtsBurtgel
 
                 Label timeLabel = new Label();
                 timeLabel.HorizontalAlignment = HorizontalAlignment.Center;
-                timeLabel.Content = ((DateTime)obj[0]).ToString();
+                timeLabel.Content = ((DateTime)obj[0]).ToString("yyyy/MM/dd HH:mm");
 
                 Grid.SetColumn(timeLabel, 0);
                 Grid.SetRow(timeLabel, rowNum);
