@@ -29,7 +29,6 @@
         </DockPanel>
         <Grid Grid.Row="1" x:Name="gridDeparts" Background="White">
             <DVC:Chart Name="mcChart" 
-Width="400" Height="250"
 Background="LightSteelBlue">
                 <DVC:Chart.Series>
                     <DVC:PieSeries Title="Experience" 
