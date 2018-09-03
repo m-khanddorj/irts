@@ -675,12 +675,18 @@ namespace IrtsBurtgel
 
             foreach (Event ev in allEvents)
             {
-                if ((ev.endDate.Date >= today) || (ev.startDate.Date >= today && ev.intervalType == 2)) events.Add(ev);
+                if ((ev.endDate.Date >= today) || (ev.startDate.Date >= today && ev.intervalType == 2))
+                {
+                    events.Add(ev);
+                }
             }
             //filtering allMeetings to meetings
             foreach (Meeting meeting in allMeetings)
             {
-                if ((meeting.intervalType == 0 && meeting.startDatetime.Date >= today) || (meeting.intervalType != 0 && today <= meeting.endDate.Date) || (meeting.endDate == new DateTime() && meeting.intervalType != 0)) meetings.Add(meeting);
+                if ((meeting.intervalType == 0 && meeting.startDatetime.Date >= today) || (meeting.intervalType != 0 && today <= meeting.endDate.Date) || (meeting.endDate == new DateTime() && meeting.intervalType != 0))
+                {
+                    meetings.Add(meeting);
+                }
             }
             //Dates and meetings of closest occuring meetings
             List<Object[]> closestDates = new List<Object[]>();

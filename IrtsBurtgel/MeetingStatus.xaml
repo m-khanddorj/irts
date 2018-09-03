@@ -21,9 +21,9 @@
                 <Button VerticalAlignment="Center" HorizontalAlignment="Right"  Width="30" Height="30" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
                     <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
                 </Button>
-                <Label HorizontalAlignment="Right" x:Name="meetingName" Foreground="White">Meeting name</Label>
-                <Label HorizontalAlignment="Right" x:Name="meetingDate" Foreground="White">Date</Label>
-                <Label HorizontalAlignment="Right" x:Name="currentTime" Foreground="White">sme</Label>
+                <TextBlock HorizontalAlignment="Right" x:Name="meetingName" Foreground="White" FontSize="17" FontStretch="Condensed">Meeting name</TextBlock>
+                <TextBlock HorizontalAlignment="Right" x:Name="meetingDate" Foreground="White" FontSize="17">Date</TextBlock>
+                <TextBlock HorizontalAlignment="Right" x:Name="currentTime" Foreground="White" FontSize="17">sme</TextBlock>
             </StackPanel>
         </DockPanel>
         <Grid Grid.Row="1" x:Name="gridDeparts" Background="White">

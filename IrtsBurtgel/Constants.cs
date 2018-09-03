@@ -12,8 +12,8 @@ namespace IrtsBurtgel
         public static int WINDOWS_AUTH = 0, SQL_AUTH = 1;
 
         public static int dbauthtype = WINDOWS_AUTH;
-        public static string servername = "DESKTOP-RQUPRK9\\SQLEXPRESS";
-        public static string dbname = "IrtsBurtgel";
+        public static string servername = System.Configuration.ConfigurationManager.AppSettings["sqlservername"];
+        public static string dbname = System.Configuration.ConfigurationManager.AppSettings["sqlserverdbname"];
         public static string username = "TESTROLE";
         public static string password = "password";
         public static string ints = "SSPI";
