@@ -686,6 +686,7 @@ namespace IrtsBurtgel
             sdLabel.Content = "Хурал эхлэх өдөр:";
             sdLabel.Width = 200;
             DatePicker sd = new DatePicker();
+            sd.DisplayDateStart = DateTime.Now;
             sd.Width = 200;
             controls.Add(sd);
 
@@ -741,6 +742,7 @@ namespace IrtsBurtgel
             edLabel.Content = "Хурал дуусах өдөр:";
             edLabel.Width = 200;
             DatePicker ed = new DatePicker();
+            ed.DisplayDateStart = DateTime.Now;
             ed.Width = 200;
             controls.Add(ed);
             edStack.Children.Add(edLabel);

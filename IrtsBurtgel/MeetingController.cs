@@ -247,6 +247,10 @@ namespace IrtsBurtgel
                 }
             }
             result = result.OrderBy(x => x.startDatetime.TimeOfDay).ToList();
+            for(int i = result.Count-1; i>=0;i--)
+            {
+                if (result[i].isDeleted) result.RemoveAt(i);
+            }
             
             return result;
         }
