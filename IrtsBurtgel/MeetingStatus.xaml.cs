@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Controls.DataVisualization.Charting;
 
 namespace IrtsBurtgel
 {
@@ -29,7 +30,10 @@ namespace IrtsBurtgel
         Dictionary<int, TextBlock> departmentAttendance;
         Dictionary<int, Grid> userGrids;
         Dictionary<int, int[]> last;
+        Dictionary<string, int> keyValuePairs;
         public Dictionary<int, DepartmentStatus> departmentStatusWindows;
+        StackPanel globalSP;
+        Chart chart;
         int status = 0;
         object[] ongoingObj;
 
@@ -46,9 +50,18 @@ namespace IrtsBurtgel
             departmentWrapPanels = new Dictionary<int, WrapPanel>();
             departmentAttendance = new Dictionary<int, TextBlock>();
             departmentStatusWindows = new Dictionary<int, DepartmentStatus>();
-
+            keyValuePairs = new Dictionary<string, int>();
+            keyValuePairs.Add("Ирээгүй", 0);
+            keyValuePairs.Add("Хоцорсон", 0);
+            keyValuePairs.Add("Чөлөөтэй", 0);
+            keyValuePairs.Add("Ирсэн", 0);
             userGrids = new Dictionary<int, Grid>();
             last = new Dictionary<int, int[]>();
+            chart = new Chart
+            {
+                Title = "Ирц",
+                Background = Brushes.White
+            };
             try
             {
                 ongoingObj = meetingController.GetClosestMeetings(1)[0];
@@ -187,13 +200,27 @@ namespace IrtsBurtgel
                 Grid.SetRow(border1, count / 5);
                 Grid.SetColumn(border1, count % 5);
                 gridDeparts.Children.Add(border1);
-                DynamicGrid.Name = "dynamicGrid" + count;
 
                 departmentWrapPanels.Add(entry.Key, wp);
                 departmentAttendance.Add(entry.Key, (TextBlock)border2.Child);
 
                 count++;
             }
+
+            globalSP = new StackPanel();
+            
+            chart.Series.Add(new PieSeries
+            {
+                IndependentValueBinding = new Binding("Key"),
+                DependentValueBinding = new Binding("Value")
+            });
+
+            ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
+
+            globalSP.Children.Add(chart);
+            Grid.SetRow(globalSP, 1);
+            Grid.SetColumn(globalSP, 4);
+            gridDeparts.Children.Add(globalSP);
         }
 
         public void PlaceUsers(List<object[]> userAttendances)
@@ -291,11 +318,14 @@ namespace IrtsBurtgel
                     {
                         last.Add(entry.Key, new int[4]);
                     }
-                    departmentAttendance[entry.Key].Text = "Ирц-" + last[entry.Key][1] + "/" + (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]) + "\nХ-" + last[entry.Key][1] + " Ч-" + last[entry.Key][2];
+                    departmentAttendance[entry.Key].Text = "Ирц-" + (last[entry.Key][1] + last[entry.Key][3]) + "/" + (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]) + "\nХ-" + last[entry.Key][1] + " Ч-" + last[entry.Key][2];
                 }
 
                 AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]) + "\nЧөлөөтэй: " + last.Sum(x => x.Value[2]);
-
+                keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
+                keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
+                keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
+                keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
             }
             catch (Exception ex)
             {
@@ -382,9 +412,30 @@ namespace IrtsBurtgel
             }
             foreach (KeyValuePair<int, string> entry in departments)
             {
-                departmentAttendance[entry.Key].Text = "Ирц-" + last[entry.Key][1] + "/" + (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]) + "\nХ-" + last[entry.Key][1] + " Ч-" + last[entry.Key][2];
+                departmentAttendance[entry.Key].Text = "Ирц-" + (last[entry.Key][1] + last[entry.Key][3]) + "/" + (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]) + "\nХ-" + last[entry.Key][1] + " Ч-" + last[entry.Key][2];
             }
             AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]) + "\nЧөлөөтэй: " + last.Sum(x => x.Value[2]);
+
+            globalSP.Children.Clear();
+
+            chart = new Chart
+            {
+                Title = "Ирц",
+                Background = Brushes.White
+            };
+
+            chart.Series.Add(new PieSeries
+            {
+                IndependentValueBinding = new Binding("Key"),
+                DependentValueBinding = new Binding("Value")
+            });
+            
+            keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
+            keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
+            keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
+            keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
+            ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
+            globalSP.Children.Add(chart);
         }
 
         public void ShowDepartmentStatus(int departmentId)

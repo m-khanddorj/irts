@@ -202,13 +202,8 @@ namespace IrtsBurtgel
             List<Object[]> closestMeetings = meetingController.GetClosestMeetings(10);
 
             Label headerLabel = new Label();
-<<<<<<< HEAD
-            headerLabel.Content = "Хамгийн ойрын 10 хурал";
-            headerLabel.Margin = new Thickness(0, 0, 0, 10);
-=======
             headerLabel.Content = "Хамгийн ойрын "+ closestMeetings.Count.ToString()+ " хурал";
             headerLabel.Margin = new Thickness(0,0,0,10);
->>>>>>> eef672b047b4537c94fae781ccfc683bc49c69ce
             headerLabel.FontSize = 20;
             headerLabel.HorizontalAlignment = HorizontalAlignment.Center;
 
