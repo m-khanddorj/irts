@@ -667,244 +667,171 @@ namespace IrtsBurtgel
 
             List<Event> allEvents = eventModel.GetAll();
             List<Event> events = new List<Event>();
-
+            //return if there is no meetings
             if(allMeetings == null || allMeetings.Count == 0)
             {
                 return new List<Object[]>();
             }
 
+            //filtering allEvents to events
             foreach (Event ev in allEvents)
             {
                 if ((ev.endDate.Date >= today) || (ev.startDate.Date >= today && ev.intervalType == 2)) events.Add(ev);
             }
+
             //filtering allMeetings to meetings
             foreach (Meeting meeting in allMeetings)
             {
                 if ((meeting.intervalType == 0 && meeting.startDatetime.Date >= today) || (meeting.intervalType != 0 && today <= meeting.endDate.Date) || (meeting.endDate == new DateTime() && meeting.intervalType != 0)) meetings.Add(meeting);
             }
+
             //Dates and meetings of closest occuring meetings
             List<Object[]> closestDates = new List<Object[]>();
-            //filling ClosestDates
+
+            //next dates of closestDats
+            List<Object[]> nextDates = new List<Object[]>();
+
+            //filling nextDates initially
             foreach (Meeting meeting in meetings)
             {
-                DateTime date = meeting.startDatetime;
-                Object[] obj = new Object[2];
-                while (date < DateTime.Now)
+                Object[] obj = new Object[3];
+                if (meeting.startDatetime < DateTime.Now)
                 {
                     switch (meeting.intervalType)
                     {
-                        case 7:
-                            date = date.AddDays(meeting.intervalDay);
+                        case 0:
+                            obj[0] = meeting.startDatetime;
+                            break;
+                        case 1:
+                            obj[0] = meeting.startDatetime.AddDays( ( (today - meeting.startDatetime).Days /7 + 1)*7 );
+                            break;
+                        case 2:
+                            obj[0] = meeting.startDatetime.AddDays(((today - meeting.startDatetime).Days / 14 + 1 ) * 14);
                             break;
                         case 3:
                         case 4:
                         case 5:
-                            date = date.AddMonths(1);
+                            obj[0] = meeting.startDatetime.AddMonths((today.Month - meeting.startDatetime.Month) + 12 * (today.Year - meeting.startDatetime.Year));
                             break;
                         case 6:
-                            meeting.startDatetime = meeting.startDatetime.AddYears(1);
+                            obj[0] = meeting.startDatetime.AddYears(today.Year - meeting.startDatetime.Year);
                             break;
-                        case 1:
-                            date = date.AddDays(7);
-                            break;
-                        case 2:
-                            date = date.AddDays(14);
+                        case 7:
+                            obj[0] = meeting.startDatetime.AddDays( (today-meeting.startDatetime).Days );
                             break;
                     }
                 }
-
-                obj[0] = date;
                 obj[1] = meeting;
+                obj[2] = false;
 
-                closestDates.Add(obj);
+                nextDates.Add(obj);
             }
-            //sorting and cutting
-            if (closestDates.Count > count) closestDates = closestDates.OrderBy(o => o[0]).ToList().GetRange(0, count);
-            else closestDates = closestDates.OrderBy(o => (DateTime)o[0]).ToList();
-            //
-            List<Object[]> evOccurances = new List<Object[]>();
+
+            //sorting and cutting nextDates
+            if (nextDates.Count > count) nextDates = nextDates.OrderBy(o => o[0]).ToList().GetRange(0, count);
+            else nextDates = nextDates.OrderBy(o => (DateTime)o[0]).ToList();
+
             //if the array has length below count, fills it
-            while(closestDates.Count < count)
+            for( int step = 0; step<count ;step++)
             {
-                int n = closestDates.Count;
-                int m = evOccurances.Count;
-                //closest date and meeting
-                DateTime date = ((DateTime)closestDates[n - 1][0]).AddYears(2);
-                Meeting meeting = (Meeting)closestDates[n - 1][1];
-                //finding closest occurance
-                for (int j = 0 ; j < n ; j++)
+                //adding into nextDates into closest dates 
+                for(int i=nextDates.Count-1;i>=0;i--)
                 {
-                    DateTime nextOccurance = new DateTime();
-
-                    switch ( ((Meeting)closestDates[j][1]).intervalType )
+                    //not needed anymore
+                    if(closestDates.Count >= count && (DateTime)nextDates[i][0] > (DateTime)closestDates[closestDates.Count-1][0])
                     {
-                        case 0:
-                            continue;
-                        case 7:
-                            nextOccurance = ((DateTime)closestDates[j][0]).AddDays(((Meeting)closestDates[j][1]).intervalDay);
+                        nextDates.RemoveAt(i);
+                        continue;
+                    }
+                    Object[] insertObj = new Object[3];
+                    insertObj[0] = nextDates[i][0];
+                    insertObj[1] = nextDates[i][1];
+                    insertObj[2] = nextDates[i][2];
+                    //if meeting is in event canceling it 
+                    if ((bool)nextDates[i][2])
+                    {
+                        ((Meeting)insertObj[1]).duration = 0;
+                    }
+                    //inserting it to closestDates 
+                    closestDates.Add(insertObj);
+                    //sorting and cuttin closest dates
+                    if (closestDates.Count > count) closestDates = closestDates.OrderBy(o => o[0]).ToList().GetRange(0, count);
+                    else closestDates = closestDates.OrderBy( o => (DateTime)o[0] ).ToList();
+
+                }
+
+                //updating nextDates
+                for (int i = nextDates.Count-1; i>=0;i--)
+                {
+                    //removing 1 time meetings
+                    if(((Meeting)nextDates[i][1]).intervalType == 0)
+                    {
+                        nextDates.RemoveAt(i);
+                        continue;
+                    }
+
+                    //finding next occurance of the meeting
+                    DateTime nextOccurance = (DateTime)nextDates[i][0];
+                    bool is_event = false;
+
+                    switch(((Meeting)nextDates[i][1]).intervalType)
+                    {
+                        case 1:
+                            nextOccurance = nextOccurance.AddDays(7);
+                            break;
+                        case 2:
+                            nextOccurance = nextOccurance.AddDays(14);
                             break;
                         case 3:
                         case 4:
                         case 5:
-                            nextOccurance = ((DateTime)closestDates[j][0]).AddMonths(1);
+                            nextOccurance = nextOccurance.AddMonths(1);
                             break;
                         case 6:
-                            nextOccurance = ((DateTime)closestDates[j][0]).AddYears(1);
+                            nextOccurance = nextOccurance.AddYears(1);
                             break;
-                        case 1:
-                            nextOccurance = ((DateTime)closestDates[j][0]).AddDays(7);
-                            break;
-                        case 2:
-                            nextOccurance = ((DateTime)closestDates[j][0]).AddDays(14);
-                            break;
-
-                    }
-                    if (nextOccurance > ((Meeting)closestDates[j][1]).endDate) continue;
-
-                    bool is_overlapping = false;
-                    //checking overlap
-                    foreach(Object[] obj in closestDates)
-                    {
-                        if(nextOccurance == (DateTime)obj[0] &&
-                            ((Meeting)obj[1]).id == ((Meeting)closestDates[j][1]).id)
-                        {
-                            is_overlapping = true;
-                            break;
-                        }
-                    }
-                    foreach (Object[] obj in evOccurances)
-                    {
-                        if (nextOccurance == (DateTime)obj[0] &&
-                            ((Meeting)obj[1]).id == ((Meeting)closestDates[j][1]).id)
-                        {
-                            is_overlapping = true;
-                            break;
-                        }
-                    }
-
-                    if (!is_overlapping && date>nextOccurance)
-                    {
-                        date = nextOccurance;
-                        meeting = (Meeting)closestDates[j][1];       
-                    }
-                }
-                for (int j = 0; j < m; j++)
-                {
-                    DateTime nextOccurance = new DateTime();
-
-                    switch (((Meeting)evOccurances[j][1]).intervalType)
-                    {
-                        case 0:
-                            continue;
                         case 7:
-                            nextOccurance = ((DateTime)evOccurances[j][0]).AddDays(((Meeting)evOccurances[j][1]).intervalDay);
+                            nextOccurance = nextOccurance.AddDays(((Meeting)nextDates[i][1]).intervalDay);
                             break;
-                        case 3:
-                        case 4:
-                        case 5:
-                            nextOccurance = ((DateTime)evOccurances[j][0]).AddMonths(1);
-                            break;
-                        case 6:
-                            nextOccurance = ((DateTime)evOccurances[j][0]).AddYears(1);
-                            break;
-                        case 1:
-                            nextOccurance = ((DateTime)evOccurances[j][0]).AddDays(7);
-                            break;
-                        case 2:
-                            nextOccurance = ((DateTime)evOccurances[j][0]).AddDays(14);
-                            break;
-
                     }
 
-                    bool is_overlapping = false;
-                    //checking overlap
-                    foreach (Object[] obj in closestDates)
+                    //removing it from the nextDates if it is ended
+                    if(((Meeting)nextDates[i][1]).endDate < nextOccurance )
                     {
-                        if (nextOccurance == (DateTime)obj[0] &&
-                            ((Meeting)obj[1]).id == ((Meeting)evOccurances[j][1]).id)
-                        {
-                            is_overlapping = true;
-                            break;
-                        }
-                    }
-                    foreach (Object[] obj in evOccurances)
-                    {
-                        if (nextOccurance == (DateTime)obj[0] &&
-                            ((Meeting)obj[1]).id == ((Meeting)evOccurances[j][1]).id)
-                        {
-                            is_overlapping = true;
-                            break;
-                        }
+                        nextDates.RemoveAt(i);
+                        continue;
                     }
 
-                    if (!is_overlapping && date > nextOccurance)
+                    //checking if nextOccurance is in any event.
+                    foreach(Event ev in events)
                     {
-                        date = nextOccurance;
-                        meeting = (Meeting)evOccurances[j][1];
-                    }
-                }
-
-                Object[] newObj = new Object[2];
-                newObj[0] = date;
-                newObj[1] = meeting;
-
-                //checking if the new date is event
-                bool is_event = false;
-                foreach (Event ev in events)
-                {
-                    DateTime endDate = ev.endDate, startDate = ev.startDate;
-                    while (endDate < (DateTime)newObj[0])
-                    {
-                        if (ev.intervalType == 1)
+                        DateTime sdt = ev.startDate;
+                        DateTime edt = ev.endDate;
+                        if(edt < nextOccurance)
                         {
-                            endDate = endDate.AddMonths(1);
-                            startDate = startDate.AddMonths(1);
-                        }
-                        else if (ev.intervalType == 0)
-                        {
-                            endDate = endDate.AddYears(1);
-                            startDate = startDate.AddYears(1);
-                        }
-                    }
-                    if ((DateTime)newObj[0] > startDate && (DateTime)newObj[0] < endDate)
-                    {
-                        bool is_OverlapinEvo = false;
-                        foreach (Object[] obj in evOccurances)
-                        {
-                            if ((DateTime)newObj[0] == (DateTime)obj[0] &&
-                                ((Meeting)obj[1]).id == ((Meeting)newObj[1]).id)
+                            switch (ev.intervalType)
                             {
-                                is_OverlapinEvo = true;
-                                break;
+                                case 0:
+                                    sdt = ev.startDate.AddYears( (nextOccurance.Year - ev.startDate.Year) );
+                                    edt = ev.endDate.AddYears( (nextOccurance.Year - ev.endDate.Year) );
+                                    break;
+                                case 1:
+                                    sdt = ev.startDate.AddMonths((nextOccurance.Month - ev.startDate.Month) + 12 * (nextOccurance.Year - ev.startDate.Year));
+                                    edt = ev.endDate.AddMonths((nextOccurance.Month - ev.endDate.Month) + 12 * (nextOccurance.Year - ev.endDate.Year));
+                                    break;
                             }
                         }
-                        if(!is_OverlapinEvo)
-                        {
-                            evOccurances.Add(newObj);
-                        }
-                        is_event = true;
-                        break;
+                        if (nextOccurance > sdt && nextOccurance < edt) is_event = true;
+                        
                     }
+
+                    nextDates[i][0] = nextOccurance;
+                    nextDates[i][2] = is_event;
                 }
 
-                if (is_event) continue;
-                closestDates.Add(newObj);
-                //sorting and cutting
-                if (closestDates.Count > count) closestDates = closestDates.OrderBy(o => o[0]).ToList().GetRange(0, count);
-                else closestDates = closestDates.OrderBy(o => (DateTime)o[0]).ToList();
-            }
-            foreach(Object[] obj in closestDates)
-            {
-                List<ModifiedMeeting> mmeetings = modifiedMeetingModel.GetByFK(((Meeting)obj[1]).IDName, ((Meeting)obj[1]).id);
-                foreach(ModifiedMeeting mmeeting in mmeetings)
-                {
-                    if(mmeeting.startDatetime.ToShortDateString() == ((DateTime)obj[0]).ToShortDateString())
-                    {
-                        obj[0] = mmeeting.startDatetime;
-                        obj[1] = mmeeting;
-                        break;
-                    }
-                }
+                //sorting and cutting nextDates
+                if (nextDates.Count > count) nextDates = nextDates.OrderBy(o => o[0]).ToList().GetRange(0, count);
+                else nextDates = nextDates.OrderBy(o => (DateTime)o[0]).ToList();
             }
 
             
