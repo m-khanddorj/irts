@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:DVC="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
         Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Ирц бүртгэлийн төлөв" Height="450" Width="800" WindowStartupLocation="Manual" Icon="images/time-logo.png">
@@ -27,6 +28,16 @@
             </StackPanel>
         </DockPanel>
         <Grid Grid.Row="1" x:Name="gridDeparts" Background="White">
+            <DVC:Chart Name="mcChart" 
+Width="400" Height="250"
+Background="LightSteelBlue">
+                <DVC:Chart.Series>
+                    <DVC:PieSeries Title="Experience" 
+IndependentValueBinding="{Binding Path=Key}"
+DependentValueBinding="{Binding Path=Value}">
+                </DVC:PieSeries>
+                </DVC:Chart.Series>
+                </DVC:Chart>
         </Grid>
     </Grid>
     <Window.Resources>

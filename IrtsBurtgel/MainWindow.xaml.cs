@@ -55,6 +55,7 @@ namespace IrtsBurtgel
             meetingStatusWindows = new List<MeetingStatus>();
             archModel = new Model<ArchivedMeeting>();
             attModel = new Model<Attendance>();
+
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
@@ -71,7 +72,7 @@ namespace IrtsBurtgel
             else
             {
                 Object[] obj = objs[0];
-                string texttodisplay = meetingController.TextToDisplay(obj);
+                string texttodisplay = meetingController.TextToDisplay();
                 time.Text = texttodisplay;
                 meetingController.CheckMeeting();
                 foreach (MeetingStatus ms in meetingStatusWindows)
@@ -201,8 +202,13 @@ namespace IrtsBurtgel
             List<Object[]> closestMeetings = meetingController.GetClosestMeetings(10);
 
             Label headerLabel = new Label();
+<<<<<<< HEAD
             headerLabel.Content = "Хамгийн ойрын 10 хурал";
             headerLabel.Margin = new Thickness(0, 0, 0, 10);
+=======
+            headerLabel.Content = "Хамгийн ойрын "+ closestMeetings.Count.ToString()+ " хурал";
+            headerLabel.Margin = new Thickness(0,0,0,10);
+>>>>>>> eef672b047b4537c94fae781ccfc683bc49c69ce
             headerLabel.FontSize = 20;
             headerLabel.HorizontalAlignment = HorizontalAlignment.Center;
 
@@ -255,7 +261,7 @@ namespace IrtsBurtgel
 
                 Label timeLabel = new Label();
                 timeLabel.HorizontalAlignment = HorizontalAlignment.Center;
-                timeLabel.Content = ((DateTime)obj[0]).ToString();
+                timeLabel.Content = ((DateTime)obj[0]).ToString("yyyy/MM/dd HH:mm");
 
                 Grid.SetColumn(timeLabel, 0);
                 Grid.SetRow(timeLabel, rowNum);
@@ -759,6 +765,7 @@ namespace IrtsBurtgel
             sdLabel.Content = "Хурал эхлэх өдөр:";
             sdLabel.Width = 200;
             DatePicker sd = new DatePicker();
+            sd.DisplayDateStart = DateTime.Now;
             sd.Width = 200;
             controls.Add(sd);
 
@@ -814,6 +821,7 @@ namespace IrtsBurtgel
             edLabel.Content = "Хурал дуусах өдөр:";
             edLabel.Width = 200;
             DatePicker ed = new DatePicker();
+            ed.DisplayDateStart = DateTime.Now;
             ed.Width = 200;
             controls.Add(ed);
             edStack.Children.Add(edLabel);
