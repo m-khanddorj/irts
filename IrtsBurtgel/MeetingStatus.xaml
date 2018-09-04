@@ -44,9 +44,9 @@
             <DVC:Chart Name="mcChart">
                 <DVC:Chart.Series>
                     <DVC:PieSeries Title="Experience" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
-                </DVC:PieSeries>
+                    </DVC:PieSeries>
                 </DVC:Chart.Series>
-                </DVC:Chart>
+            </DVC:Chart>
         </Grid>
     </Grid>
     <Window.Resources>
