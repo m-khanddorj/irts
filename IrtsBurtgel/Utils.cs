@@ -8,11 +8,15 @@ namespace IrtsBurtgel
 {
     public class Utils
     {
-        static DirectoryInfo _outputDir = new DirectoryInfo("./");
+        static DirectoryInfo _outputDir = new DirectoryInfo(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\BolorIrtsReport\\");
         public static DirectoryInfo OutputDir
         {
             get
             {
+                if (!_outputDir.Exists)
+                {
+                    _outputDir.Create();
+                }
                 return _outputDir;
             }
             set

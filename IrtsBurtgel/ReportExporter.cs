@@ -20,7 +20,7 @@ namespace IrtsBurtgel
             meetingController = mc;
         }
 
-        public string ExportAttendance(List<Meeting> meetings, DateTime startDate, DateTime endDate, string filename)
+        public string ExportAttendance(List<Meeting> meetings, DateTime startDate, DateTime endDate)
         {
             if(meetings == null || meetings.Count == 0)
             {
@@ -82,6 +82,7 @@ namespace IrtsBurtgel
                 worksheet.Cells[1, archivedMeetings.Count + 5].Value = "Нийт ирсэн";
                 worksheet.Cells[1, archivedMeetings.Count + 6].Value = "Нийт хоцорсон";
                 worksheet.Cells[1, archivedMeetings.Count + 7].Value = "Нийт тасалсан";
+                worksheet.Cells[1, archivedMeetings.Count + 8].Value = "Ирц";
 
 
                 for (int i = 0; i < users.Count; i++)
@@ -98,6 +99,9 @@ namespace IrtsBurtgel
                     worksheet.Cells[i + 2, archivedMeetings.Count + 5].Formula = "COUNTIF(" + columnRange + ", \"И\")";
                     worksheet.Cells[i + 2, archivedMeetings.Count + 6].Formula = "COUNTIF(" + columnRange + ", \"Х*\")";
                     worksheet.Cells[i + 2, archivedMeetings.Count + 7].Formula = "COUNTIF(" + columnRange + ", \"Т\")";
+                    worksheet.Cells[i + 2, archivedMeetings.Count + 8].Formula = "(COUNTIF(" + columnRange + ", \"И\") + COUNTIF(" + columnRange + ", \"Х*\") + COUNTIF(" + columnRange + ", \"Ч\"))/COUNTA(" + columnRange + ")";
+
+                    worksheet.Cells[i + 2, archivedMeetings.Count + 8].Style.Numberformat.Format = "#0%";
 
                     if (!departmentAttendance.ContainsKey(users[i].departmentId))
                     {
@@ -113,15 +117,18 @@ namespace IrtsBurtgel
                         if (attendance != null)
                         {
                             string status;
+                            Color colFromHex;
                             switch (attendance.statusId)
                             {
-                                case 1: status = "И"; break;
-                                case 2: status = "Х(" + attendance.regTime.ToString() + ")"; break;
-                                case 14: status = "Т"; break;
-                                case 15: status = "Б"; break;
-                                default: status = "Ш"; break;
+                                case 1: status = "И"; colFromHex = ColorTranslator.FromHtml("#adebad"); break;
+                                case 2: status = "Х(" + attendance.regTime.ToString() + ")"; colFromHex = ColorTranslator.FromHtml("#ffd480"); break;
+                                case 14: status = "Т"; colFromHex = ColorTranslator.FromHtml("#ffcccc"); break;
+                                case 15: status = "Б"; colFromHex = ColorTranslator.FromHtml("#d9d9d9"); break;
+                                default: status = "Ч"; colFromHex = ColorTranslator.FromHtml("#b3d9ff"); break;
                             }
                             worksheet.Cells[j + 2, i + 5].Value = status;
+                            worksheet.Cells[j + 2, i + 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            worksheet.Cells[j + 2, i + 5].Style.Fill.BackgroundColor.SetColor(colFromHex);
                             departmentAttendance[users[j].departmentId][attendance.statusId]++;
                             departmentAttendance[users[j].departmentId][16]++;
                         }
@@ -130,9 +137,12 @@ namespace IrtsBurtgel
                     string columnName = GetExcelColumnName(i + 5);
                     string columnRange = columnName + "2:" + columnName + (users.Count + 1).ToString();
 
-                    worksheet.Cells[users.Count + 2, i + 5].Formula = "COUNTIF(" + columnRange + ", \"И\")";
+                    worksheet.Cells[users.Count + 2, i + 5].Formula = "COUNTIF(" + columnRange + ", \"И\")/COUNTA(" + columnRange + ")";
                     worksheet.Cells[users.Count + 3, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Х*\")";
                     worksheet.Cells[users.Count + 4, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Т\")";
+                    
+                    worksheet.Cells[users.Count + 2, i + 5].Style.Numberformat.Format = "#0%";
+
                 }
 
                 worksheet.Cells[users.Count + 2, 2].Value = "Нийт ирсэн";
@@ -156,13 +166,7 @@ namespace IrtsBurtgel
                 worksheet.HeaderFooter.OddFooter.CenteredText = ExcelHeaderFooter.SheetName;
                 // add the file path to the footer
                 worksheet.HeaderFooter.OddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
-
-                worksheet.PrinterSettings.RepeatRows = worksheet.Cells["1:2"];
-                worksheet.PrinterSettings.RepeatColumns = worksheet.Cells["A:G"];
-
-                // Change the sheet view to show it in page layout mode
-                worksheet.View.PageLayoutView = true;
-
+                
                 if (departmentAttendance.Count > 0)
                 {
 
@@ -214,11 +218,7 @@ namespace IrtsBurtgel
                             {
                                 worksheet2.Cells[i + 2, 2].Value = "Бусад";
                             }
-
-                            string columnName1 = GetExcelColumnName(3);
-                            string columnName2 = GetExcelColumnName(archivedMeetings.Count + 2);
-                            string columnRange = columnName1 + (i + 2).ToString() + ":" + columnName2 + (i + 2).ToString();
-
+                            
                             worksheet2.Cells[i + 2, archivedMeetings.Count + 3].Value = departmentAttendancePercent[entry.Key] / departmentAttendance.Count;
                             worksheet2.Cells[i + 2, archivedMeetings.Count + 3].Style.Numberformat.Format = "#0%";
 
@@ -244,12 +244,6 @@ namespace IrtsBurtgel
                     // add the file path to the footer
                     worksheet2.HeaderFooter.OddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
 
-                    worksheet2.PrinterSettings.RepeatRows = worksheet2.Cells["1:2"];
-                    worksheet2.PrinterSettings.RepeatColumns = worksheet2.Cells["A:G"];
-
-                    // Change the sheet view to show it in page layout mode
-                    worksheet2.View.PageLayoutView = true;
-
                     package.Workbook.Worksheets.MoveToStart("Хэлтсээр");
 
                 }
@@ -261,8 +255,7 @@ namespace IrtsBurtgel
 
                 // set some extended property values
                 package.Workbook.Properties.Company = "BolorSoft LLC.";
-
-                var xlFile = Utils.GetFileInfo(filename + ".xlsx");
+                var xlFile = Utils.GetFileInfo(startDate.ToString("yyyyMMdd") + "_" + endDate.ToString("yyyyMMdd") + "_" + (meetings.Count > 1 ? "AllMeeting" : meetings.First().id.ToString()) + "_report.xlsx");
                 // save our new workbook in the output directory and we are done!
                 package.SaveAs(xlFile);
                 MessageBox.Show(startDate.ToString("yyyy / MM / dd") + " - с " + endDate.ToString("yyyy / MM / dd") + " хүртэлх " + (meetings.Count > 1 ? "бүх хурлын" : meetings.First().name + "-н") + " тайлан " + xlFile.FullName + " файлд амжилттай гарлаа.", "Тайлан амжилттай гарлаа");

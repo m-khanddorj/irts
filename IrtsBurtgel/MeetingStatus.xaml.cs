@@ -32,7 +32,7 @@ namespace IrtsBurtgel
         Dictionary<int, int[]> last;
         Dictionary<string, int> keyValuePairs;
         public Dictionary<int, DepartmentStatus> departmentStatusWindows;
-        StackPanel globalSP;
+        Grid globalSP;
         Chart chart;
         int status = 0;
         object[] ongoingObj;
@@ -57,11 +57,6 @@ namespace IrtsBurtgel
             keyValuePairs.Add("Ирсэн", 0);
             userGrids = new Dictionary<int, Grid>();
             last = new Dictionary<int, int[]>();
-            chart = new Chart
-            {
-                Title = "Ирц",
-                Background = Brushes.White
-            };
             try
             {
                 ongoingObj = meetingController.GetClosestMeetings(1)[0];
@@ -207,8 +202,15 @@ namespace IrtsBurtgel
                 count++;
             }
 
-            globalSP = new StackPanel();
-            
+            globalSP = new Grid();
+
+            chart = new Chart
+            {
+                Title = "Нийт ирц",
+                Background = Brushes.White,
+                Margin = new Thickness(10)
+            };
+
             chart.Series.Add(new PieSeries
             {
                 IndependentValueBinding = new Binding("Key"),
@@ -217,10 +219,17 @@ namespace IrtsBurtgel
 
             ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
 
+            Grid.SetColumn(chart, 0);
+            Grid.SetRow(chart, 0);
             globalSP.Children.Add(chart);
+
             Grid.SetRow(globalSP, 1);
             Grid.SetColumn(globalSP, 4);
             gridDeparts.Children.Add(globalSP);
+
+            ArchivedMeeting archivedMeeting = meetingController.onGoingArchivedMeeting;
+            meetingName.Text = archivedMeeting.name;
+            meetingDate.Text = archivedMeeting.meetingDatetime.ToString("yyyy/MM/dd HH:mm");
         }
 
         public void PlaceUsers(List<object[]> userAttendances)
@@ -238,9 +247,7 @@ namespace IrtsBurtgel
                     last.Add(entry.Key, new int[4]);
                 }
 
-                ArchivedMeeting archivedMeeting = meetingController.archivedMeetingModel.Get(((Attendance)(userAttendances.First()[1])).archivedMeetingId);
-                meetingName.Text = archivedMeeting.name;
-                meetingDate.Text = archivedMeeting.meetingDatetime.ToString("yyyy/MM/dd HH:mm");
+                ArchivedMeeting archivedMeeting = meetingController.onGoingArchivedMeeting;
                 foreach (object[] obj in userAttendances)
                 {
                     User user = (User)obj[0];
@@ -420,14 +427,15 @@ namespace IrtsBurtgel
 
             chart = new Chart
             {
-                Title = "Ирц",
-                Background = Brushes.White
+                Title = "Нийт ирц",
+                Background = Brushes.White,
+                Margin = new Thickness(10, 0, 10, 0)
             };
 
             chart.Series.Add(new PieSeries
             {
                 IndependentValueBinding = new Binding("Key"),
-                DependentValueBinding = new Binding("Value")
+                DependentValueBinding = new Binding("Value"),
             });
             
             keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
@@ -435,6 +443,8 @@ namespace IrtsBurtgel
             keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
             keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
             ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
+            Grid.SetColumn(chart, 0);
+            Grid.SetRow(chart, 0);
             globalSP.Children.Add(chart);
         }
 

@@ -1334,7 +1334,10 @@ namespace IrtsBurtgel
             DatePicker ed = new DatePicker();
             ed.Width = 200;
             ed.DisplayDate = ((DateTime)meeting.startDatetime);
-            ed.Text = ((DateTime)meeting.endDate).ToShortDateString();
+            if (meeting.endDate != new DateTime())
+            {
+                ed.Text = ((DateTime)meeting.endDate).ToShortDateString();
+            }
             controls.Add(ed);
             edStack.Children.Add(edLabel);
             edStack.Children.Add(ed);
@@ -2668,11 +2671,11 @@ namespace IrtsBurtgel
             }
             try
             {
-                re.ExportAttendance(meetings, (DateTime)st.SelectedDate, (DateTime)et.SelectedDate, "report");
+                re.ExportAttendance(meetings, (DateTime)st.SelectedDate, (DateTime)et.SelectedDate);
             }
             catch (Exception ex)
             {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Тайлан гаргах явцад алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+                Xceed.Wpf.Toolkit.MessageBox.Show("Тайлан гаргах явцад алдаа гарлаа. Алдааны мессеж: " + ex.ToString());
             }
 
         }
@@ -2779,6 +2782,8 @@ namespace IrtsBurtgel
             timeSelector.Children.Add(label);
             timeSelector.Children.Add(endTime);
             timeSelector.Children.Add(saveButton);
+
+            endTime.DisplayDateStart = startTime.SelectedDate;
 
             Grid.SetColumnSpan(timeSelector, 2);
             Grid.SetRow(timeSelector, 4);
