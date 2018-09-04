@@ -8,6 +8,14 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("content/jquery.timepicker.css")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.intellisense.js")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.js")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.min.js")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.slim.js")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.slim.min.js")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery.timepicker.js")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery.timepicker.min.js")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("libzkfpcsharp.dll")]
 
 

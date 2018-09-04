@@ -187,17 +187,17 @@ namespace IrtsBurtgel
             foreach(Event ev in events)
             {
                 DateTime endDate = ev.endDate,startDate = ev.startDate;
-                while(endDate < date)
+                if(endDate < date)
                 {
                     if(ev.intervalType == 1)
                     {
-                        endDate = endDate.AddMonths(1);
-                        startDate = startDate.AddMonths(1);
+                        endDate = endDate.AddMonths((date.Month - ev.endDate.Month) + 12 * (date.Year - ev.endDate.Year));
+                        startDate = startDate.AddMonths((date.Month - ev.endDate.Month) + 12 * (date.Year - ev.endDate.Year));
                     }
                     else if(ev.intervalType == 0)
                     {
-                        endDate = endDate.AddYears(1);
-                        startDate = startDate.AddYears(1);
+                        endDate = endDate.AddYears(date.Year - endDate.Year);
+                        startDate = startDate.AddYears(date.Year - endDate.Year);
                     }
                 }
                 if(date > startDate && date<endDate)
@@ -753,8 +753,30 @@ namespace IrtsBurtgel
                 }
                 else obj[0] = meeting.startDatetime;
                 obj[1] = meeting;
-                obj[2] = false;
+                bool is_event = false;
+                //checking if nextOccurance is in any event.
+                foreach (Event ev in events)
+                {
+                    DateTime sdt = ev.startDate;
+                    DateTime edt = ev.endDate;
+                    if (edt < (DateTime)obj[0]) 
+                    {
+                        switch (ev.intervalType)
+                        {
+                            case 0:
+                                sdt = ev.startDate.AddYears((((DateTime)obj[0]).Year - ev.startDate.Year));
+                                edt = ev.endDate.AddYears((((DateTime)obj[0]).Year - ev.endDate.Year));
+                                break;
+                            case 1:
+                                sdt = ev.startDate.AddMonths((((DateTime)obj[0]).Month - ev.startDate.Month) + 12 * (((DateTime)obj[0]).Year - ev.startDate.Year));
+                                edt = ev.endDate.AddMonths((((DateTime)obj[0]).Month - ev.endDate.Month) + 12 * (((DateTime)obj[0]).Year - ev.endDate.Year));
+                                break;
+                        }
+                    }
+                    if (((DateTime)obj[0]) > sdt && ((DateTime)obj[0]) < edt) is_event = true;
 
+                }
+                obj[2] = is_event;
                 nextDates.Add(obj);
             }
 
@@ -763,9 +785,9 @@ namespace IrtsBurtgel
             else nextDates = nextDates.OrderBy(o => (DateTime)o[0]).ToList();
 
             //if the array has length below count, fills it
-            for( int step = 0; step<count ;step++)
+            for( int step = 0; step<count && nextDates.Count >0 ;step++)
             {
-                //adding into nextDates into closest dates 
+                //adding nextDates into closest dates 
                 for(int i=nextDates.Count-1;i>=0;i--)
                 {
                     //not needed anymore
@@ -827,7 +849,7 @@ namespace IrtsBurtgel
                     }
 
                     //removing it from the nextDates if it is ended
-                    if(((Meeting)nextDates[i][1]).endDate < nextOccurance )
+                    if(((Meeting)nextDates[i][1]).endDate < nextOccurance  && ((Meeting)nextDates[i][1]).endDate != new DateTime())
                     {
                         nextDates.RemoveAt(i);
                         continue;

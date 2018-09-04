@@ -15,7 +15,7 @@ using System.Windows.Shapes;
 namespace IrtsBurtgel
 {
     /// <summary>
-    /// Interaction logic for Window1.xaml
+    /// Interaction logic for DepartmentStatus.xaml
     /// </summary>
     public partial class DepartmentStatus : Window
     {
