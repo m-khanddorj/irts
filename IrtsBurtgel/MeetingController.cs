@@ -785,9 +785,9 @@ namespace IrtsBurtgel
             else nextDates = nextDates.OrderBy(o => (DateTime)o[0]).ToList();
 
             //if the array has length below count, fills it
-            for( int step = 0; step<count ;step++)
+            for( int step = 0; step<count && nextDates.Count >0 ;step++)
             {
-                //adding into nextDates into closest dates 
+                //adding nextDates into closest dates 
                 for(int i=nextDates.Count-1;i>=0;i--)
                 {
                     //not needed anymore
@@ -849,7 +849,7 @@ namespace IrtsBurtgel
                     }
 
                     //removing it from the nextDates if it is ended
-                    if(((Meeting)nextDates[i][1]).endDate < nextOccurance )
+                    if(((Meeting)nextDates[i][1]).endDate < nextOccurance  && ((Meeting)nextDates[i][1]).endDate != new DateTime())
                     {
                         nextDates.RemoveAt(i);
                         continue;
