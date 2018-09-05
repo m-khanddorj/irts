@@ -263,7 +263,7 @@ namespace IrtsBurtgel
 
                 Label nameLabel = new Label();
                 nameLabel.HorizontalAlignment = HorizontalAlignment.Center;
-                nameLabel.Content = (bool)obj[2]?"Цуцлагдсан":((Meeting)obj[1]).name;
+                nameLabel.Content = (bool)obj[2]? ((Meeting)obj[1]).name + " цуцлагдсан":((Meeting)obj[1]).name;
 
                 Grid.SetColumn(nameLabel, 1);
                 Grid.SetRow(nameLabel, rowNum);
