@@ -24,6 +24,7 @@ namespace IrtsBurtgel
         public Model<Department> departmentModel;
         public Model<Position> positionModel;
         public Model<Status> statusModel;
+        public Model<Admin> adminModel;
 
         public Model<MeetingAndUser> muModel;
         public Model<MeetingAndDepartment> mdModel;
@@ -52,6 +53,7 @@ namespace IrtsBurtgel
             departmentModel = new Model<Department>();
             positionModel = new Model<Position>();
             statusModel = new Model<Status>();
+            adminModel = new Model<Admin>();
 
             muModel = new Model<MeetingAndUser>();
             mdModel = new Model<MeetingAndDepartment>();
@@ -633,7 +635,7 @@ namespace IrtsBurtgel
             }
             else
             {
-                return "images\\default-user.png";
+                return "images\\user.png";
             }
         }
 

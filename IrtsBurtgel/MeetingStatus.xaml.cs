@@ -316,8 +316,28 @@ namespace IrtsBurtgel
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    Console.WriteLine(meetingController.GetUserImage(user));
 
-                    Image image = new Image { Source = new BitmapImage(new Uri(meetingController.GetUserImage(user))), HorizontalAlignment = HorizontalAlignment.Center };
+                    BitmapImage webImage;
+                    try
+                    {
+                        webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
+                    }
+                    catch (Exception ex)
+                    {
+                        webImage = new BitmapImage(new Uri("images/user.png", UriKind.Relative));
+                    }
+                    float scaleHeight = (float)60 / (float)webImage.Height;
+                    float scaleWidth = (float)60 / (float)webImage.Width;
+                    float scale = Math.Min(scaleHeight, scaleWidth);
+
+                    Image image = new Image
+                    {
+                        Source = webImage,
+                        Height = (int)(webImage.Width * scale),
+                        Width = (int)(webImage.Height * scale)
+                    };
+
                     Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center, FontSize = 15 };
                     Label status = new Label
                     {
@@ -336,13 +356,18 @@ namespace IrtsBurtgel
                         default: border.BorderBrush = status.Background = Brushes.DarkSlateBlue; break;
                     }
 
-                    Grid.SetColumn(image, 0);
+                    Viewbox vb = new Viewbox
+                    {
+                        Child = image,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+                    Grid.SetColumn(vb, 0);
                     Grid.SetColumn(name, 0);
                     Grid.SetColumn(status, 0);
-                    Grid.SetRow(image, 0);
+                    Grid.SetRow(vb, 0);
                     Grid.SetRow(name, 1);
                     Grid.SetRow(status, 2);
-                    DynamicGrid.Children.Add(image);
+                    DynamicGrid.Children.Add(vb);
                     DynamicGrid.Children.Add(name);
                     DynamicGrid.Children.Add(status);
 

@@ -37,6 +37,7 @@ namespace IrtsBurtgel
         Model<Attendance> attModel;
         Model<ArchivedMeeting> archModel;
         public List<MeetingStatus> meetingStatusWindows;
+        Admin loggedAdmin;
         bool is_home = false;
 
         public MainWindow()
@@ -84,16 +85,31 @@ namespace IrtsBurtgel
 
         public void login(object sender, RoutedEventArgs e)
         {
-            if (username.Text == "admin" && password.Password == "admin") showMenu();
-            else
+            List<Admin> admins = meetingController.adminModel.GetAll();
+            if (username.Text == null || password.Password == null || username.Text.Trim() == "" || password.Password.Trim() == "")
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та нэр, нууц үгээ дахин шалгана уу!", "Нэр эсвэл нууц үг ороогүй байна");
+                return;
+            }
+
+            foreach (Admin admin in admins)
+            {
+                if (username.Text.Trim().ToLower() == admin.username.ToLower() && Authentication.Encrypt(password.Password.Trim()) == admin.password)
+                {
+                    showMenu();
+                    loggedAdmin = admin;
+                }
+            }
+            if (loggedAdmin == null)
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Та нэр, нууц үгээ дахин шалгана уу!", "Нэр эсвэл нууц үг буруу байна");
             }
+            
         }
         private void showStatus(object sender, RoutedEventArgs e)
         {
             MeetingStatus meetingStatus = new MeetingStatus(meetingController);
-            meetingStatus.Closed += (ex,o)=>
+            meetingStatus.Closed += (ex, o) =>
             {
                 meetingStatusWindows.Remove(meetingStatus);
             };
@@ -191,12 +207,21 @@ namespace IrtsBurtgel
             Report.Height = 30;
             Report.Background = Brushes.White;
 
+            Button PChanger = new Button();
+            PChanger.Content = "Нууц үг солих";
+            PChanger.Margin = margin;
+            PChanger.Click += ShowPasswordChanger;
+            PChanger.Width = 210;
+            PChanger.Height = 30;
+            PChanger.Background = Brushes.White;
+
             Menu.Children.Add(img);
             Menu.Children.Add(Calendar);
             Menu.Children.Add(Meetings);
             Menu.Children.Add(Events);
             Menu.Children.Add(Members);
             Menu.Children.Add(Report);
+            Menu.Children.Add(PChanger);
 
             dock.Children.Add(Menu);
 
@@ -206,8 +231,8 @@ namespace IrtsBurtgel
             List<Object[]> closestMeetings = meetingController.GetClosestMeetings(10);
 
             Label headerLabel = new Label();
-            headerLabel.Content = "Хамгийн ойрын "+ closestMeetings.Count.ToString()+ " хурал";
-            headerLabel.Margin = new Thickness(0,0,0,10);
+            headerLabel.Content = "Хамгийн ойрын " + closestMeetings.Count.ToString() + " хурал";
+            headerLabel.Margin = new Thickness(0, 0, 0, 10);
             headerLabel.FontSize = 20;
             headerLabel.HorizontalAlignment = HorizontalAlignment.Center;
 
@@ -267,7 +292,7 @@ namespace IrtsBurtgel
 
                 Label nameLabel = new Label();
                 nameLabel.HorizontalAlignment = HorizontalAlignment.Center;
-                nameLabel.Content = (bool)obj[2]? ((Meeting)obj[1]).name + " цуцлагдсан":((Meeting)obj[1]).name;
+                nameLabel.Content = (bool)obj[2] ? ((Meeting)obj[1]).name + " цуцлагдсан" : ((Meeting)obj[1]).name;
 
                 Grid.SetColumn(nameLabel, 1);
                 Grid.SetRow(nameLabel, rowNum);
@@ -481,7 +506,7 @@ namespace IrtsBurtgel
             Label header = new Label();
             header.Content = "Тухайн өдрийн хурлууд";
             list.Add(header);
-            
+
             Button xButton = new Button();
             Image xImage = new Image();
             xImage.Source = new BitmapImage(new Uri("images/cal-x.png", UriKind.Relative));
@@ -527,7 +552,7 @@ namespace IrtsBurtgel
             LeftSide.Children.Clear();
             Label label = new Label();
             label.Content = "Нийт тэмдэглэлт өдрүүд:";
-            
+
             Button import = new Button();
             Image calendarImage = new Image();
             calendarImage.Source = new BitmapImage(new Uri("images/cal-+.png", UriKind.Relative));
@@ -539,7 +564,7 @@ namespace IrtsBurtgel
             List<Object> controls = new List<Object>();
             List<Object> rcontrols = new List<Object>();
             controls.Add(label);
-            
+
             rcontrols.Add(import);
             DockPanel dockPanel = addHeader(controls, rcontrols);
 
@@ -1923,7 +1948,7 @@ namespace IrtsBurtgel
                 deleteButton.Click += RemoveEvent;
                 saveStack.Children.Add(deleteButton);
             }
-            
+
             stackPanel.Children.Add(header);
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(sdStack);
@@ -2035,6 +2060,183 @@ namespace IrtsBurtgel
                 }
             }
             ShowEvents(null, null);
+        }
+
+        void ShowPasswordChanger(object sender, RoutedEventArgs e)
+        {
+            RightSide.Children.Clear();
+
+            List<Object> controls = new List<Object>();
+
+            StackPanel stackPanel = new StackPanel();
+            stackPanel.Orientation = Orientation.Vertical;
+            stackPanel.Margin = new Thickness(10);
+
+            Label header = new Label
+            {
+                Content = "Нууц үг солих",
+                FontWeight = FontWeights.Bold,
+                Width = 200
+            };
+
+            StackPanel oldPassStack = new StackPanel();
+            oldPassStack.Orientation = Orientation.Horizontal;
+            oldPassStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label oldPassLabel = new Label
+            {
+                Content = "Хууцин нууц үг:",
+                Width = 200
+            };
+
+            PasswordBox oldPass = new PasswordBox
+            {
+                Width = 200
+            };
+            controls.Add(oldPass);
+
+            oldPassStack.Children.Add(oldPassLabel);
+            oldPassStack.Children.Add(oldPass);
+
+            StackPanel newPassStack = new StackPanel();
+            newPassStack.Orientation = Orientation.Horizontal;
+            newPassStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label newPassLabel = new Label
+            {
+                Content = "Шинэ нууц үг:",
+                Width = 200
+            };
+
+            PasswordBox newPass = new PasswordBox
+            {
+                Width = 200
+            };
+            controls.Add(newPass);
+
+            newPassStack.Children.Add(newPassLabel);
+            newPassStack.Children.Add(newPass);
+
+            StackPanel newPassConfStack = new StackPanel();
+            newPassConfStack.Orientation = Orientation.Horizontal;
+            newPassConfStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Label newPassConfLabel = new Label
+            {
+                Content = "Шинэ нууц үгийн баталгаажуулалт:",
+                Width = 200
+            };
+
+            PasswordBox newPassConf = new PasswordBox
+            {
+                Width = 200
+            };
+            controls.Add(newPassConf);
+
+            newPassConfStack.Children.Add(newPassConfLabel);
+            newPassConfStack.Children.Add(newPassConf);
+
+            /**
+            * Save button 
+            */
+            StackPanel saveStack = new StackPanel();
+            saveStack.HorizontalAlignment = HorizontalAlignment.Right;
+            saveStack.Orientation = Orientation.Horizontal;
+            saveStack.Margin = new Thickness(0, 5, 0, 5);
+
+            Button saveButton = new Button();
+            saveButton.Content = "Хадгалах";
+            saveButton.Background = Brushes.White;
+            saveButton.Height = 25;
+            saveButton.Width = 100;
+            saveButton.Tag = controls;
+            saveButton.Click += ChangePassword;
+
+            saveStack.Children.Add(saveButton);
+
+            Button backButton = new Button();
+            backButton.Content = "Буцах";
+            backButton.Background = Brushes.White;
+            backButton.Height = 25;
+            backButton.Width = 100;
+            backButton.Click += showMenu;
+            saveStack.Children.Add(backButton);
+
+            stackPanel.Children.Add(header);
+            stackPanel.Children.Add(oldPassStack);
+            stackPanel.Children.Add(newPassStack);
+            stackPanel.Children.Add(newPassConfStack);
+            stackPanel.Children.Add(saveStack);
+
+            RightSide.Children.Add(stackPanel);
+        }
+
+        void ChangePassword(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                List<Object> controls = (List<Object>)((Button)sender).Tag;
+                string oldpass = ((PasswordBox)controls[0]).Password;
+                string newpass = ((PasswordBox)controls[1]).Password;
+                string newpassconf = ((PasswordBox)controls[2]).Password;
+
+                if (loggedAdmin == null || oldpass == null || newpass == null || newpassconf == null)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Хуучин нууц үг, шинэ нууц үг болон шинэ нууц үгийн баталгаажуулалтаа оруулна уу!");
+                    return;
+                }
+
+                oldpass = oldpass.Trim();
+                newpass = newpass.Trim();
+                newpassconf = newpassconf.Trim();
+
+                if (oldpass == "" || newpass == "" || newpassconf == "")
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Хуучин нууц үг, шинэ нууц үг болон шинэ нууц үгийн баталгаажуулалтаа оруулна уу!");
+                    return;
+                }
+
+                if (Authentication.Encrypt(oldpass) != loggedAdmin.password)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Хуучин нууц үг буруу байна!");
+                    return;
+                }
+
+                if (newpass == "" || newpass == null)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Шинэ нууц үгээ оруулна уу!");
+                    ((PasswordBox)controls[2]).Password = "";
+                    return;
+                }
+
+                if (newpass != newpassconf)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Шинэ нууц үгийн баталгаажуулалт буруу байна!");
+                    ((PasswordBox)controls[2]).Password = "";
+                    return;
+                }
+
+                loggedAdmin.password = Authentication.Encrypt(newpass);
+                if (meetingController.adminModel.Set(loggedAdmin))
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Нууц үг амжилттай солигдлоо.");
+                    ((PasswordBox)controls[0]).Password = "";
+                    ((PasswordBox)controls[1]).Password = "";
+                    ((PasswordBox)controls[2]).Password = "";
+                    return;
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Шинээр нууц үг оруулахад алдаа гарлаа.");
+                    return;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Шинээр нууц үг оруулахад алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+                return;
+            }
         }
 
         void ModifyMeeting(object sender, RoutedEventArgs e)
