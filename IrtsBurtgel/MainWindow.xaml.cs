@@ -93,6 +93,10 @@ namespace IrtsBurtgel
         private void showStatus(object sender, RoutedEventArgs e)
         {
             MeetingStatus meetingStatus = new MeetingStatus(meetingController);
+            meetingStatus.Closed += (ex,o)=>
+            {
+                meetingStatusWindows.Remove(meetingStatus);
+            };
             meetingStatusWindows.Add(meetingStatus);
             //meetingStatus.WindowStartupLocation = WindowStartupLocation.Manual;
 
