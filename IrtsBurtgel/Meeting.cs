@@ -50,9 +50,13 @@ namespace IrtsBurtgel
             list.Add(new Object[] { "week", week });
             list.Add(new Object[] { "is_deleted", isDeleted });
             list.Add(new Object[] { "start_datetime", startDatetime });
-            if (DateTime.Compare(endDate, new DateTime()) != 0)
+            if (endDate != new DateTime())
             {
                 list.Add(new Object[] { "end_date", endDate });
+            }
+            else
+            {
+                list.Add(new Object[] { "end_date", null });
             }
             list.Add(new Object[] { "name", name });
             return list;

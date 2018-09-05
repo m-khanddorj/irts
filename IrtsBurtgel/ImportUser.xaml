@@ -23,6 +23,6 @@
         <Image Grid.Column="1" Grid.Row="0" x:Name="datImage"  Height="20"  Width="25" Source="images/x.png"/>
         <Image Grid.Column="1" Grid.Row="1" x:Name="xlImage" Height="20"  Width="25" Source="images/x.png"/>
         <Image Grid.Column="1" Grid.Row="2" x:Name="imageImage" Height="20"  Width="25" Source="images/x.png"/>
-        <Button Background="White" Content="Save" HorizontalAlignment="Left" Margin="147,1,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2" Click="Button_Click_2"/>
+        <Button Background="White" Content="Хадгалах" HorizontalAlignment="Left" Margin="147,1,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2" Click="Button_Click_2"/>
     </Grid>
 </Window>

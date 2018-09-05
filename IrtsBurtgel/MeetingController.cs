@@ -182,12 +182,16 @@ namespace IrtsBurtgel
             List<Event> events = new List<Event>();
             foreach(Event ev in allEvents)
             {
-                if (ev.intervalType != 2 || ev.endDate > DateTime.Today) events.Add(ev);
+                if ((ev.endDate.Date >= date.Date) || (ev.startDate.Date >= date.Date && ev.intervalType == 2))
+                {
+                    events.Add(ev);
+                }
             }
+
             foreach(Event ev in events)
             {
                 DateTime endDate = ev.endDate,startDate = ev.startDate;
-                if(endDate < date)
+                if(endDate.Date <= date.Date)
                 {
                     if(ev.intervalType == 1)
                     {
@@ -200,7 +204,7 @@ namespace IrtsBurtgel
                         startDate = startDate.AddYears(date.Year - endDate.Year);
                     }
                 }
-                if(date > startDate && date<endDate)
+                if(date.Date >= startDate.Date && date.Date <= endDate.Date)
                 {
                     return result;
                 }
@@ -211,7 +215,7 @@ namespace IrtsBurtgel
             {
                 bool inDate = IsInDate(date, meeting.intervalType, meeting.week, meeting.intervalDay, meeting.startDatetime);
 
-                if (DateTime.Compare(meeting.endDate, new DateTime()) != 0)
+                if (meeting.endDate != new DateTime())
                 {
                     inDate = inDate && ((int)((meeting.endDate.Date - date.Date).TotalDays) >= 0);
                 }
@@ -759,7 +763,7 @@ namespace IrtsBurtgel
                 {
                     DateTime sdt = ev.startDate;
                     DateTime edt = ev.endDate;
-                    if (edt < (DateTime)obj[0]) 
+                    if (edt.Date <= ((DateTime)obj[0]).Date) 
                     {
                         switch (ev.intervalType)
                         {
@@ -773,7 +777,7 @@ namespace IrtsBurtgel
                                 break;
                         }
                     }
-                    if (((DateTime)obj[0]) > sdt && ((DateTime)obj[0]) < edt) is_event = true;
+                    if (((DateTime)obj[0]).Date >= sdt.Date && ((DateTime)obj[0]).Date <= edt.Date) is_event = true;
 
                 }
                 obj[2] = is_event;
@@ -860,7 +864,7 @@ namespace IrtsBurtgel
                     {
                         DateTime sdt = ev.startDate;
                         DateTime edt = ev.endDate;
-                        if(edt < nextOccurance)
+                        if(edt.Date <= nextOccurance.Date)
                         {
                             switch (ev.intervalType)
                             {
@@ -874,7 +878,7 @@ namespace IrtsBurtgel
                                     break;
                             }
                         }
-                        if (nextOccurance > sdt && nextOccurance < edt) is_event = true;
+                        if (nextOccurance.Date >= sdt.Date && nextOccurance.Date <= edt.Date) is_event = true;
                         
                     }
 

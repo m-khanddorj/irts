@@ -877,11 +877,10 @@ namespace IrtsBurtgel
              */
             StackPanel pStack = new StackPanel();
             Label pGroupsLabel = new Label();
-            pGroupsLabel.Content = "Оролцогч албууд";
+            pGroupsLabel.Content = "Оролцогч хэлтсүүд";
             ListBox pGroupList = new ListBox();
             controls.Add(pGroupList);
             pGroupList.Margin = new Thickness(0, 0, 0, 10);
-            pGroupList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Groups", pGroupList);
@@ -928,7 +927,6 @@ namespace IrtsBurtgel
             ListBox pUserList = new ListBox();
             controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
-            pUserList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Users", pUserList);
@@ -976,7 +974,6 @@ namespace IrtsBurtgel
             ListBox pPositionList = new ListBox();
             controls.Add(pPositionList);
             pPositionList.Margin = new Thickness(0, 0, 0, 10);
-            pPositionList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Positions", pPositionList);
@@ -1336,7 +1333,7 @@ namespace IrtsBurtgel
             ed.DisplayDate = ((DateTime)meeting.startDatetime);
             if (meeting.endDate != new DateTime())
             {
-                ed.Text = ((DateTime)meeting.endDate).ToShortDateString();
+                ed.SelectedDate = meeting.endDate;
             }
             controls.Add(ed);
             edStack.Children.Add(edLabel);
@@ -1412,7 +1409,7 @@ namespace IrtsBurtgel
             /**Participating groups
              */
             Label pGroupsLabel = new Label();
-            pGroupsLabel.Content = "Оролцогч албууд:";
+            pGroupsLabel.Content = "Оролцогч хэлтсүүд:";
             ListBox pGroupList = new ListBox();
             pGroupList.MaxHeight = 105;
             List<MeetingAndDepartment> mads = madModel.GetByFK(meeting.IDName, meeting.id);
@@ -1425,7 +1422,6 @@ namespace IrtsBurtgel
             }
             controls.Add(pGroupList);
             pGroupList.Margin = new Thickness(0, 0, 0, 10);
-            pGroupList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Groups", pGroupList);
@@ -1473,7 +1469,6 @@ namespace IrtsBurtgel
             pUserList.MaxHeight = 105;
             controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
-            pUserList.SelectionMode = SelectionMode.Multiple;
             List<MeetingAndUser> maus = mauModel.GetByFK(meeting.IDName, meeting.id);
             foreach (MeetingAndUser mau in maus)
             {
@@ -1538,7 +1533,6 @@ namespace IrtsBurtgel
             }
             controls.Add(pPositionList);
             pPositionList.Margin = new Thickness(0, 0, 0, 10);
-            pPositionList.SelectionMode = SelectionMode.Multiple;
             try
             {
                 RegisterName("Positions", pPositionList);
@@ -1659,11 +1653,17 @@ namespace IrtsBurtgel
                 Xceed.Wpf.Toolkit.MessageBox.Show("Та цагаа цаг:минут гэсэн хэлбэрээр бичнэ үү!", "Өөрчилсөнгүй");
                 return;
             }
-            string endDateString = ed.Text + " " + meeting.endDate.ToShortTimeString();
             //check and set meeting endDate
             try
             {
-                meeting.endDate = DateTime.Parse(endDateString);
+                if (ed.SelectedDate != null)
+                {
+                    meeting.endDate = (DateTime)ed.SelectedDate;
+                }
+                else
+                {
+                    meeting.endDate = new DateTime();
+                }
             }
             catch (Exception ex)
             {
@@ -2030,6 +2030,7 @@ namespace IrtsBurtgel
                     Xceed.Wpf.Toolkit.MessageBox.Show("Тэмдэглэлт өдөр нэмэхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
                 }
             }
+            ShowEvents(null, null);
         }
 
         void ModifyMeeting(object sender, RoutedEventArgs e)
@@ -2464,7 +2465,7 @@ namespace IrtsBurtgel
                         valueLabel.Content = user.fname;
                         break;
                     case 2:
-                        nameLabel.Content = "Алба:";
+                        nameLabel.Content = "Хэлтэс:";
                         valueLabel.Content = user.departmentId != -1 ? meetingController.departmentModel.Get(user.departmentId).name : "";
                         break;
                     case 3:
@@ -2491,7 +2492,7 @@ namespace IrtsBurtgel
             border.Child = grid;
 
             Button changeStatus = new Button();
-            changeStatus.Content = "Хэрэглэгчийн төлөв өөрчлөх";
+            changeStatus.Content = "Гишүүний төлөв өөрчлөх";
             changeStatus.Background = Brushes.White;
             changeStatus.Height = 30;
             changeStatus.Uid = id;

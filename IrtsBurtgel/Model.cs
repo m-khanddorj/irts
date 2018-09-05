@@ -93,7 +93,14 @@ namespace IrtsBurtgel
 
                     for (int i = 1; i < list.Count; i++)
                     {
-                        keyValueStr.Add("\"" + list[i][0] + "\" = " + "@" + list[i][0]);
+                        if (list[i][1] == null)
+                        {
+                            keyValueStr.Add("\"" + list[i][0] + "\" = NULL");
+                        }
+                        else
+                        {
+                            keyValueStr.Add("\"" + list[i][0] + "\" = " + "@" + list[i][0]);
+                        }
                     }
                     string sqlpart1 = String.Join(",", keyValueStr);
                     string sqlpart2 = "\"" + list[0][0] + "\" = " + "@" + list[0][0];
@@ -103,7 +110,10 @@ namespace IrtsBurtgel
                     {
                         for (int i = 0; i < list.Count; i++)
                         {
-                            updateCommand.Parameters.Add(new SqlParameter("@" + list[i][0], list[i][1]));
+                            if (list[i][1] != null)
+                            {
+                                updateCommand.Parameters.Add(new SqlParameter("@" + list[i][0], list[i][1]));
+                            }
                         }
                         return updateCommand.ExecuteNonQuery() > 0;
                     }

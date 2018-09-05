@@ -89,7 +89,11 @@ namespace IrtsBurtgel
                         FontSize = 17
                     };
 
-                    ComboBox combobox = new ComboBox();
+                    ComboBox combobox = new ComboBox
+                    {
+                        FontWeight = FontWeights.Bold,
+                        FontSize = 17
+                    };
 
                     foreach(KeyValuePair<int, string> entry in statuses)
                     {
