@@ -58,7 +58,7 @@ namespace IrtsBurtgel
             attModel = new Model<Attendance>();
 
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            //dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
         }
@@ -2642,9 +2642,9 @@ namespace IrtsBurtgel
             {
                 webImage = new BitmapImage(new Uri("images/user.png", UriKind.Relative));
             }
-            float scaleHeight = (float)350 / (float)webImage.Height;
-            float scaleWidth = (float)350 / (float)webImage.Width;
-            float scale = Math.Min(scaleHeight, scaleWidth);
+            float scaleHeight = (float)200 / (float)webImage.Height;
+            float scaleWidth = (float)200 / (float)webImage.Width;
+            float scale = Math.Max(scaleHeight, scaleWidth);
 
             Image imageControl = new Image
             {
