@@ -43,7 +43,14 @@ namespace IrtsBurtgel
                     for (int i = 0; i < list.Count; i++)
                     {
                         columnnames.Add("\"" + list[i][0] + "\"");
-                        paramnames.Add("@" + list[i][0]);
+                        if (list[i][1] == null)
+                        {
+                            paramnames.Add("NULL");
+                        }
+                        else
+                        {
+                            paramnames.Add("@" + list[i][0]);
+                        }
                     }
                     string sqlpart1 = String.Join(",", columnnames);
                     string sqlpart2 = String.Join(",", paramnames);
@@ -58,7 +65,10 @@ namespace IrtsBurtgel
                     {
                         for (int i = 0; i < list.Count; i++)
                         {
-                            insertCommand.Parameters.Add(new SqlParameter("@" + list[i][0], list[i][1]));
+                            if (list[i][1] != null)
+                            {
+                                insertCommand.Parameters.Add(new SqlParameter("@" + list[i][0], list[i][1]));
+                            }
                         }
                         int id = (int)insertCommand.ExecuteScalar();
 

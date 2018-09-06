@@ -2440,7 +2440,7 @@ namespace IrtsBurtgel
         {
             List<Object> controls = (List<Object>)((Button)sender).Tag;
             TextBox name = (TextBox)controls[0];
-            TextBox st = (TextBox)controls[1];
+            TimePicker st = (TimePicker)controls[1];
             TextBox duration = (TextBox)controls[2];
             TextBox reason = (TextBox)controls[3];
 
@@ -2459,6 +2459,7 @@ namespace IrtsBurtgel
                 catch(Exception ex)
                 {
                     Xceed.Wpf.Toolkit.MessageBox.Show("Та оруулсан утгуудаа шалгаад дахин оролдоно уу", "Бүтэлгүйтлээ");
+                    return;
                 }
                 modifiedMeetingModel.Set(mmeeting);
                 Xceed.Wpf.Toolkit.MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
@@ -2478,10 +2479,15 @@ namespace IrtsBurtgel
                 catch (Exception ex)
                 {
                     Xceed.Wpf.Toolkit.MessageBox.Show("Та оруулсан утгуудаа шалгаад дахин оролдоно уу", "Бүтэлгүйтлээ");
+                    return;
                 }
                 modifiedMeetingModel.Add(mmeeting);
                 Xceed.Wpf.Toolkit.MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
+            Calendar calendar = new Calendar();
+            calendar.SelectedDate = (DateTime)LeftSide.Tag;
+            ShowCalendar(null, null);
+            OnSelectedDateChange(calendar, null);
         }
 
         void addParticipantsToMeeting(object sender, RoutedEventArgs e)
