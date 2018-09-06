@@ -718,6 +718,18 @@ namespace IrtsBurtgel
                     (meeting.endDate == new DateTime() && meeting.intervalType != 0)) &&
                     meeting.isDeleted == false )
                     meetings.Add(meeting);
+                else if((meeting.intervalType == 0 && meeting.startDatetime.Date < now)&& meeting.isDeleted ==false)
+                {
+                    List<ModifiedMeeting> mmeetings = modifiedMeetingModel.GetByFK(meeting.IDName, meeting.id);
+                    bool does_exists = false;
+                    foreach(ModifiedMeeting mmeeting in mmeetings)
+                    {
+                        if(mmeeting.startDatetime.Date == today.Date && mmeeting.startDatetime > now)
+                        {
+                            meetings.Add(mmeeting);
+                        }
+                    }
+                }
             }
 
             //Dates and meetings of closest occuring meetings
