@@ -57,7 +57,7 @@ namespace IrtsBurtgel
             attModel = new Model<Attendance>();
 
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+            //dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
         }
@@ -267,7 +267,7 @@ namespace IrtsBurtgel
 
                 Label nameLabel = new Label();
                 nameLabel.HorizontalAlignment = HorizontalAlignment.Center;
-                nameLabel.Content = (bool)obj[2]?"Цуцлагдсан":((Meeting)obj[1]).name;
+                nameLabel.Content = ((bool)obj[2] || ((Meeting)obj[1]).duration == 0)?"Цуцлагдсан":((Meeting)obj[1]).name;
 
                 Grid.SetColumn(nameLabel, 1);
                 Grid.SetRow(nameLabel, rowNum);
@@ -1968,6 +1968,7 @@ namespace IrtsBurtgel
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Тэмдэглэлт өдөр устгахад алдаа гарлаа.");
             }
+            ShowEvents(null, null);
         }
 
         void AddSetEvent(object sender, RoutedEventArgs e)

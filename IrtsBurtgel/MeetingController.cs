@@ -253,7 +253,7 @@ namespace IrtsBurtgel
             result = result.OrderBy(x => x.startDatetime.TimeOfDay).ToList();
             for(int i = result.Count-1; i>=0;i--)
             {
-                if (result[i].isDeleted) result.RemoveAt(i);
+                if (result[i].isDeleted || result[i].duration == 0) result.RemoveAt(i);
             }
             
             return result;
@@ -486,7 +486,7 @@ namespace IrtsBurtgel
                     modifiedMeetingModel.Set(new ModifiedMeeting
                     {
                         name = mMeeting.name,
-                        startDatetime = meeting.startDatetime,
+                        startDatetime = date,
                         duration = 0,
                         reason = reason,
                         meeting_id = mMeeting.meeting_id,
@@ -498,7 +498,7 @@ namespace IrtsBurtgel
                     modifiedMeetingModel.Add(new ModifiedMeeting
                     {
                         name = meeting.name,
-                        startDatetime = meeting.startDatetime,
+                        startDatetime = date,
                         duration = 0,
                         reason = reason,
                         meeting_id = meeting.id
@@ -898,7 +898,7 @@ namespace IrtsBurtgel
 
                 foreach(ModifiedMeeting mmeeting in mmeetings)
                 {
-                    if(mmeeting.startDatetime.Date == ((Meeting)closestDates[i][1]).startDatetime.Date)
+                    if(mmeeting.startDatetime.Date == ((DateTime)closestDates[i][0]).Date)
                     {
                         //is_modified = true;
 
