@@ -97,7 +97,7 @@ CREATE TABLE modified_meeting (
                 duration INT NOT NULL,
                 is_deleted BIT DEFAULT 0 NOT NULL,
                 meeting_order INT DEFAULT 0 NOT NULL,
-                reason VARCHAR(255),
+                reason NVARCHAR(255),
                 event_id INT,
                 meeting_id INT NOT NULL,
                 CONSTRAINT m_meeting_id PRIMARY KEY (m_meeting_id)

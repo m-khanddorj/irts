@@ -846,11 +846,20 @@ namespace IrtsBurtgel
             edLabel.Content = "Хурал дуусах өдөр:";
             edLabel.Width = 200;
             DatePicker ed = new DatePicker();
-            ed.DisplayDateStart = DateTime.Now;
             ed.Width = 200;
             controls.Add(ed);
             edStack.Children.Add(edLabel);
             edStack.Children.Add(ed);
+
+            ed.DisplayDateStart = sd.SelectedDate;
+            sd.SelectedDateChanged += (o, ev) =>
+            {
+                ed.DisplayDateStart = sd.SelectedDate;
+                if (ed.SelectedDate != null && sd.SelectedDate > ed.SelectedDate)
+                {
+                    ed.SelectedDate = sd.SelectedDate;
+                }
+            };
 
             /**
              * Frequency stack
@@ -940,7 +949,6 @@ namespace IrtsBurtgel
             List<Object> typeAndList = new List<Object>();
 
             typeAndList.Add("group");
-            typeAndList.Add(pGroupList);
 
             gAddButton.Tag = typeAndList;
             gAddButton.Click += addParticipantsToMeeting;
@@ -987,7 +995,6 @@ namespace IrtsBurtgel
             List<Object> utypeAndList = new List<Object>();
 
             utypeAndList.Add("user");
-            utypeAndList.Add(pUserList);
 
             uAddButton.Tag = utypeAndList;
             uAddButton.Click += addParticipantsToMeeting;
@@ -1033,7 +1040,6 @@ namespace IrtsBurtgel
             List<Object> ptypeAndList = new List<Object>();
 
             ptypeAndList.Add("position");
-            ptypeAndList.Add(pPositionList);
 
             posAddButton.Tag = ptypeAndList;
             posAddButton.Click += addParticipantsToMeeting;
@@ -1044,6 +1050,16 @@ namespace IrtsBurtgel
             pStack.Children.Add(pPositionLabel);
             pStack.Children.Add(pPositionList);
             pStack.Children.Add(posButtonPanel);
+
+            typeAndList.Add(pGroupList);
+            typeAndList.Add(pUserList);
+            typeAndList.Add(pPositionList);
+            utypeAndList.Add(pGroupList);
+            utypeAndList.Add(pUserList);
+            utypeAndList.Add(pPositionList);
+            ptypeAndList.Add(pGroupList);
+            ptypeAndList.Add(pUserList);
+            ptypeAndList.Add(pPositionList);
 
             /**
              * Save button 
@@ -1360,7 +1376,15 @@ namespace IrtsBurtgel
             edLabel.Width = 200;
             DatePicker ed = new DatePicker();
             ed.Width = 200;
-            ed.DisplayDate = ((DateTime)meeting.startDatetime);
+            ed.DisplayDateStart = ed.SelectedDate;
+            sd.SelectedDateChanged += (o, ev) =>
+            {
+                ed.DisplayDateStart = sd.SelectedDate;
+                if (ed.SelectedDate != null && sd.SelectedDate > ed.SelectedDate)
+                {
+                    ed.SelectedDate = sd.SelectedDate;
+                }
+            };
             if (meeting.endDate != new DateTime())
             {
                 ed.SelectedDate = meeting.endDate;
@@ -1481,7 +1505,6 @@ namespace IrtsBurtgel
             List<Object> typeAndList = new List<Object>();
 
             typeAndList.Add("group");
-            typeAndList.Add(pGroupList);
 
             gAddButton.Tag = typeAndList;
             gAddButton.Click += addParticipantsToMeeting;
@@ -1536,7 +1559,6 @@ namespace IrtsBurtgel
             List<Object> utypeAndList = new List<Object>();
 
             utypeAndList.Add("user");
-            utypeAndList.Add(pUserList);
 
             uAddButton.Tag = utypeAndList;
             uAddButton.Click += addParticipantsToMeeting;
@@ -1592,7 +1614,6 @@ namespace IrtsBurtgel
             List<Object> ptypeAndList = new List<Object>();
 
             ptypeAndList.Add("position");
-            ptypeAndList.Add(pPositionList);
 
             posAddButton.Tag = ptypeAndList;
             posAddButton.Click += addParticipantsToMeeting;
@@ -1603,6 +1624,17 @@ namespace IrtsBurtgel
             pStack.Children.Add(pPositionLabel);
             pStack.Children.Add(pPositionList);
             pStack.Children.Add(posButtonPanel);
+            
+            typeAndList.Add(pGroupList);
+            typeAndList.Add(pUserList);
+            typeAndList.Add(pPositionList);
+            utypeAndList.Add(pGroupList);
+            utypeAndList.Add(pUserList);
+            utypeAndList.Add(pPositionList);
+            ptypeAndList.Add(pGroupList);
+            ptypeAndList.Add(pUserList);
+            ptypeAndList.Add(pPositionList);
+
             /**
             * Save button 
             */
@@ -1872,6 +1904,16 @@ namespace IrtsBurtgel
             {
                 SelectedDate = DateTime.Today,
                 Width = 200
+            };
+
+            ed.DisplayDateStart = ed.SelectedDate;
+            sd.SelectedDateChanged += (o, even) =>
+            {
+                ed.DisplayDateStart = sd.SelectedDate;
+                if (ed.SelectedDate != null && sd.SelectedDate > ed.SelectedDate)
+                {
+                    ed.SelectedDate = sd.SelectedDate;
+                }
             };
 
             if (ev != null)
@@ -2423,8 +2465,10 @@ namespace IrtsBurtgel
         void addParticipantsToMeeting(object sender, RoutedEventArgs e)
         {
             string type = (string)((List<Object>)(((Button)sender).Tag))[0];
-            ListBox list = (ListBox)((List<Object>)(((Button)sender).Tag))[1];
-            AddParticipantToMeeting addWindow = new AddParticipantToMeeting(type, list);
+            ListBox list1 = (ListBox)((List<Object>)(((Button)sender).Tag))[1];
+            ListBox list2 = (ListBox)((List<Object>)(((Button)sender).Tag))[2];
+            ListBox list3 = (ListBox)((List<Object>)(((Button)sender).Tag))[3];
+            AddParticipantToMeeting addWindow = new AddParticipantToMeeting(type, list1, list2, list3);
             addWindow.ShowDialog();
             if (type == "group")
             {
@@ -2975,6 +3019,16 @@ namespace IrtsBurtgel
             Label label = new Label();
             label.Content = "-";
             DatePicker endTime = new DatePicker();
+
+            endTime.DisplayDateStart = endTime.SelectedDate;
+            startTime.SelectedDateChanged += (o, ev) =>
+            {
+                endTime.DisplayDateStart = startTime.SelectedDate;
+                if (endTime.SelectedDate != null && startTime.SelectedDate > endTime.SelectedDate)
+                {
+                    endTime.SelectedDate = endTime.SelectedDate;
+                }
+            };
             endTime.SelectedDate = DateTime.Today;
             controls.Add(endTime);
 
@@ -2993,6 +3047,14 @@ namespace IrtsBurtgel
             timeSelector.Children.Add(saveButton);
 
             endTime.DisplayDateStart = startTime.SelectedDate;
+            startTime.SelectedDateChanged += (o, ev) =>
+            {
+                endTime.DisplayDateStart = startTime.SelectedDate;
+                if (endTime.SelectedDate != null && startTime.SelectedDate > endTime.SelectedDate)
+                {
+                    endTime.SelectedDate = startTime.SelectedDate;
+                }
+            };
 
             Grid.SetColumnSpan(timeSelector, 2);
             Grid.SetRow(timeSelector, 4);

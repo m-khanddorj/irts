@@ -11,7 +11,7 @@
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Button Content="Нэмэх" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="75" Click="Add"/>
-        <TextBox HorizontalAlignment="Stretch" x:Name="searchBox" Height="23" Margin="10,10,38,0" TextWrapping="Wrap" VerticalAlignment="Top" ForceCursor="True"/>
+        <TextBox HorizontalAlignment="Stretch" x:Name="searchBox" Height="23" Margin="10,10,38,0" TextWrapping="Wrap" VerticalAlignment="Top" ForceCursor="True" TextChanged="Search"/>
         <ListBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,38" x:Name="listbox" SelectionMode="Multiple">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">

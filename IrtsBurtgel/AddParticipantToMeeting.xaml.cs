@@ -22,30 +22,38 @@ namespace IrtsBurtgel
     {
         string type;
         public int[] ids;
-        ListBox cList;
 
         Model<Department> model = new Model<Department>();
         Model<User> uModel = new Model<User>();
         Model<Position> pModel = new Model<Position>();
 
-        public AddParticipantToMeeting(string type,ListBox oList)
+        List<Department> deps = new List<Department>();
+        List<User> users = new List<User>();
+        List<Position> positions = new List<Position>();
+
+        Dictionary<int, bool> isAlreadyIn = new Dictionary<int, bool>();
+
+        public AddParticipantToMeeting(string type, ListBox dList, ListBox uList, ListBox pList)
         {
             InitializeComponent();
             this.type = type;
-            cList = oList;
             if (type == "group")
             {
-                List<Department> deps= model.GetAll();
-                foreach (ListBoxItem listBoxItem in oList.Items)
+                deps = model.GetAll();
+                deps = deps.OrderBy(x => x.name).ToList();
+                foreach (Department dep in deps)
                 {
-                    foreach(Department dep in deps)
+                    bool inList = false;
+                    foreach (ListBoxItem listBoxItem in dList.Items)
                     {
                         if(dep.id == Int32.Parse(listBoxItem.Tag.ToString()))
                         {
-                            deps.Remove(dep);
+                            inList = true;
                             break;
                         }
                     }
+
+                    isAlreadyIn.Add(dep.id, inList);
                 }
                 int i = 1;
                 foreach (Department dep in deps)
@@ -53,23 +61,46 @@ namespace IrtsBurtgel
                     ListBoxItem listBoxItem = new ListBoxItem();
                     listBoxItem.Content = i + ". " + dep.name;
                     listBoxItem.Tag = dep.id;
+                    listBoxItem.IsEnabled = !isAlreadyIn[dep.id];
                     listbox.Items.Add(listBoxItem);
                     i++;
                 }
             }
             else if(type == "user")
             {
-                List<User> users = uModel.GetAll();
-                foreach (ListBoxItem listBoxItem in oList.Items)
+                users = uModel.GetAll();
+                users = users.OrderBy(x => x.fname).ToList();
+                foreach (User user in users)
                 {
-                    foreach (User user in users)
+                    bool inList = false;
+                    foreach (ListBoxItem listBoxItem in uList.Items)
                     {
                         if (user.id == Int32.Parse(listBoxItem.Tag.ToString()))
                         {
-                            users.Remove(user);
+                            inList = true;
                             break;
                         }
                     }
+
+                    foreach (ListBoxItem listBoxItem in dList.Items)
+                    {
+                        if (user.departmentId == Int32.Parse(listBoxItem.Tag.ToString()))
+                        {
+                            inList = true;
+                            break;
+                        }
+                    }
+
+                    foreach (ListBoxItem listBoxItem in pList.Items)
+                    {
+                        if (user.positionId == Int32.Parse(listBoxItem.Tag.ToString()))
+                        {
+                            inList = true;
+                            break;
+                        }
+                    }
+                    
+                     isAlreadyIn.Add(user.id, inList);
                 }
 
                 Dictionary<int, string> departments = model.GetAll().ToDictionary(x => x.id, x => x.name);
@@ -79,30 +110,36 @@ namespace IrtsBurtgel
                     ListBoxItem listBoxItem = new ListBoxItem();
                     listBoxItem.Content = i + ". " + user.fname + " " + user.lname + ", " + (user.departmentId != -1 ? departments[user.departmentId] : "Хэлтэсгүй");
                     listBoxItem.Tag = user.id;
+                    listBoxItem.IsEnabled = !isAlreadyIn[user.id];
                     listbox.Items.Add(listBoxItem);
                     i++;
                 }
             }
             else
             {
-                List<Position> users = pModel.GetAll();
-                foreach (ListBoxItem listBoxItem in oList.Items)
+                positions = pModel.GetAll();
+                positions = positions.OrderBy(x => x.name).ToList();
+                foreach (Position position in positions)
                 {
-                    foreach (Position user in users)
+                    bool inList = false;
+                    foreach (ListBoxItem listBoxItem in pList.Items)
                     {
-                        if (user.id == Int32.Parse(listBoxItem.Tag.ToString()))
+                        if (position.id == Int32.Parse(listBoxItem.Tag.ToString()))
                         {
-                            users.Remove(user);
+                            inList = true;
                             break;
                         }
                     }
+                    isAlreadyIn.Add(position.id, inList);
                 }
+
                 int i = 1;
-                foreach (Position user in users)
+                foreach (Position position in positions)
                 {
                     ListBoxItem listBoxItem = new ListBoxItem();
-                    listBoxItem.Content = i + ". " + user.name;
-                    listBoxItem.Tag = user.id;
+                    listBoxItem.Content = i + ". " + position.name;
+                    listBoxItem.Tag = position.id;
+                    listBoxItem.IsEnabled = !isAlreadyIn[position.id];
                     listbox.Items.Add(listBoxItem);
                     i++;
                 }
@@ -118,6 +155,7 @@ namespace IrtsBurtgel
                 listbox.SelectedItems.Add(lbi);
             }
         }
+
         void Add(object sender,RoutedEventArgs e)
         {
             DialogResult = listbox.SelectedItem !=null;
@@ -138,19 +176,6 @@ namespace IrtsBurtgel
             listbox.Items.Clear();
             if (type == "group")
             {
-                List<Department> deps = model.GetAll();
-                foreach (ListBoxItem listBoxItem in cList.Items)
-                {
-                    foreach (Department dep in deps)
-                    {
-                        if (dep.id == Int32.Parse(listBoxItem.Tag.ToString()))
-                        {
-                            deps.Remove(dep);
-                            break;
-                        }
-                    }
-
-                }
                 int i = 1;
                 foreach (Department dep in deps)
                 {
@@ -162,24 +187,13 @@ namespace IrtsBurtgel
                     ListBoxItem listBoxItem = new ListBoxItem();
                     listBoxItem.Content = i + ". " + dep.name;
                     listBoxItem.Tag = dep.id;
+                    listBoxItem.IsEnabled = !isAlreadyIn[dep.id];
                     listbox.Items.Add(listBoxItem);
                     i++;
                 }
             }
             else if (type == "user")
             {
-                List<User> users = uModel.GetAll();
-                foreach (ListBoxItem listBoxItem in cList.Items)
-                {
-                    foreach (User user in users)
-                    {
-                        if (user.id == Int32.Parse(listBoxItem.Tag.ToString()))
-                        {
-                            users.Remove(user);
-                            break;
-                        }
-                    }
-                }
                 Dictionary<int, string> departments = model.GetAll().ToDictionary(x => x.id, x => x.name);
                 int i = 1;
                 foreach (User user in users)
@@ -193,24 +207,13 @@ namespace IrtsBurtgel
                     ListBoxItem listBoxItem = new ListBoxItem();
                     listBoxItem.Content = i + ". " + user.fname + " " + user.lname + ", " + (user.departmentId != -1 ? departments[user.departmentId]:"Хэлтэсгүй");
                     listBoxItem.Tag = user.id;
+                    listBoxItem.IsEnabled = !isAlreadyIn[user.id];
                     listbox.Items.Add(listBoxItem);
                     i++;
                 }
             }
             else
             {
-                List<Position> positions = pModel.GetAll();
-                foreach (ListBoxItem listBoxItem in cList.Items)
-                {
-                    foreach (Position position in positions)
-                    {
-                        if (position.id == Int32.Parse(listBoxItem.Tag.ToString()))
-                        {
-                            positions.Remove(position);
-                            break;
-                        }
-                    }
-                }
                 int i = 1;
                 foreach (Position position in positions)
                 {
@@ -221,6 +224,7 @@ namespace IrtsBurtgel
                     ListBoxItem listBoxItem = new ListBoxItem();
                     listBoxItem.Content = i + ". " + position.name;
                     listBoxItem.Tag = position.id;
+                    listBoxItem.IsEnabled = !isAlreadyIn[position.id];
                     listbox.Items.Add(listBoxItem);
                     i++;
                 }

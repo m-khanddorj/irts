@@ -192,7 +192,7 @@ namespace IrtsBurtgel
 
             foreach(Event ev in events)
             {
-                DateTime endDate = ev.endDate,startDate = ev.startDate;
+                DateTime endDate = ev.endDate, startDate = ev.startDate;
                 if(endDate.Date <= date.Date)
                 {
                     if(ev.intervalType == 1)
@@ -215,6 +215,10 @@ namespace IrtsBurtgel
 
             foreach (Meeting meeting in list)
             {
+                if (meeting.isDeleted)
+                {
+                    continue;
+                } 
                 bool inDate = IsInDate(date, meeting.intervalType, meeting.week, meeting.intervalDay, meeting.startDatetime);
 
                 if (meeting.endDate != new DateTime())
@@ -252,12 +256,7 @@ namespace IrtsBurtgel
                     }
                 }
             }
-            result = result.OrderBy(x => x.startDatetime.TimeOfDay).ToList();
-            for(int i = result.Count-1; i>=0;i--)
-            {
-                if (result[i].isDeleted || result[i].duration == 0) result.RemoveAt(i);
-            }
-            
+            result = result.OrderBy(x => x.startDatetime.TimeOfDay).ToList();            
             return result;
         }
 
