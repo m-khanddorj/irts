@@ -494,6 +494,8 @@ namespace IrtsBurtgel
                     meetingController.CancelMeetingsByDate(DateTime.Today, ask.text);
                 }
                 meetingController.CancelMeetingsByDate((DateTime)calendar.SelectedDate, ask.text);
+                ShowCalendar(null, null);
+                OnSelectedDateChange(calendar, null);
             }
         }
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
@@ -2924,7 +2926,7 @@ namespace IrtsBurtgel
             listbox.Margin = new Thickness(10, 10, 10, 20);
 
             List<User> users = userModel.GetAll();
-            users = users.OrderBy(x => x.departmentId).ToList();
+            users = users.OrderBy(x => x.fname).ToList();
             Dictionary<int, string> departmentNames = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
             int i = 1;
             foreach (User user in users)
