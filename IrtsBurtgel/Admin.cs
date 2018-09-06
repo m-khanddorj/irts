@@ -16,6 +16,7 @@ namespace IrtsBurtgel
         public string username;
         public string password;
         public string organizationName;
+        public DateTime regDate;
 
         public Admin()
         {
@@ -23,6 +24,7 @@ namespace IrtsBurtgel
             username = "";
             password = "";
             organizationName = "";
+            regDate = new DateTime();
         }
 
         public override List<Object[]> ToKVStringList()
@@ -35,6 +37,7 @@ namespace IrtsBurtgel
             list.Add(new Object[] { "username", username });
             list.Add(new Object[] { "password", password });
             list.Add(new Object[] { "organization_name", organizationName });
+            list.Add(new Object[] { "reg_date", regDate });
             return list;
         }
 
@@ -45,7 +48,8 @@ namespace IrtsBurtgel
                 id = (int)reader["admin_id"],
                 username = (string)reader["username"],
                 password = (string)reader["password"],
-                organizationName = (string)reader["organization_name"]
+                organizationName = (string)reader["organization_name"],
+                regDate = (DateTime)reader["reg_date"]
             };
         }
     }

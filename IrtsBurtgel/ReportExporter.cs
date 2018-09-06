@@ -70,7 +70,7 @@ namespace IrtsBurtgel
                 Dictionary<int, string> positions = meetingController.positionModel.GetAll().ToDictionary(x => x.id, x => x.name);
                 Dictionary<int, string> departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
 
-                Dictionary<int, int[]> departmentAttendance = new Dictionary<int, int[]>();
+                Dictionary<int, int[,]> departmentAttendance = new Dictionary<int, int[,]>();
 
                 if (users.Count == 0)
                 {
@@ -105,7 +105,7 @@ namespace IrtsBurtgel
 
                     if (!departmentAttendance.ContainsKey(users[i].departmentId))
                     {
-                        departmentAttendance.Add(users[i].departmentId, new int[18]);
+                        departmentAttendance.Add(users[i].departmentId, new int[archivedMeetings.Count, 18]);
                     }
                 }
 
@@ -129,8 +129,8 @@ namespace IrtsBurtgel
                             worksheet.Cells[j + 2, i + 5].Value = status;
                             worksheet.Cells[j + 2, i + 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
                             worksheet.Cells[j + 2, i + 5].Style.Fill.BackgroundColor.SetColor(colFromHex);
-                            departmentAttendance[users[j].departmentId][attendance.statusId]++;
-                            departmentAttendance[users[j].departmentId][16]++;
+                            departmentAttendance[users[j].departmentId][i, attendance.statusId]++;
+                            departmentAttendance[users[j].departmentId][i, 16]++;
                         }
                     }
 
@@ -190,16 +190,16 @@ namespace IrtsBurtgel
                     for (int i = 0; i < archivedMeetings.Count; i++)
                     {
                         int j = 0;
-                        foreach (KeyValuePair<int, int[]> entry in departmentAttendance)
+                        foreach (KeyValuePair<int, int[,]> entry in departmentAttendance)
                         {
-                            worksheet2.Cells[j + 2, i + 3].Value = (entry.Value[1] + entry.Value[2]) + "/" + entry.Value[16];
+                            worksheet2.Cells[j + 2, i + 3].Value = (entry.Value[i, 1] + entry.Value[i, 2]) + "/" + entry.Value[i, 16];
                             if (!departmentAttendancePercent.ContainsKey(entry.Key))
                             {
-                                departmentAttendancePercent.Add(entry.Key, ((double)(entry.Value[1] + entry.Value[2]))/entry.Value[16]);
+                                departmentAttendancePercent.Add(entry.Key, ((double)(entry.Value[i, 1] + entry.Value[i, 2]))/entry.Value[i, 16]);
                             }
                             else
                             {
-                                departmentAttendancePercent[entry.Key] += ((double)(entry.Value[1] + entry.Value[2])) / entry.Value[16];
+                                departmentAttendancePercent[entry.Key] += ((double)(entry.Value[i, 1] + entry.Value[i, 2])) / entry.Value[i, 16];
                             }
                             j++;
                         }
@@ -207,7 +207,7 @@ namespace IrtsBurtgel
 
                     {
                         int i = 0;
-                        foreach (KeyValuePair<int, int[]> entry in departmentAttendance)
+                        foreach (KeyValuePair<int, int[,]> entry in departmentAttendance)
                         {
                             worksheet2.Cells[i + 2, 1].Value = i + 1;
                             if (entry.Key != -1)

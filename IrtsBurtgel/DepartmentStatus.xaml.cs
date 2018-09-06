@@ -119,7 +119,7 @@ namespace IrtsBurtgel
                             case 1: comboboxItem.Background = Brushes.DarkGreen; break;
                             case 2: comboboxItem.Background = Brushes.DarkOrange; break;
                             case 15: comboboxItem.Background = Brushes.DarkRed; break;
-                            default: comboboxItem.Background = Brushes.DarkTurquoise; break;
+                            default: comboboxItem.Background = Brushes.DarkSlateBlue; break;
                         }
 
                         combobox.Items.Add(comboboxItem);
@@ -132,7 +132,7 @@ namespace IrtsBurtgel
                                 case 1: border.BorderBrush = Brushes.DarkGreen; break;
                                 case 2: border.BorderBrush = Brushes.DarkOrange; break;
                                 case 15: border.BorderBrush = Brushes.DarkRed; break;
-                                default: border.BorderBrush = Brushes.DarkTurquoise; break;
+                                default: border.BorderBrush = Brushes.DarkSlateBlue; break;
                             }
                         }
                     }
@@ -175,7 +175,10 @@ namespace IrtsBurtgel
                     userGrids.Add(user.id, DynamicGrid);
                 }
 
-                depAttTextBox.Text = "Ирц-" + last[1] + "/" + (last[0] + last[1] + last[3]) + "\nХ-" + last[1] + " Ч-" + last[2];
+                depAttTextBox1.Text = (last[0] + last[1] + last[3]).ToString();
+                depAttTextBox2.Text = (last[3]).ToString();
+                depAttTextBox3.Text = (last[1]).ToString();
+                depAttTextBox4.Text = (last[0]).ToString();
             }
             catch (Exception ex)
             {
@@ -199,7 +202,7 @@ namespace IrtsBurtgel
                     case 1: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkGreen; break;
                     case 2: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkOrange; break;
                     case 15: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkRed; break;
-                    default: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkTurquoise; break;
+                    default: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkSlateBlue; break;
                 }
 
                 ComboBox combobox = ((ComboBox)userGrids[user.id].Children[2]);
@@ -242,7 +245,11 @@ namespace IrtsBurtgel
                     last[2]++;
                 }
             }
-            depAttTextBox.Text = "Ирц-" + last[1] + "/" + (last[0] + last[1] + last[3]) + "\nХ-" + last[1] + " Ч-" + last[2];
+
+            depAttTextBox1.Text = (last[0] + last[1] + last[3]).ToString();
+            depAttTextBox2.Text = (last[3]).ToString();
+            depAttTextBox3.Text = (last[1]).ToString();
+            depAttTextBox4.Text = (last[0]).ToString();
         }
 
         public void ChangeUserAttendance(object[] obj, object sender)
@@ -257,7 +264,7 @@ namespace IrtsBurtgel
                 case 1: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkGreen; break;
                 case 2: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkOrange; attendance.regTime = attendance.regTime < 0 ? 0:attendance.regTime; break;
                 case 15: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkRed; break;
-                default: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkTurquoise; break;
+                default: ((Border)userGrids[user.id].Parent).BorderBrush = Brushes.DarkSlateBlue; break;
             }
 
             meetingController.attendanceModel.Set(attendance);

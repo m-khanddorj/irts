@@ -27,7 +27,7 @@ namespace IrtsBurtgel
         Dictionary<int, string> statuses;
         Dictionary<int, string> departments;
         Dictionary<int, WrapPanel> departmentWrapPanels;
-        Dictionary<int, TextBlock> departmentAttendance;
+        Dictionary<int, TextBlock[]> departmentAttendance;
         Dictionary<int, Grid> userGrids;
         Dictionary<int, int[]> last;
         Dictionary<string, int> keyValuePairs;
@@ -48,13 +48,13 @@ namespace IrtsBurtgel
             departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
             departments.Add(-1, "Хэлтэсгүй");
             departmentWrapPanels = new Dictionary<int, WrapPanel>();
-            departmentAttendance = new Dictionary<int, TextBlock>();
+            departmentAttendance = new Dictionary<int, TextBlock[]>();
             departmentStatusWindows = new Dictionary<int, DepartmentStatus>();
             keyValuePairs = new Dictionary<string, int>();
-            keyValuePairs.Add("Ирээгүй", 0);
-            keyValuePairs.Add("Хоцорсон", 0);
             keyValuePairs.Add("Чөлөөтэй", 0);
+            keyValuePairs.Add("Ирээгүй", 0);
             keyValuePairs.Add("Ирсэн", 0);
+            keyValuePairs.Add("Хоцорсон", 0);
             userGrids = new Dictionary<int, Grid>();
             last = new Dictionary<int, int[]>();
             try
@@ -127,7 +127,10 @@ namespace IrtsBurtgel
                 };
 
                 DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+                DynamicGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
                 DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(50) });
                 DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                 border1.Child = DynamicGrid;
@@ -161,9 +164,44 @@ namespace IrtsBurtgel
                 border2.Child = new TextBlock
                 {
                     TextWrapping = TextWrapping.Wrap,   
-                    Text = "0/0",
-                    Margin = new Thickness(5, 5, 5, 5),
-                    FontWeight = FontWeights.Bold
+                    Text = "0",
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 25,
+                    Background = Brushes.LightGray,
+                    TextAlignment = TextAlignment.Center
+                };
+
+                Border border3 = new Border { BorderBrush = Brushes.Gray, BorderThickness = new Thickness(0, 0, 0, 1) };
+                border3.Child = new TextBlock
+                {
+                    TextWrapping = TextWrapping.Wrap,   
+                    Text = "0",
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 25,
+                    Background = Brushes.LightGreen,
+                    TextAlignment = TextAlignment.Center
+                };
+
+                Border border4 = new Border { BorderBrush = Brushes.Gray, BorderThickness = new Thickness(0, 0, 0, 1) };
+                border4.Child = new TextBlock
+                {
+                    TextWrapping = TextWrapping.Wrap,   
+                    Text = "0",
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 25,
+                    Background = Brushes.LightSalmon,
+                    TextAlignment = TextAlignment.Center
+                };
+
+                Border border5 = new Border { BorderBrush = Brushes.Gray, BorderThickness = new Thickness(0, 0, 0, 1) };
+                border5.Child = new TextBlock
+                {
+                    TextWrapping = TextWrapping.Wrap,   
+                    Text = "0",
+                    FontWeight = FontWeights.Bold,
+                    FontSize = 25,
+                    Background = Brushes.LightCoral,
+                    TextAlignment = TextAlignment.Center
                 };
 
                 WrapPanel wp = new WrapPanel
@@ -186,10 +224,19 @@ namespace IrtsBurtgel
                 Grid.SetRow(border2, 0);
                 Grid.SetColumn(border2, 1);
                 DynamicGrid.Children.Add(border2);
+                Grid.SetRow(border3, 0);
+                Grid.SetColumn(border3, 2);
+                DynamicGrid.Children.Add(border3);
+                Grid.SetRow(border4, 0);
+                Grid.SetColumn(border4, 3);
+                DynamicGrid.Children.Add(border4);
+                Grid.SetRow(border5, 0);
+                Grid.SetColumn(border5, 4);
+                DynamicGrid.Children.Add(border5);
 
                 Grid.SetRow(sv, 1);
                 Grid.SetColumn(sv, 0);
-                Grid.SetColumnSpan(sv, 2);
+                Grid.SetColumnSpan(sv, 5);
                 DynamicGrid.Children.Add(sv);
 
                 Grid.SetRow(border1, count / 5);
@@ -197,8 +244,11 @@ namespace IrtsBurtgel
                 gridDeparts.Children.Add(border1);
 
                 departmentWrapPanels.Add(entry.Key, wp);
-                departmentAttendance.Add(entry.Key, (TextBlock)border2.Child);
-
+                departmentAttendance.Add(entry.Key, new TextBlock[5]);
+                departmentAttendance[entry.Key][0] = (TextBlock)border2.Child;
+                departmentAttendance[entry.Key][1] = (TextBlock)border3.Child;
+                departmentAttendance[entry.Key][2] = (TextBlock)border4.Child;
+                departmentAttendance[entry.Key][3] = (TextBlock)border5.Child;
                 count++;
             }
 
@@ -266,8 +316,28 @@ namespace IrtsBurtgel
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
+                    Console.WriteLine(meetingController.GetUserImage(user));
 
-                    Image image = new Image { Source = new BitmapImage(new Uri(meetingController.GetUserImage(user))), HorizontalAlignment = HorizontalAlignment.Center };
+                    BitmapImage webImage;
+                    try
+                    {
+                        webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
+                    }
+                    catch (Exception ex)
+                    {
+                        webImage = new BitmapImage(new Uri("images/user.png", UriKind.Relative));
+                    }
+                    float scaleHeight = (float)60 / (float)webImage.Height;
+                    float scaleWidth = (float)60 / (float)webImage.Width;
+                    float scale = Math.Min(scaleHeight, scaleWidth);
+
+                    Image image = new Image
+                    {
+                        Source = webImage,
+                        Height = (int)(webImage.Width * scale),
+                        Width = (int)(webImage.Height * scale)
+                    };
+
                     Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center, FontSize = 15 };
                     Label status = new Label
                     {
@@ -283,16 +353,21 @@ namespace IrtsBurtgel
                         case 1: border.BorderBrush = status.Background = Brushes.DarkGreen; break;
                         case 2: border.BorderBrush = status.Background = Brushes.DarkOrange; break;
                         case 15: border.BorderBrush = status.Background = Brushes.DarkRed; break;
-                        default: border.BorderBrush = status.Background = Brushes.DarkTurquoise; break;
+                        default: border.BorderBrush = status.Background = Brushes.DarkSlateBlue; break;
                     }
 
-                    Grid.SetColumn(image, 0);
+                    Viewbox vb = new Viewbox
+                    {
+                        Child = image,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+                    Grid.SetColumn(vb, 0);
                     Grid.SetColumn(name, 0);
                     Grid.SetColumn(status, 0);
-                    Grid.SetRow(image, 0);
+                    Grid.SetRow(vb, 0);
                     Grid.SetRow(name, 1);
                     Grid.SetRow(status, 2);
-                    DynamicGrid.Children.Add(image);
+                    DynamicGrid.Children.Add(vb);
                     DynamicGrid.Children.Add(name);
                     DynamicGrid.Children.Add(status);
 
@@ -325,18 +400,22 @@ namespace IrtsBurtgel
                     {
                         last.Add(entry.Key, new int[4]);
                     }
-                    departmentAttendance[entry.Key].Text = "Ирц-" + (last[entry.Key][1] + last[entry.Key][3]) + "/" + (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]) + "\nХ-" + last[entry.Key][1] + " Ч-" + last[entry.Key][2];
+                    
+                    departmentAttendance[entry.Key][0].Text = ((int)(last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3])).ToString();
+                    departmentAttendance[entry.Key][1].Text = last[entry.Key][3].ToString();
+                    departmentAttendance[entry.Key][2].Text = last[entry.Key][1].ToString();
+                    departmentAttendance[entry.Key][3].Text = last[entry.Key][0].ToString();
                 }
 
                 AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]) + "\nЧөлөөтэй: " + last.Sum(x => x.Value[2]);
-                keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
-                keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
                 keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
+                keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
                 keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
+                keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Хурлын цонх нээхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+                MessageBox.Show("Хурлын цонх нээхэд алдаа гарлаа. Алдааны мессеж: " + ex.ToString());
             }
         }
 
@@ -376,7 +455,7 @@ namespace IrtsBurtgel
                     case 1: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkGreen; break;
                     case 2: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkOrange; break;
                     case 15: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkRed; break;
-                    default: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkTurquoise; break;
+                    default: ((Border)userGrids[user.id].Parent).BorderBrush = ((Label)userGrids[user.id].Children[2]).Background = Brushes.DarkSlateBlue; break;
                 }
 
                 departmentWrapPanels[user.departmentId].Children.Remove((Border)userGrids[user.id].Parent);
@@ -419,7 +498,10 @@ namespace IrtsBurtgel
             }
             foreach (KeyValuePair<int, string> entry in departments)
             {
-                departmentAttendance[entry.Key].Text = "Ирц-" + (last[entry.Key][1] + last[entry.Key][3]) + "/" + (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]) + "\nХ-" + last[entry.Key][1] + " Ч-" + last[entry.Key][2];
+                departmentAttendance[entry.Key][0].Text = (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]).ToString();
+                departmentAttendance[entry.Key][1].Text = (last[entry.Key][3]).ToString();
+                departmentAttendance[entry.Key][2].Text = (last[entry.Key][1]).ToString();
+                departmentAttendance[entry.Key][3].Text = (last[entry.Key][0]).ToString();
             }
             AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]) + "\nЧөлөөтэй: " + last.Sum(x => x.Value[2]);
 
@@ -437,11 +519,11 @@ namespace IrtsBurtgel
                 IndependentValueBinding = new Binding("Key"),
                 DependentValueBinding = new Binding("Value"),
             });
-            
-            keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
-            keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
             keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
+            keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
             keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
+            keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
+
             ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
             Grid.SetColumn(chart, 0);
             Grid.SetRow(chart, 0);

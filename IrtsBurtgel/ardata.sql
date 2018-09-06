@@ -18,6 +18,23 @@
            (N'Тасалсан', 1),			/*14*/
            (N'Ирээгүй', 1);				/*15*/
 
+INSERT INTO [dbo].[admin]
+		   ([username]
+		   ,[password]
+		   ,[reg_date]
+		   ,[organization_name]) 
+	 VALUES
+		   ('bolorirtssuperadmin', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', CURRENT_TIMESTAMP, 'Bolorsoft LLC'); /*Password: password*/
+
+INSERT INTO [dbo].[admin]
+		   ([username]
+		   ,[password]
+		   ,[reg_date]
+		   ,[organization_name]) 
+	 VALUES
+		   ('clientadmin', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', CURRENT_TIMESTAMP, 'Police'); /*Password: password*/
+
+
 
 
 
