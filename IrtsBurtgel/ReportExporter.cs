@@ -49,8 +49,8 @@ namespace IrtsBurtgel
 
                 for (int i = 0; i < archivedMeetings.Count; i++)
                 {
-                    worksheet.Cells[1, i + 5].Value = archivedMeetings[i].meetingDatetime.ToString("yyyy/MM/dd HH:mm");
-                    worksheet.Cells[1, i + 5].Style.TextRotation = 180;
+                    worksheet.Cells[1, i + 5].Value = archivedMeetings[i].meetingDatetime.ToString("yyyy/MM/dd HH:mm") + "\n" + archivedMeetings[i].name;
+                    worksheet.Cells[1, i + 5].Style.TextRotation = 90;
                 }
 
                 List<User> users= new List<User>();
@@ -179,8 +179,8 @@ namespace IrtsBurtgel
 
                     for (int i = 0; i < archivedMeetings.Count; i++)
                     {
-                        worksheet2.Cells[1, i + 3].Value = archivedMeetings[i].meetingDatetime.ToString("yyyy/MM/dd HH:mm");
-                        worksheet2.Cells[1, i + 3].Style.TextRotation = 180;
+                        worksheet2.Cells[1, i + 3].Value = archivedMeetings[i].meetingDatetime.ToString("yyyy/MM/dd HH:mm") + "\n" + archivedMeetings[i].name;
+                        worksheet2.Cells[1, i + 3].Style.TextRotation = 90;
                     }
 
                     worksheet2.Cells[1, archivedMeetings.Count + 3].Value = "Нийт ирц";
@@ -255,10 +255,10 @@ namespace IrtsBurtgel
 
                 // set some extended property values
                 package.Workbook.Properties.Company = "BolorSoft LLC.";
-                var xlFile = Utils.GetFileInfo(startDate.ToString("yyyyMMdd") + "_" + endDate.ToString("yyyyMMdd") + "_" + (meetings.Count > 1 ? "AllMeeting" : meetings.First().id.ToString()) + "_report.xlsx");
+                var xlFile = Utils.GetFileInfo(startDate.ToString("yyyyMMdd") + "_" + endDate.ToString("yyyyMMdd") + "_report.xlsx");
                 // save our new workbook in the output directory and we are done!
                 package.SaveAs(xlFile);
-                MessageBox.Show(startDate.ToString("yyyy / MM / dd") + " - с " + endDate.ToString("yyyy / MM / dd") + " хүртэлх " + (meetings.Count > 1 ? "бүх хурлын" : meetings.First().name + "-н") + " тайлан " + xlFile.FullName + " файлд амжилттай гарлаа.", "Тайлан амжилттай гарлаа");
+                MessageBox.Show(startDate.ToString("yyyy / MM / dd") + " - с " + endDate.ToString("yyyy / MM / dd") + " хүртэлх " + " тайлан " + xlFile.FullName + " файлд амжилттай гарлаа.", "Тайлан амжилттай гарлаа");
 
                 System.Diagnostics.Process.Start(xlFile.FullName);
                 return xlFile.FullName;
