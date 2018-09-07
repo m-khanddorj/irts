@@ -897,6 +897,7 @@ namespace IrtsBurtgel
                 }
                 freqType.Items.Add(item);
             }
+            freqType.SelectedIndex = 0;
             freqType.Width = 200;
             controls.Add(freqType);
 
@@ -909,6 +910,7 @@ namespace IrtsBurtgel
             Label pGroupsLabel = new Label();
             pGroupsLabel.Content = "Оролцогч хэлтсүүд";
             ListBox pGroupList = new ListBox();
+            pGroupList.SelectionMode = SelectionMode.Multiple;
             controls.Add(pGroupList);
             pGroupList.Margin = new Thickness(0, 0, 0, 10);
             try
@@ -955,6 +957,7 @@ namespace IrtsBurtgel
             Label participantsLabel = new Label();
             participantsLabel.Content = "Оролцогч гишүүд:";
             ListBox pUserList = new ListBox();
+            pUserList.SelectionMode = SelectionMode.Multiple;
             controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
             try
@@ -1002,6 +1005,7 @@ namespace IrtsBurtgel
             Label pPositionLabel = new Label();
             pPositionLabel.Content = "Оролцогч албан тушаалтнууд:";
             ListBox pPositionList = new ListBox();
+            pPositionList.SelectionMode = SelectionMode.Multiple;
             controls.Add(pPositionList);
             pPositionList.Margin = new Thickness(0, 0, 0, 10);
             try
@@ -1265,6 +1269,7 @@ namespace IrtsBurtgel
             nameLabel.Content = "Хурлын нэр:";
             nameLabel.Width = 200;
             TextBox name = new TextBox();
+            name.VerticalContentAlignment = VerticalAlignment.Center;
             name.Width = 200;
             name.Text = meeting.name;
             controls.Add(name);
@@ -1441,6 +1446,7 @@ namespace IrtsBurtgel
             Label pGroupsLabel = new Label();
             pGroupsLabel.Content = "Оролцогч хэлтсүүд:";
             ListBox pGroupList = new ListBox();
+            pGroupList.SelectionMode = SelectionMode.Multiple;
             pGroupList.MaxHeight = 105;
             List<MeetingAndDepartment> mads = madModel.GetByFK(meeting.IDName, meeting.id);
             foreach (MeetingAndDepartment mad in mads)
@@ -1496,6 +1502,7 @@ namespace IrtsBurtgel
             Label participantsLabel = new Label();
             participantsLabel.Content = "Оролцогч гишүүд:";
             ListBox pUserList = new ListBox();
+            pUserList.SelectionMode = SelectionMode.Multiple;
             pUserList.MaxHeight = 105;
             controls.Add(pUserList);
             pUserList.Margin = new Thickness(0, 0, 0, 10);
@@ -1551,6 +1558,7 @@ namespace IrtsBurtgel
             Label pPositionLabel = new Label();
             pPositionLabel.Content = "Оролцогч албан тушаалтнууд:";
             ListBox pPositionList = new ListBox();
+            pPositionList.SelectionMode = SelectionMode.Multiple;
             pPositionList.MaxHeight = 105;
 
             List<MeetingAndPosition> maps = mapModel.GetByFK(meeting.IDName, meeting.id);
@@ -2294,7 +2302,7 @@ namespace IrtsBurtgel
             Label stLabel = new Label();
             stLabel.Content = "Хурал эхлэх цаг:";
             stLabel.Width = 200;
-            TextBox st = new TextBox();
+            TimePicker st = new TimePicker();
             st.Width = 200;
             st.Text = ((Meeting)meeting).startDatetime.ToShortTimeString();
             controls.Add(st);
@@ -2398,23 +2406,37 @@ namespace IrtsBurtgel
             if (meeting is ModifiedMeeting)
             {
                 ModifiedMeeting mmeeting = (ModifiedMeeting)meeting;
-                mmeeting.name = name.Text;
-                mmeeting.startDatetime = DateTime.Parse(((DateTime)LeftSide.Tag).ToShortDateString() +
-                    " " + st.Text);
-                mmeeting.duration = Int32.Parse(duration.Text);
-                mmeeting.reason = reason.Text;
+                try
+                {
+                    mmeeting.name = name.Text;
+                    mmeeting.startDatetime = DateTime.Parse(((DateTime)LeftSide.Tag).ToShortDateString() +
+                        " " + st.Text);
+                    mmeeting.duration = Int32.Parse(duration.Text);
+                    mmeeting.reason = reason.Text;
+                }
+                catch(Exception ex)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Та оруулсан утгуудаа шалгаад дахин оролдоно уу", "Бүтэлгүйтлээ");
+                }
                 modifiedMeetingModel.Set(mmeeting);
                 Xceed.Wpf.Toolkit.MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
             else
             {
                 ModifiedMeeting mmeeting = new ModifiedMeeting();
-                mmeeting.meeting_id = ((Meeting)meeting).id;
-                mmeeting.name = name.Text;
-                mmeeting.startDatetime = DateTime.Parse(((DateTime)LeftSide.Tag).ToShortDateString() +
-                    " " + st.Text);
-                mmeeting.duration = Int32.Parse(duration.Text);
-                mmeeting.reason = reason.Text;
+                try
+                {
+                    mmeeting.meeting_id = ((Meeting)meeting).id;
+                    mmeeting.name = name.Text;
+                    mmeeting.startDatetime = DateTime.Parse(((DateTime)LeftSide.Tag).ToShortDateString() +
+                        " " + st.Text);
+                    mmeeting.duration = Int32.Parse(duration.Text);
+                    mmeeting.reason = reason.Text;
+                }
+                catch (Exception ex)
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Та оруулсан утгуудаа шалгаад дахин оролдоно уу", "Бүтэлгүйтлээ");
+                }
                 modifiedMeetingModel.Add(mmeeting);
                 Xceed.Wpf.Toolkit.MessageBox.Show(mmeeting.startDatetime.ToString("yyyy/MM/dd") + " өдрийн " + mmeeting.name + " шинэчлэгдлээ.");
             }
@@ -2475,15 +2497,20 @@ namespace IrtsBurtgel
 
         void removeMeeting(object sender, RoutedEventArgs e)
         {
-            Meeting meeting = (Meeting)((Button)sender).Tag;
-            if (meetingModel.MarkAsDeleted(meeting.id))
+            ConfirmDelete confirmDelete = new ConfirmDelete();
+            confirmDelete.ShowDialog();
+            if (confirmDelete.DialogResult== true)
             {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай устгалаа");
-                ShowMeetings();
-            }
-            else
-            {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Та орчноо шалгаад дахин оролдоно уу!", "Бүтэлгүйтлээ");
+                Meeting meeting = (Meeting)((Button)sender).Tag;
+                if (meetingModel.MarkAsDeleted(meeting.id))
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай устгалаа");
+                    ShowMeetings();
+                }
+                else
+                {
+                    Xceed.Wpf.Toolkit.MessageBox.Show("Та орчноо шалгаад дахин оролдоно уу!", "Бүтэлгүйтлээ");
+                }
             }
 
 
@@ -2498,14 +2525,22 @@ namespace IrtsBurtgel
             Label label = new Label();
             label.Content = "Нийт хурлууд:";
 
+
             Button import = new Button();
-            import.Content = "+";
+
+            Image addImage = new Image();
+            addImage.Source = new BitmapImage(new Uri("images/+.png",UriKind.Relative));
+            addImage.Width = 20;
+
+            import.Content = addImage;
             import.Click += addMeeting;
 
             Button search = new Button();
+
             Image searchImage = new Image();
             searchImage.Source = new BitmapImage(new Uri("images/searchwhite.png", UriKind.Relative));
             searchImage.Width = 20;
+
             search.Content = searchImage;
             search.Tag = "meeting";
             search.Click += Search;
@@ -2550,8 +2585,6 @@ namespace IrtsBurtgel
             listbox.SelectionChanged += onMeetingNameChanged;
 
             dockPanel.Children.Add(listbox);
-
-
         }
 
         void setUser(object sender, RoutedEventArgs e)
@@ -2804,7 +2837,11 @@ namespace IrtsBurtgel
             label.Content = "Нийт гишүүд:";
 
             Button import = new Button();
-            import.Content = "+";
+            Image addImage = new Image();
+            addImage.Source = new BitmapImage(new Uri("images/+.png", UriKind.Relative));
+            addImage.Width = 20;
+
+            import.Content = addImage;
             import.Click += importData;
 
             Button search = new Button();
@@ -2817,9 +2854,10 @@ namespace IrtsBurtgel
 
             List<Object> buttons = new List<Object>();
             List<Object> rbuttons = new List<Object>();
-            buttons.Add(import);
+            
             buttons.Add(label);
             rbuttons.Add(search);
+            rbuttons.Add(import);
 
             DockPanel dockPanel = addHeader(buttons, rbuttons);
 

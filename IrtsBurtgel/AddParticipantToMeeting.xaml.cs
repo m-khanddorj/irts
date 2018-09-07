@@ -154,7 +154,7 @@ namespace IrtsBurtgel
                 int i = 1;
                 foreach (Department dep in deps)
                 {
-                    if (!Regex.IsMatch(dep.name.ToString().ToLower(), "[a-zA-Z\\d]*" + searchText.ToLower() + "[a-zA-Z\\d]*"))
+                    if (!Regex.IsMatch(dep.name.ToString().ToLower(), "[.]*" + searchText.ToLower() + "[.]*"))
                     {
                         continue;
                     }
@@ -184,9 +184,8 @@ namespace IrtsBurtgel
                 int i = 1;
                 foreach (User user in users)
                 {
-                    if (!Regex.IsMatch(user.fname.ToString().ToLower(), "[a-zA-Z\\d]*" + searchText.ToLower() + "[a-zA-Z\\d]*")
-                        ||
-                        !Regex.IsMatch(user.lname.ToString().ToLower(), "[a-zA-Z\\d]*" + searchText.ToLower() + "[a-zA-Z\\d]*"))
+                    string name = (user.fname + " " + user.lname).ToLower();
+                    if ( !Regex.IsMatch(name, "[.]*" + searchText.ToLower() + "[.]*") )
                     {
                         continue;
                     }
@@ -214,7 +213,7 @@ namespace IrtsBurtgel
                 int i = 1;
                 foreach (Position position in positions)
                 {
-                    if (!Regex.IsMatch(position.name.ToString().ToLower(), "[a-zA-Z\\d]*" + searchText.ToLower() + "[a-zA-Z\\d]*"))
+                    if (!Regex.IsMatch(position.name.ToString().ToLower(), "[.]*" + searchText.ToLower() + "[.]*"))
                     {
                         continue;
                     }
