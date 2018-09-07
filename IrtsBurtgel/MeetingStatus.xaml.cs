@@ -325,11 +325,11 @@ namespace IrtsBurtgel
                     }
                     catch (Exception ex)
                     {
-                        webImage = new BitmapImage(new Uri("images/user.png", UriKind.Relative));
+                        webImage = new BitmapImage(new Uri("./images/user.png", UriKind.Relative));
                     }
                     float scaleHeight = (float)60 / (float)webImage.Height;
                     float scaleWidth = (float)60 / (float)webImage.Width;
-                    float scale = Math.Min(scaleHeight, scaleWidth);
+                    float scale = Math.Max(scaleHeight, scaleWidth);
 
                     Image image = new Image
                     {
@@ -355,19 +355,13 @@ namespace IrtsBurtgel
                         case 15: border.BorderBrush = status.Background = Brushes.DarkRed; break;
                         default: border.BorderBrush = status.Background = Brushes.DarkSlateBlue; break;
                     }
-
-                    Viewbox vb = new Viewbox
-                    {
-                        Child = image,
-                        HorizontalAlignment = HorizontalAlignment.Center
-                    };
-                    Grid.SetColumn(vb, 0);
+                    Grid.SetColumn(image, 0);
                     Grid.SetColumn(name, 0);
                     Grid.SetColumn(status, 0);
-                    Grid.SetRow(vb, 0);
+                    Grid.SetRow(image, 0);
                     Grid.SetRow(name, 1);
                     Grid.SetRow(status, 2);
-                    DynamicGrid.Children.Add(vb);
+                    DynamicGrid.Children.Add(image);
                     DynamicGrid.Children.Add(name);
                     DynamicGrid.Children.Add(status);
 

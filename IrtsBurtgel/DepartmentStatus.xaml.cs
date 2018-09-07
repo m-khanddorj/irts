@@ -82,7 +82,26 @@ namespace IrtsBurtgel
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
 
-                    Image image = new Image { Source = new BitmapImage(new Uri(meetingController.GetUserImage(user))), HorizontalAlignment = HorizontalAlignment.Center };
+                    BitmapImage webImage;
+                    try
+                    {
+                        webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
+                    }
+                    catch (Exception ex)
+                    {
+                        webImage = new BitmapImage(new Uri("./images/user.png", UriKind.Relative));
+                    }
+                    float scaleHeight = (float)120 / (float)webImage.Height;
+                    float scaleWidth = (float)100 / (float)webImage.Width;
+                    float scale = Math.Max(scaleHeight, scaleWidth);
+
+                    Image image = new Image
+                    {
+                        Source = webImage,
+                        Height = (int)(webImage.Width * scale),
+                        Width = (int)(webImage.Height * scale)
+                    };
+                    
                     Label name = new Label {
                         Content = user.fname + " " + user.lname,
                         HorizontalAlignment = HorizontalAlignment.Center,
@@ -97,7 +116,7 @@ namespace IrtsBurtgel
 
                     foreach(KeyValuePair<int, string> entry in statuses)
                     {
-                        if (entry.Key == 14 || entry.Key == 15)
+                        if (entry.Key == 14)
                         {
                             continue;
                         }
@@ -182,7 +201,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Хурлын цонх нээхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+                MessageBox.Show("Хурлын цонх нээхэд алдаа гарлаа. Алдааны мессеж: " + ex.ToString());
             }
         }
 
