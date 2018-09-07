@@ -51,6 +51,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>time-logo.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EPPlus, Version=4.5.2.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
       <HintPath>..\packages\EPPlus.4.5.2.1\lib\net40\EPPlus.dll</HintPath>
@@ -152,11 +155,16 @@
     <Compile Include="Admin.cs" />
     <Compile Include="ArchivedMeeting.cs" />
     <Compile Include="Attendance.cs" />
+    <Compile Include="Authentication.cs" />
     <Compile Include="BitmapFormat.cs" />
     <Compile Include="ChangeUserStatus.xaml.cs">
       <DependentUpon>ChangeUserStatus.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ConfirmDelete.xaml.cs">
+      <DependentUpon>ConfirmDelete.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Department.cs" />
+    <Compile Include="DepartmentStatus.xaml.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="ExternalDataImporter.cs" />
@@ -189,6 +197,14 @@
     <Page Include="ChangeUserStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ConfirmDelete.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="DepartmentStatus.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="ImportUser.xaml">
       <SubType>Designer</SubType>
@@ -286,8 +302,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\jquery.timepicker.css" />
+    <Resource Include="time-logo.ico" />
     <Resource Include="images\user.png" />
     <Resource Include="images\logo.png" />
+    <Resource Include="images\x.png" />
+    <Resource Include="images\+.png" />
     <Content Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />

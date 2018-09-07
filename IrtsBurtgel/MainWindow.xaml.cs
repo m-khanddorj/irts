@@ -449,7 +449,12 @@ namespace IrtsBurtgel
             {
                 if ((string)((Button)sender).Tag == "meeting")
                 {
-                    foreach (Meeting meeting in meetingModel.GetAll())
+                    List<Meeting> meetings = meetingModel.GetAll();
+                    for(int i=meetings.Count-1;i>=0;i--)
+                    {
+                        if (meetings[i].isDeleted) meetings.RemoveAt(i);
+                    }
+                    foreach (Meeting meeting in meetings)
                     {
                         ListBoxItem lbi = new ListBoxItem();
                         lbi.Content = meeting.name;
