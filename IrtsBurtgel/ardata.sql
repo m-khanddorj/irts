@@ -17,7 +17,7 @@
            (N'Бусад', 1),				/*13*/
            (N'Тасалсан', 1),			/*14*/
            (N'Ирээгүй', 1);				/*15*/
-
+use irtsBurtgel
 INSERT INTO [dbo].[admin]
 		   ([username]
 		   ,[password]
