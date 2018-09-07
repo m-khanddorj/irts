@@ -2366,15 +2366,21 @@ namespace IrtsBurtgel
             durationStack.Margin = new Thickness(0, 5, 0, 5);
 
             Label durationLabel = new Label();
-            durationLabel.Content = "Хурал үргэлжлэх хугацаа минутаар:";
+            durationLabel.Content = "Хурал үргэлжлэх хугацаа:";
             durationLabel.Width = 200;
             TextBox duration = new TextBox();
-            duration.Width = 200;
+            duration.Width = 100;
             duration.Text = ((Meeting)meeting).duration.ToString();
             controls.Add(duration);
+            Label durationUnit = new Label
+            {
+                Content = "Минут",
+                Width = 100
+            };
 
             durationStack.Children.Add(durationLabel);
             durationStack.Children.Add(duration);
+            durationStack.Children.Add(durationUnit);
             /**Changed or not */
             StackPanel isChangedStack = new StackPanel();
             isChangedStack.Orientation = Orientation.Horizontal;
@@ -2407,7 +2413,8 @@ namespace IrtsBurtgel
             StackPanel saveStack = new StackPanel();
             saveStack.HorizontalAlignment = HorizontalAlignment.Right;
             saveStack.Orientation = Orientation.Horizontal;
-            saveStack.Margin = new Thickness(0, 5, 0, 5);
+            saveStack.HorizontalAlignment = HorizontalAlignment.Center;
+            saveStack.Margin = new Thickness(172, 5, 0, 5);
 
             Button saveButton = new Button();
             saveButton.Content = "Хадгалах";
