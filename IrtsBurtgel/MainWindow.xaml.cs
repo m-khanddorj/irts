@@ -499,6 +499,8 @@ namespace IrtsBurtgel
                     meetingController.CancelMeetingsByDate(DateTime.Today, ask.text);
                 }
                 meetingController.CancelMeetingsByDate((DateTime)calendar.SelectedDate, ask.text);
+                ShowCalendar(null, null);
+                OnSelectedDateChange(calendar, null);
             }
         }
         void OnSelectedDateChange(object sender, RoutedEventArgs e)
@@ -2936,7 +2938,7 @@ namespace IrtsBurtgel
             listbox.Margin = new Thickness(10, 10, 10, 20);
 
             List<User> users = userModel.GetAll();
-            users = users.OrderBy(x => x.departmentId).ToList();
+            users = users.OrderBy(x => x.fname).ToList();
             Dictionary<int, string> departmentNames = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
             int i = 1;
             foreach (User user in users)
@@ -2976,7 +2978,10 @@ namespace IrtsBurtgel
             else
             {
                 meetings = new List<Meeting>();
-                meetings.Add(meetingModel.Get(Int32.Parse(((ListBoxItem)listBox.SelectedItem).Uid)));
+                foreach (ListBoxItem selectedItem in listBox.SelectedItems)
+                {
+                    meetings.Add(meetingModel.Get(Int32.Parse(selectedItem.Uid)));
+                }
             }
             try
             {
@@ -3039,8 +3044,12 @@ namespace IrtsBurtgel
             ListBox listBox = new ListBox();
             controls.Add(listBox);
             listBox.Margin = new Thickness(0, 10, 0, 10);
-            ListBoxItem allMeeting = new ListBoxItem();
-            allMeeting.Content = "Бүх хурлууд";
+            listBox.SelectionMode = SelectionMode.Extended;
+            ListBoxItem allMeeting = new ListBoxItem
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Content = "Бүх хурлууд"
+            };
             listBox.SelectedItem = allMeeting;
 
             listBox.Items.Add(allMeeting);
@@ -3056,9 +3065,15 @@ namespace IrtsBurtgel
                 listBox.Items.Add(listBoxItem);
             }
 
-            Grid.SetColumnSpan(listBox, 2);
-            Grid.SetColumn(listBox, 0);
-            Grid.SetRow(listBox, 2);
+            ScrollViewer scroll = new ScrollViewer
+            {
+                Content = listBox,
+                Height = ActualHeight - 200
+            };
+            
+            Grid.SetColumnSpan(scroll, 2);
+            Grid.SetColumn(scroll, 0);
+            Grid.SetRow(scroll, 2);
 
             Label timeSelectorTitle = new Label();
             timeSelectorTitle.Content = "Хугацаа сонгох";
@@ -3117,7 +3132,7 @@ namespace IrtsBurtgel
             Grid.SetColumn(timeSelector, 0);
 
             grid.Children.Add(title);
-            grid.Children.Add(listBox);
+            grid.Children.Add(scroll);
             grid.Children.Add(timeSelectorTitle);
             grid.Children.Add(timeSelector);
 

@@ -146,7 +146,7 @@ namespace IrtsBurtgel
             int i;
             for (i=0;i<meetings.Count;i++)
             {
-                if(now.TimeOfDay > meetings[i].startDatetime.TimeOfDay.Add(new TimeSpan(0,meetings[i].duration,0)) )
+                if(now.TimeOfDay > meetings[i].startDatetime.TimeOfDay.Add(new TimeSpan(0, meetings[i].duration, 0)) )
                 {
                     continue;
                 }
@@ -155,17 +155,23 @@ namespace IrtsBurtgel
                     break;
                 }
             }
+            
             //i is now equal to present or next meeting index of meetings
-            if (i== meetings.Count)
+            if (i == meetings.Count)
             {
                 return "Өнөөдрийн хурал дууссан.";
             }
-            else if (meetings[i].startDatetime.TimeOfDay > now.TimeOfDay && now.AddMinutes(meetings[i].regMinBefMeeting).TimeOfDay > meetings[i].startDatetime.TimeOfDay)
+
+            int regbefminute = meetings[i] is ModifiedMeeting ? meetingModel.Get(((ModifiedMeeting)meetings[i]).meeting_id).regMinBefMeeting : meetings[i].regMinBefMeeting;
+
+            if (meetings[i].startDatetime.TimeOfDay > now.TimeOfDay && now.TimeOfDay >= meetings[i].startDatetime.AddMinutes(-regbefminute).TimeOfDay)
             {
                 return "Хурлын бүртгэл явагдаж байна.\n Хурал эхлэхэд: " + (meetings[i].startDatetime.TimeOfDay - now.TimeOfDay).ToString(@"mm\:ss");
             }
             else if (meetings[i].startDatetime.TimeOfDay > now.TimeOfDay)
             {
+                Console.WriteLine("Back" + meetings[i].startDatetime.AddMinutes(-regbefminute).TimeOfDay);
+                Console.WriteLine("Front" + now.TimeOfDay);
                 return "Дараагийн хурал " + meetings[i].startDatetime.ToShortTimeString() + "-с эхэлнэ.";
             }
             else if (meetings[i].startDatetime.TimeOfDay < now.TimeOfDay && meetings[i].startDatetime.AddMinutes(meetings[i].duration).TimeOfDay > now.TimeOfDay)
@@ -487,7 +493,7 @@ namespace IrtsBurtgel
                     modifiedMeetingModel.Set(new ModifiedMeeting
                     {
                         name = mMeeting.name,
-                        startDatetime = date,
+                        startDatetime = mMeeting.startDatetime,
                         duration = 0,
                         reason = reason,
                         meeting_id = mMeeting.meeting_id,
@@ -499,7 +505,7 @@ namespace IrtsBurtgel
                     modifiedMeetingModel.Add(new ModifiedMeeting
                     {
                         name = meeting.name,
-                        startDatetime = date,
+                        startDatetime = date.Date + meeting.startDatetime.TimeOfDay,
                         duration = 0,
                         reason = reason,
                         meeting_id = meeting.id
