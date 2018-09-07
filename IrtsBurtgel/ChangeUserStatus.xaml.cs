@@ -123,6 +123,10 @@ namespace IrtsBurtgel
         private void startDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
             endDate.DisplayDateStart = startDate.SelectedDate;
+            if (endDate.SelectedDate != null && startDate.SelectedDate > endDate.SelectedDate)
+            {
+                endDate.SelectedDate = startDate.SelectedDate;
+            }
         }
     }
 }
