@@ -124,21 +124,21 @@ namespace IrtsBurtgel
                         ComboBoxItem comboboxItem = new ComboBoxItem
                         {
                             Content = entry.Key == 2 ? statuses[entry.Key] + " (0)" : entry.Value,
-                            Foreground = Brushes.White,
+                            Foreground = Brushes.Black,
                             HorizontalAlignment = HorizontalAlignment.Stretch,
                             HorizontalContentAlignment = HorizontalAlignment.Center,
                             FontWeight = FontWeights.Bold,
-                            FontSize = 17
+                            FontSize = 15
                         };
 
                         comboboxItem.Tag = entry.Key;
 
                         switch (entry.Key)
                         {
-                            case 1: comboboxItem.Background = Brushes.DarkGreen; break;
-                            case 2: comboboxItem.Background = Brushes.DarkOrange; break;
-                            case 15: comboboxItem.Background = Brushes.DarkRed; break;
-                            default: comboboxItem.Background = Brushes.DarkSlateBlue; break;
+                            case 1: comboboxItem.Background = Brushes.LightGreen; break;
+                            case 2: comboboxItem.Background = Brushes.LightSalmon; break;
+                            case 15: comboboxItem.Background = Brushes.LightCoral; break;
+                            default: comboboxItem.Background = Brushes.LightBlue; break;
                         }
 
                         combobox.Items.Add(comboboxItem);

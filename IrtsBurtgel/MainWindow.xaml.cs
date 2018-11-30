@@ -1123,7 +1123,18 @@ namespace IrtsBurtgel
             }
             string name = ((TextBox)controls[0]).Text;
             string st = ((TimePicker)controls[1]).Text;
-            string sd = ((DateTime)((DatePicker)controls[2]).SelectedDate).ToShortDateString();
+            string sd = "";
+
+            try
+            {
+                sd = ((DateTime)((DatePicker)controls[2]).SelectedDate).ToShortDateString();
+            }
+            catch (Exception ex)
+            {
+                Xceed.Wpf.Toolkit.MessageBox.Show("Та хурал эхлэх цагаа цаг:минут гэсэн хэлбэртэйгээр оруулна уу!");
+                return;
+            }
+
             string regStart = ((TextBox)controls[3]).Text;
             string duration = ((TextBox)controls[4]).Text;
             string ed = ((DatePicker)controls[5]).Text;

@@ -98,7 +98,19 @@ namespace IrtsBurtgel
 
         public void BuildDepartControls()
         {
+            departmentWrapPanels = new Dictionary<int, WrapPanel>();
+            departmentAttendance = new Dictionary<int, TextBlock[]>();
+            departmentStatusWindows = new Dictionary<int, DepartmentStatus>();
+            keyValuePairs = new Dictionary<string, int>();
+            keyValuePairs.Add("Чөлөөтэй", 0);
+            keyValuePairs.Add("Ирээгүй", 0);
+            keyValuePairs.Add("Ирсэн", 0);
+            keyValuePairs.Add("Хоцорсон", 0);
+            userGrids = new Dictionary<int, Grid>();
+            last = new Dictionary<int, int[]>();
             gridDeparts.Children.Clear();
+            gridDeparts.RowDefinitions.Clear();
+            gridDeparts.ColumnDefinitions.Clear();
 
             for (int i = 0; i < 5; i++)
             {

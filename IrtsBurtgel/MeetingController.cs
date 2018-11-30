@@ -624,7 +624,7 @@ namespace IrtsBurtgel
                 tempUsers = tempUsers.Union(depUsers, new UserComparer()).ToList();
                 tempUsers = tempUsers.Union(posUsers, new UserComparer()).ToList();
 
-                return tempUsers;
+                return tempUsers.OrderByDescending(x => x.fname).ToList();
             }
             catch (Exception ex)
             {
