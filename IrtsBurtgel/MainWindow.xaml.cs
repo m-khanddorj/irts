@@ -469,7 +469,7 @@ namespace IrtsBurtgel
                 {
                     Dictionary<int, string> departmentNames = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
                     int i = 1;
-                    foreach (User user in userModel.GetAll())
+                    foreach (User user in userModel.GetAll().OrderBy(x => x.fname).ToList())
                     {
                         if(user.isDeleted)
                         {
@@ -514,6 +514,8 @@ namespace IrtsBurtgel
                         grid.Children.Add(number);
                         grid.Children.Add(name);
                         lbi.Content = grid;
+                        lbi.Uid = user.id.ToString();
+                        lbi.Tag = user.lname + " " + user.fname;
                         listbox.Items.Add(lbi);
                         i++;
                     }
@@ -522,7 +524,7 @@ namespace IrtsBurtgel
                 for (int i = listbox.Items.Count - 1; i >= 0; i--)
                 {
                     Regex regex = new Regex(@"[a-zA-Z0-9]*" + searchBox.Text.ToLower() + @"[a-zA-Z0-9]*");
-                    Match match = regex.Match(((string)((ListBoxItem)listbox.Items[i]).Content).ToLower());
+                    Match match = regex.Match(((string)((ListBoxItem)listbox.Items[i]).Tag).ToLower());
                     if (!match.Success)
                     {
                         listbox.Items.Remove((ListBoxItem)listbox.Items[i]);
@@ -2962,7 +2964,7 @@ namespace IrtsBurtgel
             if (iuser.DialogResult == true)
             {
                 ExternalDataImporter edi = new ExternalDataImporter(meetingController);
-                edi.ImportUserData(iuser.xlPath, iuser.datPath, iuser.imagePaths.ToList());
+                edi.ParseUserData(iuser.xlPath, iuser.userdatPath, iuser.fpdatPath, iuser.imagePaths.ToList());
                 ShowMembers(null, null);
             }
         }

@@ -56,18 +56,20 @@ namespace IrtsBurtgel
 
                 List<User> users = new List<User>();
                 List<Attendance> attendances = meetingController.attendanceModel.GetByFK(archivedMeetings.First().IDName, archivedMeetings.Select(x => x.id).ToArray());
+                List<int> userids = new List<int>();
                 if (attendances.Count > 1900)
                 {
                     IEnumerable<List<Attendance>> splitedAttendances = SplitList<Attendance>(attendances, 1900);
                     foreach (List<Attendance> chunkAttendance in splitedAttendances)
                     {
-                        users.AddRange(meetingController.userModel.Get(chunkAttendance.Select(x => x.userId).ToArray()));
+                        userids.AddRange(chunkAttendance.Select(x => x.userId));
                     }
                 }
                 else
                 {
-                    users = meetingController.userModel.Get(attendances.Select(x => x.userId).ToArray());
+                    userids = attendances.Select(x => x.userId).ToList();
                 }
+                userids = userids.Distinct().ToList();
                 Dictionary<int, string> positions = meetingController.positionModel.GetAll().ToDictionary(x => x.id, x => x.name);
                 Dictionary<int, string> abbrStatuses = meetingController.statusModel.GetAll().ToDictionary(x => x.id, x => GetAbbr(x.name));
                 Dictionary<int, string> statuses = meetingController.statusModel.GetAll().ToDictionary(x => x.id, x => x.name);
@@ -75,12 +77,12 @@ namespace IrtsBurtgel
 
                 Dictionary<int, int[,]> departmentAttendance = new Dictionary<int, int[,]>();
 
-                if (users.Count == 0)
+                if (userids.Count == 0)
                 {
                     throw new Exception("Таны сонгосон хуралд " + startDate.ToString("yyyy/MM/dd") + "-с " + endDate.ToString("yyyy/MM/dd") + "-нд ямар ч хүн суугаагүй байна.");
                 }
 
-                users = users.OrderBy(x => x.departmentId).ToList();
+                users = meetingController.userModel.Get(userids.ToArray()).OrderBy(x => x.fname + x.lname).OrderBy(x => x.departmentId).Distinct().ToList();
 
                 worksheet.Cells[1, archivedMeetings.Count + 5].Value = "Нийт ирсэн";
                 worksheet.Cells[1, archivedMeetings.Count + 6].Value = "Нийт хоцорсон";

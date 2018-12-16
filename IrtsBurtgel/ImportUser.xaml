@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="Гишүүд нэмэх" Height="152.667" Width="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="images/time-logo.png">
+        Title="Гишүүд нэмэх" Height="174.411" Width="240" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Icon="images/time-logo.png">
     <Grid Background="#FF007ACC">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*"></ColumnDefinition>
@@ -16,13 +16,16 @@
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Button Content="template.fp10.1" Width="150" Background="White" Height="25" Grid.Column="0" Grid.Row="0" Click="Button_Click"/>
-        <Button Background="White" Content="Гишүүдийн мэдээлэл" Width="150" Height="25" Grid.Column="0" Grid.Row="1" Click="Button_Click_1"/>
-        <Button Background="White" Content="Гишүүдийн зургууд"  Width="150" Height="25" Grid.Column="0" Grid.Row="2" Click="Button_Click_3"/>
-        <Image Grid.Column="1" Grid.Row="0" x:Name="datImage"  Height="20"  Width="25" Source="images/x.png"/>
-        <Image Grid.Column="1" Grid.Row="1" x:Name="xlImage" Height="20"  Width="25" Source="images/x.png"/>
-        <Image Grid.Column="1" Grid.Row="2" x:Name="imageImage" Height="20"  Width="25" Source="images/x.png"/>
-        <Button Background="White" Content="Хадгалах" HorizontalAlignment="Left" Margin="147,1,0,0" Grid.Row="3" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2" Click="Button_Click_2"/>
+        <Button Content="user.dat" Width="150" Background="White" Height="25" Grid.Column="0" Grid.Row="1" Click="Button_Click_4"/>
+        <Button Background="White" Content="Гишүүдийн мэдээлэл" Width="150" Height="25" Grid.Column="0" Grid.Row="2" Click="Button_Click_1"/>
+        <Button Background="White" Content="Гишүүдийн зургууд"  Width="150" Height="25" Grid.Column="0" Grid.Row="3" Click="Button_Click_3"/>
+        <Image Grid.Column="1" Grid.Row="0" x:Name="fpdatImage"  Height="20"  Width="25" Source="images/x.png"/>
+        <Image Grid.Column="1" Grid.Row="1" x:Name="userdatImage" Height="20"  Width="25" Source="images/x.png"/>
+        <Image Grid.Column="1" Grid.Row="2" x:Name="xlImage" Height="20"  Width="25" Source="images/x.png"/>
+        <Image Grid.Column="1" Grid.Row="3" x:Name="imageImage" Height="20"  Width="25" Source="images/x.png"/>
+        <Button Background="White" Content="Хадгалах" HorizontalAlignment="Left" Margin="147,1,0,0" Grid.Row="4" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2" Click="Button_Click_2"/>
     </Grid>
 </Window>

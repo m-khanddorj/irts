@@ -81,14 +81,6 @@
       <HintPath>..\packages\System.Text.Encoding.CodePages.4.5.0\lib\net461\System.Text.Encoding.CodePages.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Web.DataVisualization, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Chart.Controls.4.7.2046\lib\net35\System.Web.DataVisualization.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Web.DataVisualization.Design, Version=3.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Chart.Controls.4.7.2046\lib\net35\System.Web.DataVisualization.Design.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System.Windows.Controls.DataVisualization.Toolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WPFToolkit.DataVisualization.3.5.50211.1\lib\System.Windows.Controls.DataVisualization.Toolkit.dll</HintPath>
     </Reference>
@@ -122,6 +114,7 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsFormsIntegration" />
     <Reference Include="WPFToolkit, Version=3.5.40128.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\WPFToolkit.3.5.50211.1\lib\WPFToolkit.dll</HintPath>
     </Reference>
@@ -155,6 +148,12 @@
     <Compile Include="Admin.cs" />
     <Compile Include="ArchivedMeeting.cs" />
     <Compile Include="Attendance.cs" />
+    <Compile Include="AttendanceList.xaml.cs">
+      <DependentUpon>AttendanceList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="AttendanceStatus.xaml.cs">
+      <DependentUpon>AttendanceStatus.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Authentication.cs" />
     <Compile Include="BitmapFormat.cs" />
     <Compile Include="ChangeUserStatus.xaml.cs">
@@ -181,6 +180,9 @@
     <Compile Include="ScannerHandler.cs" />
     <Compile Include="Status.cs" />
     <Compile Include="Structs.cs" />
+    <Compile Include="UpdateFingerprint.xaml.cs">
+      <DependentUpon>UpdateFingerprint.xaml</DependentUpon>
+    </Compile>
     <Compile Include="User.cs" />
     <Compile Include="MeetingStatus.xaml.cs">
       <DependentUpon>MeetingStatus.xaml</DependentUpon>
@@ -191,6 +193,14 @@
     </Compile>
     <Compile Include="Utils.cs" />
     <Page Include="AddParticipantToMeeting.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AttendanceList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AttendanceStatus.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -230,6 +240,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="AskTheReason.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UpdateFingerprint.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -307,6 +321,11 @@
     <Resource Include="images\logo.png" />
     <Resource Include="images\x.png" />
     <Resource Include="images\+.png" />
+    <Resource Include="images\default-user.png" />
+    <Resource Include="images\no_image.png" />
+    <Resource Include="images\no_fp.png" />
+    <Resource Include="images\time-logo.ico" />
+    <Resource Include="images\time_logo.ico" />
     <Content Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />

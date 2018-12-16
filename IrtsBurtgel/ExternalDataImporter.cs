@@ -28,13 +28,13 @@ namespace IrtsBurtgel
             meetingController = mc;
         }
 
-        public bool ImportUserData(string excelpath, string datpath, List<string> imagepath)
+        public bool ParseUserData(string excelpath, string userdatpath, string fpdatpath, List<string> imagepath)
         {
             bool result;
             try
             {
                 ImportImagesOfUserFromFolder(imagepath);
-                result = ImportFromExcel(excelpath, ImportDat(datpath));
+                result = ImportFromExcel(excelpath, ParseFingerprintDat(fpdatpath, ParseUserDat(userdatpath)));
                 return result;
             }
             catch (Exception ex)
@@ -347,7 +347,56 @@ namespace IrtsBurtgel
             }
         }
 
-        public Dictionary<int, Dictionary<int, string>> ImportDat(string filename)
+        public Dictionary<int, int> ParseUserDat(string filename)
+        {
+            Dictionary<int, int> dict = new Dictionary<int, int> ();
+
+            UDisk udisk = new UDisk();
+
+            byte[] byDataBuf = null;
+            int iLength;
+            int iCount;//count of users
+
+            int iPIN = 0;
+            int iPrivilege = 0;
+            string sName = "";
+            string sPassword = "";
+            int iCard = 0;
+            int iGroup = 0;
+            string sTimeZones = "";
+            string sPIN2 = "";
+
+            if (filename != null)
+            {
+                FileStream stream = new FileStream(filename, FileMode.OpenOrCreate, FileAccess.Read);
+                byDataBuf = File.ReadAllBytes(filename);
+
+                iLength = Convert.ToInt32(stream.Length);
+                if (iLength % 72 != 0)
+                {
+                    MessageBox.Show("Хэрэглэгчийн user.dat файлыг уншихад алдаа гарлаа. Зөв файл оруулсан эсэхээ ахин нягтлана уу.", "Алдаа", MessageBoxButton.OK);
+                    return dict;
+                }
+                iCount = iLength / 72;
+
+                for (int j = 0; j < iCount; j++)//loop to manage all the users
+                {
+                    byte[] byUserInfo = new byte[72];
+                    for (int i = 0; i < 72; i++)//loop to manage every user's information
+                    {
+                        byUserInfo[i] = byDataBuf[j * 72 + i];
+                    }
+                    udisk.GetSSRUserInfoFromDat(byUserInfo, out iPIN, out iPrivilege, out sPassword, out sName, out iCard, out iGroup, out sTimeZones, out sPIN2);
+                    dict.Add(iPIN, Int32.Parse(sPIN2));
+
+                    byUserInfo = null;
+                }
+                stream.Close();
+            }
+            return dict;
+        }
+
+        public Dictionary<int, Dictionary<int, string>> ParseFingerprintDat(string filename, Dictionary<int, int> userPinDictionary)
         {
             UDisk udisk = new UDisk();
 
@@ -382,6 +431,7 @@ namespace IrtsBurtgel
                     i = iStartIndex - 1;
 
                     udisk.GetTmp10FromFp10(byTmpInfo, iSize, out iPIN, out fid, out iValid, out sTemplate);
+                    iPIN = userPinDictionary[iPIN];
                     if (!dict.ContainsKey(iPIN))
                     {
                         Dictionary<int, string> fps = new Dictionary<int, string>();
@@ -396,10 +446,6 @@ namespace IrtsBurtgel
                     byTmpInfo = null;
                 }
                 stream.Close();
-            }
-            else
-            {
-                return dict;
             }
             return dict;
         }

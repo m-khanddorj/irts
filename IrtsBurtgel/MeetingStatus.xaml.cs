@@ -330,7 +330,7 @@ namespace IrtsBurtgel
                     Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center, FontSize = 15 };
                     Label status = new Label
                     {
-                        Content = att.statusId == 2 ? statuses[att.statusId] + " (" + att.regTime + ")" : statuses[att.statusId],
+                        Content = att.statusId == 2 ? "(" + att.regTime + ") " + statuses[att.statusId] : statuses[att.statusId],
                         Foreground = Brushes.White,
                         HorizontalAlignment = HorizontalAlignment.Stretch,
                         HorizontalContentAlignment = HorizontalAlignment.Center,
@@ -475,7 +475,7 @@ namespace IrtsBurtgel
             Attendance attendance = (Attendance)identifiedUserAttendance[1];
             if (meetingController.status == MeetingController.MEETING_STARTED)
             {
-                ((Label)userGrids[user.id].Children[2]).Content = attendance.statusId == 2 ? statuses[attendance.statusId] + " (" + attendance.regTime + ")" : statuses[attendance.statusId];
+                ((Label)userGrids[user.id].Children[2]).Content = attendance.statusId == 2 ? "(" + attendance.regTime + ") " + statuses[attendance.statusId] : statuses[attendance.statusId];
 
                 switch (attendance.statusId)
                 {

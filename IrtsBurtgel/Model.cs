@@ -225,7 +225,7 @@ namespace IrtsBurtgel
                     string sqlpart1 = String.Join(",", keyValueStr);
 
                     string sql = "SELECT * FROM \"" + staticObj.TableName + "\" WHERE " + staticObj.IDName + " IN (" + sqlpart1 + ")";
-
+                    Console.WriteLine(sql);
                     using (SqlCommand selectCommand = new SqlCommand(sql, conn))
                     {
                         for (int i = 0; i < list.Length; i++)

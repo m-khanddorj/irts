@@ -121,10 +121,9 @@ namespace IrtsBurtgel
                         {
                             continue;
                         }
-
                         ComboBoxItem comboboxItem = new ComboBoxItem
                         {
-                            Content = entry.Key == 2 ? statuses[entry.Key] + " (0)" : entry.Value,
+                            Content = entry.Key == 2 ? "(" + (att.regTime != -1 ? att.regTime : 0) + ")" + statuses[entry.Key] : entry.Value,
                             Foreground = Brushes.Black,
                             HorizontalAlignment = HorizontalAlignment.Stretch,
                             HorizontalContentAlignment = HorizontalAlignment.Center,

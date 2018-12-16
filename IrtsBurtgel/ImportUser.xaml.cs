@@ -21,7 +21,8 @@ namespace IrtsBurtgel
     public partial class ImportUser : Window
     {
         public string xlPath;
-        public string datPath;
+        public string fpdatPath;
+        public string userdatPath;
         public string[] imagePaths;
         public int c;
         public ImportUser()
@@ -42,8 +43,8 @@ namespace IrtsBurtgel
             {
                 // Open document 
                 string filename = dlg.FileName;
-                datPath = filename;
-                datImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
+                fpdatPath = filename;
+                fpdatImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
                 c++;
             }
 
@@ -70,7 +71,7 @@ namespace IrtsBurtgel
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            if(c==3) this.DialogResult = true;
+            if(c==4) this.DialogResult = true;
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
@@ -91,6 +92,26 @@ namespace IrtsBurtgel
                 imageImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
                 c++;
             }
+        }
+
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.DefaultExt = ".dat";
+            dlg.Filter = "User data file (user.dat)|user.dat";
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
+            {
+                // Open document 
+                string filename = dlg.FileName;
+                userdatPath = filename;
+                userdatImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
+                c++;
+            }
+
         }
     }
 }
