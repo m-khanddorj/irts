@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -22,7 +23,7 @@ namespace IrtsBurtgel
 
         public string ExportAttendance(List<Meeting> meetings, DateTime startDate, DateTime endDate)
         {
-            if(meetings == null || meetings.Count == 0)
+            if (meetings == null || meetings.Count == 0)
             {
                 MessageBox.Show("Тайлан гаргах хурлаа сонгоно уу!");
                 return "";
@@ -38,7 +39,7 @@ namespace IrtsBurtgel
                 worksheet.Cells[1, 3].Value = "Хэлтэс";
                 worksheet.Cells[1, 4].Value = "Албан тушаал";
 
-                List<ArchivedMeeting> archivedMeetings = meetingController.archivedMeetingModel.GetByFK(meetings.First().IDName, meetings.Select(x => x is ModifiedMeeting? (((ModifiedMeeting)x).meeting_id):x.id).ToArray());
+                List<ArchivedMeeting> archivedMeetings = meetingController.archivedMeetingModel.GetByFK(meetings.First().IDName, meetings.Select(x => x is ModifiedMeeting ? (((ModifiedMeeting)x).meeting_id) : x.id).ToArray());
 
                 archivedMeetings.RemoveAll(x => x.meetingDatetime.Date < startDate || x.meetingDatetime.Date > endDate);
 
@@ -53,7 +54,7 @@ namespace IrtsBurtgel
                     worksheet.Cells[1, i + 5].Style.TextRotation = 90;
                 }
 
-                List<User> users= new List<User>();
+                List<User> users = new List<User>();
                 List<Attendance> attendances = meetingController.attendanceModel.GetByFK(archivedMeetings.First().IDName, archivedMeetings.Select(x => x.id).ToArray());
                 if (attendances.Count > 1900)
                 {
@@ -68,6 +69,8 @@ namespace IrtsBurtgel
                     users = meetingController.userModel.Get(attendances.Select(x => x.userId).ToArray());
                 }
                 Dictionary<int, string> positions = meetingController.positionModel.GetAll().ToDictionary(x => x.id, x => x.name);
+                Dictionary<int, string> abbrStatuses = meetingController.statusModel.GetAll().ToDictionary(x => x.id, x => GetAbbr(x.name));
+                Dictionary<int, string> statuses = meetingController.statusModel.GetAll().ToDictionary(x => x.id, x => x.name);
                 Dictionary<int, string> departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
 
                 Dictionary<int, int[,]> departmentAttendance = new Dictionary<int, int[,]>();
@@ -99,7 +102,7 @@ namespace IrtsBurtgel
                     worksheet.Cells[i + 2, archivedMeetings.Count + 5].Formula = "COUNTIF(" + columnRange + ", \"И\")";
                     worksheet.Cells[i + 2, archivedMeetings.Count + 6].Formula = "COUNTIF(" + columnRange + ", \"Х*\")";
                     worksheet.Cells[i + 2, archivedMeetings.Count + 7].Formula = "COUNTIF(" + columnRange + ", \"Т\")";
-                    worksheet.Cells[i + 2, archivedMeetings.Count + 8].Formula = "(COUNTIF(" + columnRange + ", \"И\") + COUNTIF(" + columnRange + ", \"Х*\") + COUNTIF(" + columnRange + ", \"Ч\"))/COUNTA(" + columnRange + ")";
+                    worksheet.Cells[i + 2, archivedMeetings.Count + 8].Formula = "(COUNTIF(" + columnRange + ", \"И\") + COUNTIF(" + columnRange + ", \"Х*\") + COUNTIF(" + columnRange + ", \"Ч*\"))/COUNTA(" + columnRange + ")";
 
                     worksheet.Cells[i + 2, archivedMeetings.Count + 8].Style.Numberformat.Format = "#0%";
 
@@ -124,7 +127,7 @@ namespace IrtsBurtgel
                                 case 2: status = "Х(" + attendance.regTime.ToString() + ")"; colFromHex = ColorTranslator.FromHtml("#ffd480"); break;
                                 case 14: status = "Т"; colFromHex = ColorTranslator.FromHtml("#ffcccc"); break;
                                 case 15: status = "Б"; colFromHex = ColorTranslator.FromHtml("#d9d9d9"); break;
-                                default: status = "Ч"; colFromHex = ColorTranslator.FromHtml("#b3d9ff"); break;
+                                default: status = "Ч(" + abbrStatuses[attendance.statusId] + ")"; colFromHex = ColorTranslator.FromHtml("#b3d9ff"); break;
                             }
                             worksheet.Cells[j + 2, i + 5].Value = status;
                             worksheet.Cells[j + 2, i + 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
@@ -137,17 +140,44 @@ namespace IrtsBurtgel
                     string columnName = GetExcelColumnName(i + 5);
                     string columnRange = columnName + "2:" + columnName + (users.Count + 1).ToString();
 
-                    worksheet.Cells[users.Count + 2, i + 5].Formula = "COUNTIF(" + columnRange + ", \"И\")/COUNTA(" + columnRange + ")";
-                    worksheet.Cells[users.Count + 3, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Х*\")";
-                    worksheet.Cells[users.Count + 4, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Т\")";
-                    
-                    worksheet.Cells[users.Count + 2, i + 5].Style.Numberformat.Format = "#0%";
-
+                    worksheet.Cells[users.Count + 2, i + 5].Formula = "COUNTA(" + columnRange + ")";
+                    worksheet.Cells[users.Count + 3, i + 5].Formula = "COUNTIF(" + columnRange + ", \"И\")&\" \"&TEXT(COUNTIF(" + columnRange + ", \"И\")/COUNTA(" + columnRange + "),\"(##%)\")";
+                    worksheet.Cells[users.Count + 4, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Х*\")&\" \"&TEXT(COUNTIF(" + columnRange + ", \"Х*\")/COUNTA(" + columnRange + "),\"(##%)\")";
+                    worksheet.Cells[users.Count + 5, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Ч*\")&\" \"&TEXT(COUNTIF(" + columnRange + ", \"Ч*\")/COUNTA(" + columnRange + "),\"(##%)\")";
+                    worksheet.Cells[users.Count + 6, i + 5].Formula = "COUNTIF(" + columnRange + ", \"Т\")&\" \"&TEXT(COUNTIF(" + columnRange + ", \"Т\")/COUNTA(" + columnRange + "),\"(##%)\")";
+                    worksheet.Cells[users.Count + 2, i + 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[users.Count + 3, i + 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[users.Count + 4, i + 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[users.Count + 5, i + 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                    worksheet.Cells[users.Count + 6, i + 5].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                 }
 
-                worksheet.Cells[users.Count + 2, 2].Value = "Нийт ирсэн";
-                worksheet.Cells[users.Count + 3, 2].Value = "Нийт хоцорсон";
-                worksheet.Cells[users.Count + 4, 2].Value = "Нийт тасалсан";
+                worksheet.Cells[users.Count + 2, 2].Value = "Нийт";
+                worksheet.Cells[users.Count + 3, 2].Value = "Нийт ирсэн";
+                worksheet.Cells[users.Count + 4, 2].Value = "Нийт хоцорсон";
+                worksheet.Cells[users.Count + 5, 2].Value = "Нийт чөлөөтэй";
+                worksheet.Cells[users.Count + 6, 2].Value = "Нийт тасалсан";
+
+                worksheet.Cells[users.Count + 8, 2].Value = "Тайлбар";
+                worksheet.Cells[users.Count + 8, 2].Style.Font.Bold = true;
+                int statusCount = 0;
+                foreach(KeyValuePair<int, string> status in statuses)
+                {
+                    string value;
+                    Color colFromHex;
+                    switch (status.Key)
+                    {
+                        case 1: value = "И = Ирсэн"; colFromHex = ColorTranslator.FromHtml("#adebad"); break;
+                        case 2: value = "Х(#) = Хоцорсон(Минут)"; colFromHex = ColorTranslator.FromHtml("#ffd480"); break;
+                        case 14: value = "Т = Тасалсан"; colFromHex = ColorTranslator.FromHtml("#ffcccc"); break;
+                        case 15: value = "Б = Бүртгэгдээгүй"; colFromHex = ColorTranslator.FromHtml("#d9d9d9"); break;
+                        default: value = "Ч(" + abbrStatuses[status.Key] + ") = Чөлөөтэй(" + status.Value + ")"; colFromHex = ColorTranslator.FromHtml("#b3d9ff"); break;
+                    }
+                    worksheet.Cells[users.Count + 9 + statusCount, 2].Value = value;
+                    worksheet.Cells[users.Count + 9 + statusCount, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[users.Count + 9 + statusCount, 2].Style.Fill.BackgroundColor.SetColor(colFromHex);
+                    statusCount++;
+                }
 
                 //Ok now format the values;
                 using (var range = worksheet.Cells[1, 1, 1, archivedMeetings.Count + 4])
@@ -166,7 +196,7 @@ namespace IrtsBurtgel
                 worksheet.HeaderFooter.OddFooter.CenteredText = ExcelHeaderFooter.SheetName;
                 // add the file path to the footer
                 worksheet.HeaderFooter.OddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
-                
+
                 if (departmentAttendance.Count > 0)
                 {
 
@@ -193,13 +223,22 @@ namespace IrtsBurtgel
                         foreach (KeyValuePair<int, int[,]> entry in departmentAttendance)
                         {
                             worksheet2.Cells[j + 2, i + 3].Value = (entry.Value[i, 1] + entry.Value[i, 2]) + "/" + entry.Value[i, 16];
-                            if (!departmentAttendancePercent.ContainsKey(entry.Key))
+                            double value;
+                            if (entry.Value[i, 16] == 0)
                             {
-                                departmentAttendancePercent.Add(entry.Key, ((double)(entry.Value[i, 1] + entry.Value[i, 2]))/entry.Value[i, 16]);
+                                value = 0;
                             }
                             else
                             {
-                                departmentAttendancePercent[entry.Key] += ((double)(entry.Value[i, 1] + entry.Value[i, 2])) / entry.Value[i, 16];
+                                value = ((double)(entry.Value[i, 1] + entry.Value[i, 2])) / entry.Value[i, 16];
+                            }
+                            if (!departmentAttendancePercent.ContainsKey(entry.Key))
+                            {
+                                departmentAttendancePercent.Add(entry.Key, value);
+                            }
+                            else
+                            {
+                                departmentAttendancePercent[entry.Key] += value;
                             }
                             j++;
                         }
@@ -218,8 +257,8 @@ namespace IrtsBurtgel
                             {
                                 worksheet2.Cells[i + 2, 2].Value = "Бусад";
                             }
-                            
-                            worksheet2.Cells[i + 2, archivedMeetings.Count + 3].Value = departmentAttendancePercent[entry.Key] / departmentAttendance.Count;
+
+                            worksheet2.Cells[i + 2, archivedMeetings.Count + 3].Value = departmentAttendancePercent[entry.Key] / archivedMeetings.Count;
                             worksheet2.Cells[i + 2, archivedMeetings.Count + 3].Style.Numberformat.Format = "#0%";
 
                             i++;
@@ -271,6 +310,16 @@ namespace IrtsBurtgel
             {
                 yield return locations.GetRange(i, Math.Min(nSize, locations.Count - i));
             }
+        }
+
+        private string GetAbbr(string str)
+        {
+            string firstLetters = "";
+            foreach (var part in str.Split(' '))
+            {
+                firstLetters += part.Substring(0, 1).ToUpper();
+            }
+            return firstLetters;
         }
 
         private string GetExcelColumnName(int columnNumber)

@@ -8,6 +8,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace IrtsBurtgel
 {
@@ -16,12 +18,14 @@ namespace IrtsBurtgel
         private Model<User> userModel;
         private Model<Department> departmentModel;
         private Model<Position> positionModel;
+        private MeetingController meetingController;
 
-        public ExternalDataImporter()
+        public ExternalDataImporter(MeetingController mc)
         {
             userModel = new Model<User>();
             departmentModel = new Model<Department>(true);
             positionModel = new Model<Position>(true);
+            meetingController = mc;
         }
 
         public bool ImportUserData(string excelpath, string datpath, List<string> imagepath)
@@ -96,6 +100,8 @@ namespace IrtsBurtgel
 
             List<Position> positions = positionModel.GetAll();
 
+            positionModel.MarkAllAsDeleted();
+
             while (reader.Read())
             {
                 int posid = GetInt(reader, 0);
@@ -136,6 +142,8 @@ namespace IrtsBurtgel
 
             List<Department> departments = departmentModel.GetAll();
 
+            departmentModel.MarkAllAsDeleted();
+
             while (reader.Read())
             {
                 int depid = GetInt(reader, 0);
@@ -173,6 +181,7 @@ namespace IrtsBurtgel
         {
             try
             {
+                UnloadUserImages();
                 string targetDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages";
                 Directory.CreateDirectory(targetDir);
                 Console.WriteLine("Copying user images into " + targetDir);
@@ -181,10 +190,50 @@ namespace IrtsBurtgel
                     Console.WriteLine("Copying image from " + file + " to " + Path.Combine(targetDir, Path.GetFileName(file)));
                     File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
                 }
+                LoadUserImages();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Гишүүдийн зураг хуулах явцад алдаа гарлаа. Алдааны мессеж: " + ex.Message);
+            }
+        }
+
+        public void UnloadUserImages()
+        {
+            foreach (object[] userImage in meetingController.userImagePool)
+            {
+                Image imageControl = (Image)userImage[0];
+                BitmapImage image = (BitmapImage)userImage[1];
+                if (imageControl != null && imageControl.IsEnabled)
+                {
+                    imageControl.Source = null;
+                    image.Freeze();
+                    userImage[1] = null;
+                }
+            }
+        }
+
+        public void LoadUserImages()
+        {
+            foreach (object[] userImage in meetingController.userImagePool)
+            {
+                Image imageControl = (Image)userImage[0];
+                BitmapImage image = (BitmapImage)userImage[1];
+                User user = (User)userImage[2];
+                BitmapImage webImage;
+                try
+                {
+                    webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
+                }
+                catch (Exception ex)
+                {
+                    webImage = new BitmapImage(new Uri("./images/user.png", UriKind.Relative));
+                }
+                if(imageControl != null && imageControl.IsEnabled)
+                {
+                    imageControl.Source = webImage;
+                    userImage[1] = webImage;
+                }
             }
         }
 
@@ -198,6 +247,8 @@ namespace IrtsBurtgel
 
             bool result = true;
 
+            userModel.MarkAllAsDeleted();
+
             while (reader.Read())
             {
                 int pinnum = GetInt(reader, 0);
@@ -206,18 +257,15 @@ namespace IrtsBurtgel
                     continue;
                 }
                 Dictionary<int, string> fingerprint;
-
+                
+                string fingerprint0 = "";
+                string fingerprint1 = "";
                 if (fingerprints.ContainsKey(pinnum))
                 {
                     fingerprint = fingerprints[pinnum];
+                    fingerprint0 = fingerprint.ContainsKey(0) ? fingerprint[0] : "";
+                    fingerprint1 = fingerprint.ContainsKey(1) ? fingerprint[1] : "";
                 }
-                else
-                {
-                    continue;
-                }
-
-                string fingerprint0 = fingerprint.ContainsKey(0) ? fingerprint[0] : "";
-                string fingerprint1 = fingerprint.ContainsKey(1) ? fingerprint[1] : "";
 
                 int depid = GetInt(reader, 8);
                 int posid = GetInt(reader, 2);

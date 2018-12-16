@@ -101,7 +101,8 @@ namespace IrtsBurtgel
                         Height = (int)(webImage.Width * scale),
                         Width = (int)(webImage.Height * scale)
                     };
-                    
+                    meetingController.userImagePool.Add(new Object[] { image, webImage, user });
+
                     Label name = new Label {
                         Content = user.fname + " " + user.lname,
                         HorizontalAlignment = HorizontalAlignment.Center,
@@ -243,14 +244,30 @@ namespace IrtsBurtgel
                     default: last[2]--; break;
                 }
 
+                Console.WriteLine("Last 1 + 2 + 3: " + (last[0] + last[1] + last[2]).ToString());
+                Console.WriteLine("Dep Child count: " + (depAttWrapPanel.Children.Count).ToString());
                 if (attendance.statusId == 1)
                 {
-                    depAttWrapPanel.Children.Insert(last[0] + last[1] + last[2], (Border)userGrids[user.id].Parent);
+                    if ((last[0] + last[1] + last[2]) < depAttWrapPanel.Children.Count)
+                    {
+                        depAttWrapPanel.Children.Insert(last[0] + last[1] + last[2], (Border)userGrids[user.id].Parent);
+                    }
+                    else
+                    {
+                        depAttWrapPanel.Children.Add((Border)userGrids[user.id].Parent);
+                    }
                     last[3]++;
                 }
                 else if (attendance.statusId == 2)
                 {
-                    depAttWrapPanel.Children.Insert(last[0], (Border)userGrids[user.id].Parent);
+                    if (last[0] < depAttWrapPanel.Children.Count)
+                    {
+                        depAttWrapPanel.Children.Insert(last[0], (Border)userGrids[user.id].Parent);
+                    }
+                    else
+                    {
+                        depAttWrapPanel.Children.Add((Border)userGrids[user.id].Parent);
+                    }
                     last[1]++;
                 }
                 else if (attendance.statusId == 15)
@@ -260,7 +277,14 @@ namespace IrtsBurtgel
                 }
                 else
                 {
-                    depAttWrapPanel.Children.Insert(last[0] + last[1], (Border)userGrids[user.id].Parent);
+                    if ((last[0] + last[1]) < depAttWrapPanel.Children.Count)
+                    {
+                        depAttWrapPanel.Children.Insert(last[0] + last[1], (Border)userGrids[user.id].Parent);
+                    }
+                    else
+                    {
+                        depAttWrapPanel.Children.Add((Border)userGrids[user.id].Parent);
+                    }
                     last[2]++;
                 }
             }
@@ -298,6 +322,12 @@ namespace IrtsBurtgel
                     }
                 }
             });
+        }
+        
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            Owner = null;
         }
     }
 }

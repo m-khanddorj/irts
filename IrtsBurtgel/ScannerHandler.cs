@@ -75,7 +75,7 @@ namespace IrtsBurtgel
             }
         }
 
-        public bool StartCaptureThread()
+        public bool StartCaptureThread(Action captureFunction)
         {
             int ret = zkfp.ZKFP_ERR_OK;
             if (IntPtr.Zero == (mDevHandle = zkfp2.OpenDevice(0)))
@@ -108,7 +108,7 @@ namespace IrtsBurtgel
 
             Console.WriteLine("reader parameter, image width:" + mfpWidth + ", height:" + mfpHeight + ", dpi:" + mfpDpi);
             
-            captureThread = new Thread(new ThreadStart(DoCapture));
+            captureThread = new Thread(new ThreadStart(captureFunction));
             captureThread.IsBackground = true;
             captureThread.Start();
             bIsTimeToDie = false;
@@ -117,7 +117,7 @@ namespace IrtsBurtgel
             return true;
         }
 
-        private void DoCapture()
+        public void DoCapture()
         {
             while (!bIsTimeToDie)
             {
@@ -134,7 +134,7 @@ namespace IrtsBurtgel
                 Thread.Sleep(200);
             }
         }
-
+        
         public void Stop()
         {
             zkfp2.CloseDevice(mDevHandle);
@@ -165,11 +165,12 @@ namespace IrtsBurtgel
                     //0x0f309420
                     int ret = zkfp2.DBMatch(mDBHandle, blob1, blob3);
 
-                    if (ret > 80)
+                    if (ret > 50)
                     {
                         maxRet = ret;
                         identifiedAttendance = userAttendance;
-                        break;
+                        Console.WriteLine("user =" + user.pin);
+                        Console.WriteLine("ret =" + ret);
                     }
 
                     if (user.fingerprint1 != "")
@@ -177,11 +178,10 @@ namespace IrtsBurtgel
                         blob3 = Convert.FromBase64String(user.fingerprint1);
                         ret = zkfp2.DBMatch(mDBHandle, blob1, blob3);
 
-                        if (ret > 80)
+                        if (ret > 50)
                         {
                             maxRet = ret;
                             identifiedAttendance = userAttendance;
-                            break;
                         }
                     }
                 }

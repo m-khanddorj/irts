@@ -3,10 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:DVC="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:local="clr-namespace:IrtsBurtgel"
+        xmlns:winformchart="clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"
         mc:Ignorable="d"
-        Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Ирц бүртгэлийн төлөв" Height="450" Width="800" WindowStartupLocation="Manual" Icon="images/time-logo.png">
+        Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Ирц бүртгэлийн төлөв" Height="530.455" Width="1049.545" WindowStartupLocation="Manual" Icon="images/time-logo.png">
     <Grid Background="#FF007ACC">
         <Grid.RowDefinitions>
             <RowDefinition Height="110"/>
@@ -19,7 +20,23 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" x:Name="AttendanceLabel" Content="Ирц" VerticalAlignment="Center" FontSize="20" Foreground="#fff"/>
+                <StackPanel Grid.Column="0" HorizontalAlignment="Stretch" DockPanel.Dock="Left" Margin="10 0 0 0">
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" BorderBrush="{x:Null}" Click="StopMeetingClicked">
+                            <Label FontWeight="Bold" Content="Хурал зогсоох"/>
+                        </Button>
+                        <Button Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left"  Width="30" Height="30" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
+                            <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
+                        </Button>
+                    </Grid>
+                    <TextBlock HorizontalAlignment="Left" x:Name="meetingName" Foreground="White" FontSize="17" FontStretch="Condensed">Хурлын нэр</TextBlock>
+                    <TextBlock HorizontalAlignment="Left" x:Name="meetingDate" Foreground="White" FontSize="17">Эхлэх огноо</TextBlock>
+                    <TextBlock HorizontalAlignment="Left" x:Name="currentTime" Foreground="White" FontSize="17">Статус</TextBlock>
+                </StackPanel>
                 <Grid Grid.Column="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -28,25 +45,50 @@
                     <Image Grid.Column="0" Source="images/logo.png"  Width="80" Height="80" Margin="10"></Image>
                     <TextBlock Grid.Column="1" TextAlignment="Center" VerticalAlignment="Center" FontSize="25" Foreground="White" TextWrapping="Wrap" FontWeight="Bold">ЦЕГ-ын Эрүүгийн Цагдаагийн Алба</TextBlock>
                 </Grid>
-                <StackPanel Grid.Column="2" HorizontalAlignment="Right" DockPanel.Dock="Right" Margin="0 0 10 0">
-                    <Button VerticalAlignment="Center" HorizontalAlignment="Right"  Width="30" Height="30" Background="{x:Null}" BorderBrush="{x:Null}" Click="Expand">
-                        <Image Height="20" Width="20" Source="images/expand.png" x:Name="fullScreenToggleImage"/>
-                    </Button>
-                    <TextBlock HorizontalAlignment="Right" x:Name="meetingName" Foreground="White" FontSize="17" FontStretch="Condensed">Meeting name</TextBlock>
-                    <TextBlock HorizontalAlignment="Right" x:Name="meetingDate" Foreground="White" FontSize="17">Date</TextBlock>
-                    <TextBlock HorizontalAlignment="Right" x:Name="currentTime" Foreground="White" FontSize="17">sme</TextBlock>
-                </StackPanel>
+                <Grid Grid.Column="2" Margin="5 10 5 5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="95px"/>
+                        <ColumnDefinition Width="50px"/>
+                        <ColumnDefinition Width="50px"/>
+                        <ColumnDefinition Width="50px"/>
+                        <ColumnDefinition Width="50px"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="5px"/>
+                        <RowDefinition Height="24px"/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Column="1" Grid.Row="0" Content="Нийт ирц:" VerticalAlignment="Center" FontSize="18" Foreground="#fff"/>
+                    <Border Grid.Column="2" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightGray">
+                        <TextBlock x:Name="AttendanceLabel1" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="#000">0</TextBlock>
+                    </Border>
+                    <Border Grid.Column="3" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightGreen">
+                        <TextBlock x:Name="AttendanceLabel2" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="#000">0</TextBlock>
+                    </Border>
+                    <Border Grid.Column="4" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightSalmon">
+                        <TextBlock x:Name="AttendanceLabel3" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="#000">0</TextBlock>
+                    </Border>
+                    <Border Grid.Column="5" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightCoral">
+                        <TextBlock x:Name="AttendanceLabel4" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="#000">0</TextBlock>
+                    </Border>
+                    <Border Grid.Column="3" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightGreen">
+                        <TextBlock x:Name="AttendancePercentageLabel1" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="#000">0%</TextBlock>
+                    </Border>
+                    <Border Grid.Column="4" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightSalmon">
+                        <TextBlock x:Name="AttendancePercentageLabel2" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="#000">0%</TextBlock>
+                    </Border>
+                    <Border Grid.Column="5" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightCoral">
+                        <TextBlock x:Name="AttendancePercentageLabel3" FontWeight="Bold" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" Foreground="#000">0%</TextBlock>
+                    </Border>
+                    <Border Grid.Column="3" Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="LightCoral">
+                        <Button x:Name="ShowMoreButton" FontWeight="Bold" FontSize="14" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="#000" Click="ShowMoreStatus">Дэлгэрэнгүй</Button>
+                    </Border>
+                </Grid>
             </Grid>
-            
-            
         </DockPanel>
         <Grid Grid.Row="1" x:Name="gridDeparts" Background="White">
-            <DVC:Chart Name="mcChart">
-                <DVC:Chart.Series>
-                    <DVC:PieSeries Title="Experience" IndependentValueBinding="{Binding Path=Key}" DependentValueBinding="{Binding Path=Value}">
-                    </DVC:PieSeries>
-                </DVC:Chart.Series>
-            </DVC:Chart>
         </Grid>
     </Grid>
     <Window.Resources>

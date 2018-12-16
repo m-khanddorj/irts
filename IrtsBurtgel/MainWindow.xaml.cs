@@ -17,6 +17,7 @@ using System.IO;
 using Sample;
 using System.Text.RegularExpressions;
 using Xceed.Wpf.Toolkit;
+using System.Reflection;
 
 namespace IrtsBurtgel
 {
@@ -56,29 +57,29 @@ namespace IrtsBurtgel
             meetingStatusWindows = new List<MeetingStatus>();
             archModel = new Model<ArchivedMeeting>();
             attModel = new Model<Attendance>();
-
             System.Windows.Threading.DispatcherTimer dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
             dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
             dispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             dispatcherTimer.Start();
         }
+
         private void dispatcherTimer_Tick(object sender, EventArgs e)
         {
-            List<Object[]> objs = meetingController.GetClosestMeetings(1);
-            if (objs == null || objs.Count == 0)
+            List<Meeting> meetings = meetingController.FindByDate(DateTime.Today);
+            if (meetings == null || meetings.Count == 0)
             {
                 time.Text = "Хурал байхгүй байна.";
                 return;
             }
             else
             {
-                Object[] obj = objs[0];
+                Meeting meeting = meetings[0];
                 string texttodisplay = meetingController.TextToDisplay();
                 time.Text = texttodisplay;
                 meetingController.CheckMeeting();
                 foreach (MeetingStatus ms in meetingStatusWindows)
                 {
-                    ms.UpdateCountDown(obj);
+                    ms.UpdateCountDown();
                 }
             }
         }
@@ -113,6 +114,7 @@ namespace IrtsBurtgel
             {
                 meetingStatusWindows.Remove(meetingStatus);
             };
+            meetingStatus.Owner = this;
             meetingStatusWindows.Add(meetingStatus);
             //meetingStatus.WindowStartupLocation = WindowStartupLocation.Manual;
 
@@ -465,13 +467,55 @@ namespace IrtsBurtgel
                 }
                 else if ((string)((Button)sender).Tag == "user")
                 {
+                    Dictionary<int, string> departmentNames = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
+                    int i = 1;
                     foreach (User user in userModel.GetAll())
                     {
-                        ListBoxItem lbi = new ListBoxItem();
-                        lbi.Content = user.fname + " " + user.lname;
-                        lbi.Tag = user.id;
-                        lbi.Uid = user.id.ToString();
+                        if(user.isDeleted)
+                        {
+                            continue;
+                        }
+                        ListBoxItem lbi = new ListBoxItem
+                        {
+                            Height = 30
+                        };
+                        Grid grid = new Grid();
+                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) });
+                        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) });
+                        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                        Label number = new Label
+                        {
+                            Content = i + ". "
+                        };
+                        Label name = new Label
+                        {
+                            Content = user.lname + " " + user.fname + ", " + (user.departmentId != -1 ? departmentNames[user.departmentId] : "Хэлтэсгүй")
+                        };
+                        if (user.fingerprint0 == "" && user.fingerprint1 == "")
+                        {
+                            Image nofp = new Image();
+                            nofp.Source = new BitmapImage(new Uri("images/no_fp.png", UriKind.Relative));
+                            nofp.Width = 20;
+                            Grid.SetColumn(nofp, 2);
+                            grid.Children.Add(nofp);
+                        }
+                        if (!File.Exists(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages\\" + user.pin + ".jpg"))
+                        {
+                            Image noimg = new Image();
+                            noimg.Source = new BitmapImage(new Uri("images/no_image.png", UriKind.Relative));
+                            noimg.Width = 20;
+                            Grid.SetColumn(noimg, 3);
+                            grid.Children.Add(noimg);
+                        }
+                        Grid.SetColumn(number, 0);
+                        Grid.SetColumn(name, 1);
+                        grid.Children.Add(number);
+                        grid.Children.Add(name);
+                        lbi.Content = grid;
                         listbox.Items.Add(lbi);
+                        i++;
                     }
                 }
 
@@ -749,6 +793,16 @@ namespace IrtsBurtgel
             stackPanel.Margin = new Thickness(10);
 
             List<Object> controls = new List<Object>();
+
+            /**
+             * Title 
+             */
+            Label title = new Label
+            {
+                Content = "Шинээр хурал нэмэх",
+                FontSize = 18,
+                FontWeight = FontWeights.Bold
+            };
 
             /**
              * Name stack
@@ -1088,6 +1142,7 @@ namespace IrtsBurtgel
             saveButton.Click += insertMeeting;
             saveStack.Children.Add(saveButton);
 
+            stackPanel.Children.Add(title);
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
             stackPanel.Children.Add(sdStack);
@@ -1188,21 +1243,7 @@ namespace IrtsBurtgel
             /** checking and inserting interval()freq*/
             try
             {
-                int type = Byte.Parse(((ComboBoxItem)freqType.SelectedItem).Tag.ToString());
-                if (type == 1)
-                {
-                    meeting.intervalType = 7;
-                    meeting.intervalDay = 7;
-                }
-                else if (type == 2)
-                {
-                    meeting.intervalType = 7;
-                    meeting.intervalDay = 14;
-                }
-                else
-                {
-                    meeting.intervalDay = type;
-                }
+                meeting.intervalType = Byte.Parse(((ComboBoxItem)freqType.SelectedItem).Tag.ToString());
             }
             catch (Exception ex)
             {
@@ -1290,6 +1331,13 @@ namespace IrtsBurtgel
             stackPanel.VerticalAlignment = VerticalAlignment.Center;
             stackPanel.Orientation = Orientation.Vertical;
             stackPanel.Margin = new Thickness(10, 10, 10, 10);
+
+            Label title = new Label
+            {
+                Content = "Хурал засах",
+                FontSize = 18,
+                FontWeight = FontWeights.Bold
+            };
 
             /**
                 * Name stack
@@ -1550,9 +1598,14 @@ namespace IrtsBurtgel
             List<MeetingAndUser> maus = mauModel.GetByFK(meeting.IDName, meeting.id);
             foreach (MeetingAndUser mau in maus)
             {
+                User tempUser = userModel.Get(mau.userId);
+                if(tempUser.isDeleted)
+                {
+                    continue;
+                }
                 ListBoxItem listBoxItem = new ListBoxItem();
-                listBoxItem.Content = userModel.Get(mau.userId).fname + " " + userModel.Get(mau.userId).lname;
-                listBoxItem.Tag = userModel.Get(mau.userId).id;
+                listBoxItem.Content = tempUser.fname + " " + tempUser.lname;
+                listBoxItem.Tag = tempUser.id;
                 pUserList.Items.Add(listBoxItem);
             }
             //Registering the name
@@ -1692,6 +1745,7 @@ namespace IrtsBurtgel
             saveStack.Children.Add(removeButton);
             saveStack.Children.Add(saveButton);
 
+            stackPanel.Children.Add(title);
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
             stackPanel.Children.Add(sdStack);
@@ -2331,6 +2385,13 @@ namespace IrtsBurtgel
             stackPanel.Orientation = Orientation.Vertical;
             stackPanel.Margin = new Thickness(10);
 
+            Label title = new Label
+            {
+                Content = "Хурал засах",
+                FontSize = 18,
+                FontWeight = FontWeights.Bold
+            };
+
             /**
                 * Name stack
                 */
@@ -2447,10 +2508,11 @@ namespace IrtsBurtgel
 
             saveButton.Tag = controls;
             saveButton.Click += setMMeeting;
-
+            
             saveStack.Children.Add(saveButton);
             saveStack.Children.Add(backButton);
 
+            stackPanel.Children.Add(title);
             stackPanel.Children.Add(nameStack);
             stackPanel.Children.Add(stStack);
             stackPanel.Children.Add(durationStack);
@@ -2760,6 +2822,7 @@ namespace IrtsBurtgel
                 Height = (int)(webImage.Width * scale),
                 Width = (int)(webImage.Height * scale)
             };
+            meetingController.userImagePool.Add(new Object[] { imageControl, webImage, user });
 
             Grid.SetColumn(imageControl, 0);
             Grid.SetColumnSpan(imageControl, 2);
@@ -2898,7 +2961,7 @@ namespace IrtsBurtgel
 
             if (iuser.DialogResult == true)
             {
-                ExternalDataImporter edi = new ExternalDataImporter();
+                ExternalDataImporter edi = new ExternalDataImporter(meetingController);
                 edi.ImportUserData(iuser.xlPath, iuser.datPath, iuser.imagePaths.ToList());
                 ShowMembers(null, null);
             }
@@ -2936,7 +2999,10 @@ namespace IrtsBurtgel
 
             DockPanel dockPanel = addHeader(buttons, rbuttons);
 
-            ListBox listbox = new ListBox();
+            ListBox listbox = new ListBox
+            {
+                HorizontalContentAlignment = HorizontalAlignment.Stretch
+            };
             try
             {
                 RegisterName("listbox", listbox);
@@ -2954,11 +3020,50 @@ namespace IrtsBurtgel
             int i = 1;
             foreach (User user in users)
             {
-                ListBoxItem listBoxItem = new ListBoxItem();
-
-                listBoxItem.Content = i + ". " + user.lname + " " + user.fname + ", " + (user.departmentId != -1 ? departmentNames[user.departmentId] : "Хэлтэсгүй");
+                if (user.isDeleted)
+                {
+                    continue;
+                }
+                ListBoxItem listBoxItem = new ListBoxItem
+                {
+                    Height = 30
+                };
+                Grid grid = new Grid();
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) });
+                grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                Label number = new Label
+                {
+                    Content = i + ". "
+                };
+                Label name = new Label
+                {
+                    Content = user.lname + " " + user.fname + ", " + (user.departmentId != -1 ? departmentNames[user.departmentId] : "Хэлтэсгүй")
+                };
+                if(user.fingerprint0 == "" && user.fingerprint1 == "")
+                {
+                    Image nofp = new Image();
+                    nofp.Source = new BitmapImage(new Uri("images/no_fp.png", UriKind.Relative));
+                    nofp.Width = 20;
+                    Grid.SetColumn(nofp, 2);
+                    grid.Children.Add(nofp);
+                }
+                if (!File.Exists(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages\\" + user.pin + ".jpg"))
+                {
+                    Image noimg = new Image();
+                    noimg.Source = new BitmapImage(new Uri("images/no_image.png", UriKind.Relative));
+                    noimg.Width = 20;
+                    Grid.SetColumn(noimg, 3);
+                    grid.Children.Add(noimg);
+                }
+                Grid.SetColumn(number, 0);
+                Grid.SetColumn(name, 1);
+                grid.Children.Add(number);
+                grid.Children.Add(name);
+                listBoxItem.Content = grid;
                 listBoxItem.Uid = user.id.ToString();
-                listBoxItem.Height = 25;
                 listbox.Items.Add(listBoxItem);
                 i++;
             }
@@ -3000,7 +3105,7 @@ namespace IrtsBurtgel
             }
             catch (Exception ex)
             {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Тайлан гаргах явцад алдаа гарлаа. Алдааны мессеж: " + ex.ToString());
+                Xceed.Wpf.Toolkit.MessageBox.Show("Тайлан гаргах явцад алдаа гарлаа. Алдааны мессеж: " + ex.Message);
             }
 
         }

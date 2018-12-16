@@ -567,6 +567,45 @@ namespace IrtsBurtgel
             return result;
         }
 
+        public bool RemoveExcept(int[] list)
+        {
+            bool result = true;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection())
+                {
+                    conn.ConnectionString = connectionString;
+                    conn.Open();
+
+                    List<string> keyValueStr = new List<string>();
+
+                    for (int i = 0; i < list.Length; i++)
+                    {
+                        keyValueStr.Add("@id" + i.ToString());
+                    }
+                    string sqlpart1 = String.Join(",", keyValueStr);
+
+                    string sql = "DELETE FROM \"" + staticObj.TableName + "\" WHERE \"" + staticObj.IDName + "\" NOT IN (" + sqlpart1 + ") ";
+
+                    using (SqlCommand insertCommand = new SqlCommand(sql, conn))
+                    {
+                        for (int i = 0; i < list.Length; i++)
+                        {
+                            insertCommand.Parameters.Add(new SqlParameter("@id" + i.ToString(), list[i]));
+                        }
+
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                result = false;
+            }
+            return result;
+        }
+
         public bool RemoveAll()
         {
             bool result = true;
@@ -608,6 +647,73 @@ namespace IrtsBurtgel
                     using (SqlCommand insertCommand = new SqlCommand(sql, conn))
                     {
                         insertCommand.Parameters.Add(new SqlParameter("@id", id));
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                result = false;
+            }
+            return result;
+        }
+
+        public bool MarkAsDeletedExcept(int[] list)
+        {
+            bool result = true;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection())
+                {
+                    conn.ConnectionString = connectionString;
+                    conn.Open();
+
+                    List<string> keyValueStr = new List<string>();
+
+                    for (int i = 0; i < list.Length; i++)
+                    {
+                        keyValueStr.Add("@id" + i.ToString());
+                    }
+                    string sqlpart1 = String.Join(",", keyValueStr);
+
+                    string sql = "UPDATE \"" + staticObj.TableName + "\"  SET is_deleted = 1 WHERE \"" + staticObj.IDName + "\" NOT IN (" + sqlpart1 + ") ";
+
+                    using (SqlCommand insertCommand = new SqlCommand(sql, conn))
+                    {
+                        for (int i = 0; i < list.Length; i++)
+                        {
+                            insertCommand.Parameters.Add(new SqlParameter("@id" + i.ToString(), list[i]));
+                        }
+
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                result = false;
+            }
+            return result;
+        }
+
+        public bool MarkAllAsDeleted()
+        {
+            bool result = true;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection())
+                {
+                    conn.ConnectionString = connectionString;
+                    conn.Open();
+
+                    List<string> keyValueStr = new List<string>();
+
+                    string sql = "UPDATE \"" + staticObj.TableName + "\"  SET is_deleted = 1 WHERE 1=1 ";
+
+                    using (SqlCommand insertCommand = new SqlCommand(sql, conn))
+                    {
                         insertCommand.ExecuteNonQuery();
                     }
                 }

@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Controls.DataVisualization.Charting;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace IrtsBurtgel
 {
@@ -28,14 +20,12 @@ namespace IrtsBurtgel
         Dictionary<int, string> departments;
         Dictionary<int, WrapPanel> departmentWrapPanels;
         Dictionary<int, TextBlock[]> departmentAttendance;
-        Dictionary<int, Grid> userGrids;
+        Dictionary<int, System.Windows.Controls.Grid> userGrids;
         Dictionary<int, int[]> last;
-        Dictionary<string, int> keyValuePairs;
         public Dictionary<int, DepartmentStatus> departmentStatusWindows;
-        Grid globalSP;
+        public Dictionary<string, AttendanceStatus> attendanceStatusWindows;
         Chart chart;
         int status = 0;
-        object[] ongoingObj;
 
         //dummy data
         public MeetingStatus(MeetingController mc)
@@ -46,25 +36,12 @@ namespace IrtsBurtgel
             meetingController = mc;
             statuses = meetingController.statusModel.GetAll().ToDictionary(x => x.id, x => x.name);
             departments = meetingController.departmentModel.GetAll().ToDictionary(x => x.id, x => x.name);
-            departments.Add(-1, "Хэлтэсгүй");
             departmentWrapPanels = new Dictionary<int, WrapPanel>();
             departmentAttendance = new Dictionary<int, TextBlock[]>();
             departmentStatusWindows = new Dictionary<int, DepartmentStatus>();
-            keyValuePairs = new Dictionary<string, int>();
-            keyValuePairs.Add("Чөлөөтэй", 0);
-            keyValuePairs.Add("Ирээгүй", 0);
-            keyValuePairs.Add("Ирсэн", 0);
-            keyValuePairs.Add("Хоцорсон", 0);
-            userGrids = new Dictionary<int, Grid>();
+            attendanceStatusWindows = new Dictionary<string, AttendanceStatus>();
+            userGrids = new Dictionary<int, System.Windows.Controls.Grid>();
             last = new Dictionary<int, int[]>();
-            try
-            {
-                ongoingObj = meetingController.GetClosestMeetings(1)[0];
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Хурлын цонх нээхэд алдаа гарлаа. Алдааны мессеж: " + ex.Message);
-            }
             if (meetingController.status == MeetingController.MEETING_STARTED)
             {
                 status = 1;
@@ -101,12 +78,7 @@ namespace IrtsBurtgel
             departmentWrapPanels = new Dictionary<int, WrapPanel>();
             departmentAttendance = new Dictionary<int, TextBlock[]>();
             departmentStatusWindows = new Dictionary<int, DepartmentStatus>();
-            keyValuePairs = new Dictionary<string, int>();
-            keyValuePairs.Add("Чөлөөтэй", 0);
-            keyValuePairs.Add("Ирээгүй", 0);
-            keyValuePairs.Add("Ирсэн", 0);
-            keyValuePairs.Add("Хоцорсон", 0);
-            userGrids = new Dictionary<int, Grid>();
+            userGrids = new Dictionary<int, System.Windows.Controls.Grid>();
             last = new Dictionary<int, int[]>();
             gridDeparts.Children.Clear();
             gridDeparts.RowDefinitions.Clear();
@@ -131,7 +103,7 @@ namespace IrtsBurtgel
                     Margin = new Thickness(10, 10, 10, 10)
                 };
 
-                Grid DynamicGrid = new Grid
+                System.Windows.Controls.Grid DynamicGrid = new System.Windows.Controls.Grid
                 {
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     VerticalAlignment = VerticalAlignment.Top,
@@ -219,7 +191,7 @@ namespace IrtsBurtgel
                 WrapPanel wp = new WrapPanel
                 {
                     HorizontalAlignment = HorizontalAlignment.Stretch,
-                    Orientation = Orientation.Horizontal
+                    Orientation = System.Windows.Controls.Orientation.Horizontal
                 };
 
                 ScrollViewer sv = new ScrollViewer
@@ -230,29 +202,29 @@ namespace IrtsBurtgel
                 };
                 sv.Content = wp;
 
-                Grid.SetRow(border, 0);
-                Grid.SetColumn(border, 0);
+                System.Windows.Controls.Grid.SetRow(border, 0);
+                System.Windows.Controls.Grid.SetColumn(border, 0);
                 DynamicGrid.Children.Add(border);
-                Grid.SetRow(border2, 0);
-                Grid.SetColumn(border2, 1);
+                System.Windows.Controls.Grid.SetRow(border2, 0);
+                System.Windows.Controls.Grid.SetColumn(border2, 1);
                 DynamicGrid.Children.Add(border2);
-                Grid.SetRow(border3, 0);
-                Grid.SetColumn(border3, 2);
+                System.Windows.Controls.Grid.SetRow(border3, 0);
+                System.Windows.Controls.Grid.SetColumn(border3, 2);
                 DynamicGrid.Children.Add(border3);
-                Grid.SetRow(border4, 0);
-                Grid.SetColumn(border4, 3);
+                System.Windows.Controls.Grid.SetRow(border4, 0);
+                System.Windows.Controls.Grid.SetColumn(border4, 3);
                 DynamicGrid.Children.Add(border4);
-                Grid.SetRow(border5, 0);
-                Grid.SetColumn(border5, 4);
+                System.Windows.Controls.Grid.SetRow(border5, 0);
+                System.Windows.Controls.Grid.SetColumn(border5, 4);
                 DynamicGrid.Children.Add(border5);
 
-                Grid.SetRow(sv, 1);
-                Grid.SetColumn(sv, 0);
-                Grid.SetColumnSpan(sv, 5);
+                System.Windows.Controls.Grid.SetRow(sv, 1);
+                System.Windows.Controls.Grid.SetColumn(sv, 0);
+                System.Windows.Controls.Grid.SetColumnSpan(sv, 5);
                 DynamicGrid.Children.Add(sv);
 
-                Grid.SetRow(border1, count / 5);
-                Grid.SetColumn(border1, count % 5);
+                System.Windows.Controls.Grid.SetRow(border1, count / 5);
+                System.Windows.Controls.Grid.SetColumn(border1, count % 5);
                 gridDeparts.Children.Add(border1);
 
                 departmentWrapPanels.Add(entry.Key, wp);
@@ -264,30 +236,34 @@ namespace IrtsBurtgel
                 count++;
             }
 
-            globalSP = new Grid();
+            // Create the interop host control.
+            System.Windows.Forms.Integration.WindowsFormsHost host =
+                new System.Windows.Forms.Integration.WindowsFormsHost
+                {
+                    FontSize = 20,
+                    FontWeight = FontWeights.Bold
+                };
+            chart = new Chart();
+            Title title = chart.Titles.Add("Нийт албан хаагч");
+            title.Font = new System.Drawing.Font("Arial", 15f, System.Drawing.FontStyle.Bold);
+            chart.Legends.Add("Тайлбар");
+            chart.Legends[0].LegendStyle = LegendStyle.Table;
+            chart.Legends[0].Docking = Docking.Bottom;
+            chart.Legends[0].Alignment = System.Drawing.StringAlignment.Center;
+            chart.Legends[0].BorderColor = System.Drawing.Color.Black;
+            chart.Legends[0].Font = new System.Drawing.Font("Arial", 12f);
 
-            chart = new Chart
-            {
-                Title = "Нийт ирц",
-                Background = Brushes.White,
-                Margin = new Thickness(10)
-            };
+            //Add a new chart-series
+            chart.Series.Clear();
 
-            chart.Series.Add(new PieSeries
-            {
-                IndependentValueBinding = new Binding("Key"),
-                DependentValueBinding = new Binding("Value")
-            });
+            //Add some datapoints so the series. in this case you can pass the values to this method
+            chart.ChartAreas.Add("Default");
 
-            ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
-
-            Grid.SetColumn(chart, 0);
-            Grid.SetRow(chart, 0);
-            globalSP.Children.Add(chart);
-
-            Grid.SetRow(globalSP, 1);
-            Grid.SetColumn(globalSP, 4);
-            gridDeparts.Children.Add(globalSP);
+            //Add some datapoints so the series. in this case you can pass the values to this method
+            host.Child = chart;
+            System.Windows.Controls.Grid.SetRow(host, 1);
+            System.Windows.Controls.Grid.SetColumn(host, 4);
+            gridDeparts.Children.Add(host);
 
             ArchivedMeeting archivedMeeting = meetingController.onGoingArchivedMeeting;
             meetingName.Text = archivedMeeting.name;
@@ -313,9 +289,8 @@ namespace IrtsBurtgel
                 foreach (object[] obj in userAttendances)
                 {
                     User user = (User)obj[0];
-                    Attendance att = (Attendance)obj[1];
-
-                    Grid DynamicGrid = new Grid
+                    Attendance att = (Attendance)obj[1];    
+                    System.Windows.Controls.Grid DynamicGrid = new System.Windows.Controls.Grid
                     {
                         Background = new SolidColorBrush(Colors.White),
                         Width = 60
@@ -334,6 +309,7 @@ namespace IrtsBurtgel
                     try
                     {
                         webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
+                        meetingController.userImagePool.Add(new Object[] { webImage, user.id });
                     }
                     catch (Exception ex)
                     {
@@ -349,6 +325,7 @@ namespace IrtsBurtgel
                         Height = (int)(webImage.Width * scale),
                         Width = (int)(webImage.Height * scale)
                     };
+                    meetingController.userImagePool.Add(new Object[] { image, webImage, user });
 
                     Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center, FontSize = 15 };
                     Label status = new Label
@@ -367,35 +344,60 @@ namespace IrtsBurtgel
                         case 15: border.BorderBrush = status.Background = Brushes.DarkRed; break;
                         default: border.BorderBrush = status.Background = Brushes.DarkSlateBlue; break;
                     }
-                    Grid.SetColumn(image, 0);
-                    Grid.SetColumn(name, 0);
-                    Grid.SetColumn(status, 0);
-                    Grid.SetRow(image, 0);
-                    Grid.SetRow(name, 1);
-                    Grid.SetRow(status, 2);
+                    System.Windows.Controls.Grid.SetColumn(image, 0);
+                    System.Windows.Controls.Grid.SetColumn(name, 0);
+                    System.Windows.Controls.Grid.SetColumn(status, 0);
+                    System.Windows.Controls.Grid.SetRow(image, 0);
+                    System.Windows.Controls.Grid.SetRow(name, 1);
+                    System.Windows.Controls.Grid.SetRow(status, 2);
                     DynamicGrid.Children.Add(image);
                     DynamicGrid.Children.Add(name);
                     DynamicGrid.Children.Add(status);
 
                     if (att.statusId == 1)
                     {
-                        departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1] + last[user.departmentId][2], border);
+                        if(last[user.departmentId][0] + last[user.departmentId][1] + last[user.departmentId][2] < departmentWrapPanels[user.departmentId].Children.Count)
+                        {
+                            departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1] + last[user.departmentId][2], border);
+                        }
+                        else
+                        {
+                            departmentWrapPanels[user.departmentId].Children.Add(border);
+                        }
                         last[user.departmentId][3]++;
+                        border.Visibility = Visibility.Hidden;
                     }
                     else if (att.statusId == 2)
                     {
-                        departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0], border);
+                        if (last[user.departmentId][0] < departmentWrapPanels[user.departmentId].Children.Count)
+                        {
+                            departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0], border);
+                        }
+                        else
+                        {
+                            departmentWrapPanels[user.departmentId].Children.Add(border);
+                        }
                         last[user.departmentId][1]++;
+                        border.Visibility = Visibility.Visible;
                     }
                     else if (att.statusId == 15)
                     {
                         departmentWrapPanels[user.departmentId].Children.Insert(0, border);
                         last[user.departmentId][0]++;
+                        border.Visibility = Visibility.Visible;
                     }
                     else
                     {
-                        departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1], border);
+                        if (last[user.departmentId][0] + last[user.departmentId][1] < departmentWrapPanels[user.departmentId].Children.Count)
+                        {
+                            departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1], border);
+                        }
+                        else
+                        {
+                            departmentWrapPanels[user.departmentId].Children.Add(border);
+                        }
                         last[user.departmentId][2]++;
+                        border.Visibility = Visibility.Hidden;
                     }
                     userGrids.Add(user.id, DynamicGrid);
                 }
@@ -412,12 +414,37 @@ namespace IrtsBurtgel
                     departmentAttendance[entry.Key][2].Text = last[entry.Key][1].ToString();
                     departmentAttendance[entry.Key][3].Text = last[entry.Key][0].ToString();
                 }
-
-                AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]) + "\nЧөлөөтэй: " + last.Sum(x => x.Value[2]);
-                keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
-                keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
-                keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
-                keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
+                int grandTotal = last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]);
+                int totalAttendance = last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]);
+                int totalArrived = last.Sum(x => x.Value[3]);
+                int totalFree = last.Sum(x => x.Value[2]);
+                int totalLate = last.Sum(x => x.Value[1]);
+                int totalMissing = last.Sum(x => x.Value[0]);
+                AttendanceLabel1.Text = totalAttendance.ToString();
+                AttendanceLabel2.Text = totalArrived.ToString();
+                AttendanceLabel3.Text = totalLate.ToString();
+                AttendanceLabel4.Text = totalMissing.ToString();
+                AttendancePercentageLabel1.Text = Math.Round((((double)totalArrived / totalAttendance) * 100)).ToString() + '%';
+                AttendancePercentageLabel2.Text = Math.Round((((double)totalLate / totalAttendance) * 100)).ToString() + '%';
+                AttendancePercentageLabel3.Text = Math.Round((((double)totalMissing / totalAttendance) * 100)).ToString() + '%';
+                //Add a new chart-series
+                chart.Series.Clear();
+                string seriesname = "Хүмүүс";
+                chart.Series.Add(seriesname);
+                //set the chart-type to "Pie"
+                chart.Series[seriesname].ChartType = SeriesChartType.Pie;
+                chart.Series[seriesname].Font = new System.Drawing.Font("Arial", 13f, System.Drawing.FontStyle.Bold);
+                chart.Series[seriesname].Label = "#PERCENT{0 %}";
+                chart.Series[seriesname].LegendText = "#VALX";
+                //Add some datapoints so the series. in this case you can pass the values to this method
+                chart.Series[seriesname].Points.AddXY("Ирсэн", totalArrived);
+                chart.Series[seriesname].Points.AddXY("Хоцорсон", totalLate);
+                chart.Series[seriesname].Points.AddXY("Чөлөөтэй", totalFree);
+                chart.Series[seriesname].Points.AddXY("Ирээгүй", totalMissing);
+                chart.Series[0].Points[0].Color = System.Drawing.Color.LightGreen;
+                chart.Series[0].Points[1].Color = System.Drawing.Color.LightSalmon;
+                chart.Series[0].Points[2].Color = System.Drawing.Color.LightSkyBlue;
+                chart.Series[0].Points[3].Color = System.Drawing.Color.LightCoral;
             }
             catch (Exception ex)
             {
@@ -425,23 +452,17 @@ namespace IrtsBurtgel
             }
         }
 
-        public void UpdateCountDown(object[] obj)
+        public void UpdateCountDown()
         {
             if (meetingController.status == MeetingController.MEETING_STARTED && status == 0)
             {
                 status = 1;
-                ongoingObj = obj;
                 BuildDepartControls();
                 PlaceUsers(meetingController.onGoingMeetingUserAttendance);
             }
             else if (meetingController.status == MeetingController.IDLE && status == 1)
             {
                 status = 0;
-                ongoingObj = obj;
-            }
-            else if (meetingController.status == MeetingController.IDLE && status == 0)
-            {
-                ongoingObj = obj;
             }
             
             string texttodisplay = meetingController.TextToDisplay().Replace("\n", " ");
@@ -477,21 +498,25 @@ namespace IrtsBurtgel
                 {
                     departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1] + last[user.departmentId][2], (Border)userGrids[user.id].Parent);
                     last[user.departmentId][3]++;
+                    ((Border)userGrids[user.id].Parent).Visibility = Visibility.Hidden;
                 }
                 else if (attendance.statusId == 2)
                 {
                     departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0], (Border)userGrids[user.id].Parent);
                     last[user.departmentId][1]++;
+                    ((Border)userGrids[user.id].Parent).Visibility = Visibility.Visible;
                 }
                 else if (attendance.statusId == 15)
                 {
                     departmentWrapPanels[user.departmentId].Children.Insert(0, (Border)userGrids[user.id].Parent);
                     last[user.departmentId][0]++;
+                    ((Border)userGrids[user.id].Parent).Visibility = Visibility.Visible;
                 }
                 else
                 {
                     departmentWrapPanels[user.departmentId].Children.Insert(last[user.departmentId][0] + last[user.departmentId][1], (Border)userGrids[user.id].Parent);
                     last[user.departmentId][2]++;
+                    ((Border)userGrids[user.id].Parent).Visibility = Visibility.Hidden;
                 }
 
                 foreach (KeyValuePair<int, DepartmentStatus> entry in departmentStatusWindows)
@@ -502,6 +527,13 @@ namespace IrtsBurtgel
                     }
                 }
             }
+            foreach (KeyValuePair<string, AttendanceStatus> entry in attendanceStatusWindows)
+            {
+                if (entry.Value != null && entry.Value.IsLoaded && entry.Value.IsActive)
+                {
+                    entry.Value.Update();
+                }
+            }
             foreach (KeyValuePair<int, string> entry in departments)
             {
                 departmentAttendance[entry.Key][0].Text = (last[entry.Key][0] + last[entry.Key][1] + last[entry.Key][3]).ToString();
@@ -509,31 +541,40 @@ namespace IrtsBurtgel
                 departmentAttendance[entry.Key][2].Text = (last[entry.Key][1]).ToString();
                 departmentAttendance[entry.Key][3].Text = (last[entry.Key][0]).ToString();
             }
-            AttendanceLabel.Content = "Ирц: " + last.Sum(x => x.Value[1] + x.Value[3]) + "/" + last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]) + "\nЧөлөөтэй: " + last.Sum(x => x.Value[2]);
 
-            globalSP.Children.Clear();
 
-            chart = new Chart
-            {
-                Title = "Нийт ирц",
-                Background = Brushes.White,
-                Margin = new Thickness(10, 0, 10, 0)
-            };
+            int grandTotal = last.Sum(x => x.Value[0] + x.Value[1] + x.Value[2] + x.Value[3]);
+            int totalAttendance = last.Sum(x => x.Value[0] + x.Value[1] + x.Value[3]);
+            int totalArrived = last.Sum(x => x.Value[3]);
+            int totalFree = last.Sum(x => x.Value[2]);
+            int totalLate = last.Sum(x => x.Value[1]);
+            int totalMissing = last.Sum(x => x.Value[0]);
+            AttendanceLabel1.Text = totalAttendance.ToString();
+            AttendanceLabel2.Text = totalArrived.ToString();
+            AttendanceLabel3.Text = totalLate.ToString();
+            AttendanceLabel4.Text = totalMissing.ToString();
+            AttendancePercentageLabel1.Text = Math.Round((((double)totalArrived / totalAttendance) * 100)).ToString() + '%';
+            AttendancePercentageLabel2.Text = Math.Round((((double)totalLate / totalAttendance) * 100)).ToString() + '%';
+            AttendancePercentageLabel3.Text = Math.Round((((double)totalMissing / totalAttendance) * 100)).ToString() + '%';
+            //Add a new chart-series
+            chart.Series.Clear();
+            string seriesname = "Хүмүүс";
+            chart.Series.Add(seriesname);
+            //set the chart-type to "Pie"
+            chart.Series[seriesname].ChartType = SeriesChartType.Pie;
+            chart.Series[seriesname].Font = new System.Drawing.Font("Arial", 13f, System.Drawing.FontStyle.Bold);
+            chart.Series[seriesname].Label = "#PERCENT{0 %}";
+            chart.Series[seriesname].LegendText = "#VALX";
+            //Add some datapoints so the series. in this case you can pass the values to this method
+            chart.Series[seriesname].Points.AddXY("Ирсэн", totalArrived);
+            chart.Series[seriesname].Points.AddXY("Хоцорсон", totalLate);
+            chart.Series[seriesname].Points.AddXY("Чөлөөтэй", totalFree);
+            chart.Series[seriesname].Points.AddXY("Ирээгүй", totalMissing);
+            chart.Series[0].Points[0].Color = System.Drawing.Color.LightGreen;
+            chart.Series[0].Points[1].Color = System.Drawing.Color.LightSalmon;
+            chart.Series[0].Points[2].Color = System.Drawing.Color.LightSkyBlue;
+            chart.Series[0].Points[3].Color = System.Drawing.Color.LightCoral;
 
-            chart.Series.Add(new PieSeries
-            {
-                IndependentValueBinding = new Binding("Key"),
-                DependentValueBinding = new Binding("Value"),
-            });
-            keyValuePairs["Чөлөөтэй"] = last.Sum(x => x.Value[2]);
-            keyValuePairs["Ирээгүй"] = last.Sum(x => x.Value[0]);
-            keyValuePairs["Ирсэн"] = last.Sum(x => x.Value[3]);
-            keyValuePairs["Хоцорсон"] = last.Sum(x => x.Value[1]);
-
-            ((PieSeries)(chart.Series[0])).ItemsSource = keyValuePairs;
-            Grid.SetColumn(chart, 0);
-            Grid.SetRow(chart, 0);
-            globalSP.Children.Add(chart);
         }
 
         public void ShowDepartmentStatus(int departmentId)
@@ -559,5 +600,63 @@ namespace IrtsBurtgel
                 departmentStatusWindows[departmentId].Visibility = Visibility.Visible;
             }
         }
+
+        public void ShowAttendanceStatus(string msg = "")
+        {
+            if (attendanceStatusWindows.ContainsKey(msg))
+            {
+                if (attendanceStatusWindows[msg].IsLoaded && attendanceStatusWindows[msg].IsActive && attendanceStatusWindows[msg].IsEnabled)
+                {
+                    attendanceStatusWindows[msg].Focus();
+                    attendanceStatusWindows[msg].Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    attendanceStatusWindows[msg] = new AttendanceStatus(meetingController, msg);
+                    attendanceStatusWindows[msg].Owner = this;
+                    attendanceStatusWindows[msg].Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                attendanceStatusWindows.Add(msg, new AttendanceStatus(meetingController, msg));
+                attendanceStatusWindows[msg].Owner = this;
+                attendanceStatusWindows[msg].Visibility = Visibility.Visible;
+            }
+            attendanceStatusWindows[msg].Update();
+        }
+
+        public void ShowMoreStatus(object sender, RoutedEventArgs e)
+        {
+            if (meetingController.status == MeetingController.MEETING_STARTED)
+                ShowAttendanceStatus();
+        }
+
+        public void StopMeetingClicked(object sender, RoutedEventArgs e)
+        {
+            string messageBoxText = "Хурлыг зогсоох уу?";
+            string caption = "Хурал зогсоох";
+            MessageBoxButton button = MessageBoxButton.YesNo;
+            MessageBoxImage icon = MessageBoxImage.Warning;
+            // Display message box
+            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
+
+            // Process message box results
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    meetingController.ForceStopMeeting();
+                    break;
+                case MessageBoxResult.No:
+                    break;
+            }
+        }
+        
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            Owner = null;
+        }
+
     }
 }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Хэлтсийн ирц" Height="500" Width="500" WindowStartupLocation="CenterOwner">
+        Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Хэлтсийн ирц" Height="600" Width="900" WindowStartupLocation="CenterOwner">
     <Grid Background="#FF007ACC">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
