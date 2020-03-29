@@ -19,6 +19,7 @@ namespace IrtsBurtgel
         IntPtr mDBHandle = IntPtr.Zero;
         IntPtr FormHandle = IntPtr.Zero;
         bool bIsTimeToDie = false;
+        int scanThreadID;
         byte[] FPBuffer;
         const int REGISTER_FINGER_COUNT = 3;
 
@@ -28,12 +29,13 @@ namespace IrtsBurtgel
         public byte[] last;
 
         int cbCapTmp = 2048;
+        int cbRegTmp = 0;
 
         private int mfpWidth = 0;
         private int mfpHeight = 0;
         private int mfpDpi = 0;
 
-        private Thread captureThread;
+        public Thread captureThread;
         public MeetingController meetingController;
 
         const int MESSAGE_CAPTURED_OK = 0x0400 + 6;
@@ -48,29 +50,39 @@ namespace IrtsBurtgel
 
         public bool InitializeDevice()
         {
-            Stop();
-            int ret = zkfperrdef.ZKFP_ERR_OK;
-            if ( (ret = zkfp2.Init()) == zkfperrdef.ZKFP_ERR_OK)
+            for (int i = 0; i< 3; i++)
             {
-                int nCount = zkfp2.GetDeviceCount() - 1;
-                if (nCount > 0)
+                RegTmps[i] = new byte[2048];
+            }
+            int ret = zkfperrdef.ZKFP_ERR_OK;
+            try
+            {
+                if ((ret = zkfp2.Init()) == zkfperrdef.ZKFP_ERR_OK)
                 {
-                    return true;
+                    int nCount = zkfp2.GetDeviceCount() - 1;
+                    if (nCount > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        zkfp2.Terminate();
+                        Console.WriteLine("No device connected!");
+                        return false;
+                    }
                 }
                 else
                 {
-                    zkfp2.Terminate();
-                    Console.WriteLine("No device connected!");
+                    if (ret == zkfperrdef.ZKFP_ERR_ALREADY_INIT)
+                    {
+                        return true;
+                    }
+                    Console.WriteLine("Initialize fail, ret=" + ret + " !");
                     return false;
                 }
-            }
-            else
+            } catch (Exception ex)
             {
-                if (ret == zkfperrdef.ZKFP_ERR_ALREADY_INIT)
-                {
-                    return true;
-                }
-                Console.WriteLine("Initialize fail, ret=" + ret + " !");
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }
@@ -107,43 +119,51 @@ namespace IrtsBurtgel
             zkfp2.ByteArray2Int(paramValue, ref mfpDpi);
 
             Console.WriteLine("reader parameter, image width:" + mfpWidth + ", height:" + mfpHeight + ", dpi:" + mfpDpi);
-            
+
+            bIsTimeToDie = false;
             captureThread = new Thread(new ThreadStart(captureFunction));
             captureThread.IsBackground = true;
             captureThread.Start();
-            bIsTimeToDie = false;
+            scanThreadID = captureThread.ManagedThreadId;
             Console.WriteLine("Open succ");
 
             return true;
         }
 
-        public void DoCapture()
+        public void Stop()
         {
-            while (!bIsTimeToDie)
+            bIsTimeToDie = true;
+            scanThreadID = 0;
+            if (captureThread != null && captureThread.IsAlive)
+            {
+                Thread.Sleep(1000);
+            }
+            zkfp2.CloseDevice(mDevHandle);
+            zkfp2.Terminate();
+            Thread.Sleep(500);
+        }
+
+        public void DoCaptureForMeeting()
+        {
+            while (!bIsTimeToDie && scanThreadID == Thread.CurrentThread.ManagedThreadId)
             {
                 cbCapTmp = 2048;
                 int ret = zkfp2.AcquireFingerprint(mDevHandle, FPBuffer, CapTmp, ref cbCapTmp);
                 if (ret == zkfp.ZKFP_ERR_OK)
                 {
                     Console.Beep();
-                    if (!ReadFPCapture(MESSAGE_CAPTURED_OK))
+                    if (!ReadFPCaptureForMeeting(MESSAGE_CAPTURED_OK))
                     {
                         Console.Beep();
                     }
                 }
+                Console.WriteLine("Capturing for meeting");
                 Thread.Sleep(200);
             }
-        }
-        
-        public void Stop()
-        {
-            zkfp2.CloseDevice(mDevHandle);
-            zkfp2.Terminate();
-            bIsTimeToDie = true;
-            Thread.Sleep(1000);
+            Console.WriteLine("Stopping capture thread for meeting.");
         }
 
-        private bool ReadFPCapture(int msg)
+        private bool ReadFPCaptureForMeeting(int msg)
         {
             bool result = true;
             if (msg == MESSAGE_CAPTURED_OK)
@@ -159,7 +179,7 @@ namespace IrtsBurtgel
 
                 foreach (Object[] userAttendance in meetingController.onGoingMeetingUserAttendance)
                 {
-                    User user = (User) userAttendance[0];
+                    User user = (User)userAttendance[0];
                     byte[] blob3 = Convert.FromBase64String(user.fingerprint0.Trim());
 
                     //0x0f309420
@@ -186,7 +206,7 @@ namespace IrtsBurtgel
                     }
                 }
 
-                if(identifiedAttendance == null)
+                if (identifiedAttendance == null)
                 {
                     return false;
                 }
@@ -194,7 +214,7 @@ namespace IrtsBurtgel
                 if (((Attendance)identifiedAttendance[1]).statusId == 15)
                 {
                     DateTime now = DateTime.Now;
-                    if(now > meetingController.onGoingArchivedMeeting.meetingDatetime && now.Minute != meetingController.onGoingArchivedMeeting.meetingDatetime.Minute)
+                    if (now > meetingController.onGoingArchivedMeeting.meetingDatetime && now.Minute != meetingController.onGoingArchivedMeeting.meetingDatetime.Minute)
                     {
                         ((Attendance)identifiedAttendance[1]).statusId = 2;
                         ((Attendance)identifiedAttendance[1]).regTime = (int)Math.Floor((now - meetingController.onGoingArchivedMeeting.meetingDatetime).TotalMinutes);
@@ -208,7 +228,8 @@ namespace IrtsBurtgel
 
                     if (meetingController.mainWindow != null)
                     {
-                        meetingController.mainWindow.Dispatcher.Invoke(() => {
+                        meetingController.mainWindow.Dispatcher.Invoke(() =>
+                        {
                             foreach (MeetingStatus ms in meetingController.mainWindow.meetingStatusWindows)
                             {
                                 if (ms.IsLoaded)
@@ -219,6 +240,95 @@ namespace IrtsBurtgel
                         });
                     }
                 }
+            }
+            else
+            {
+                result = false;
+            }
+            return result;
+        }
+
+        public void DoCaptureForMember()
+        {
+            while (!bIsTimeToDie && scanThreadID == Thread.CurrentThread.ManagedThreadId)
+            {
+                cbCapTmp = 2048;
+                int ret = zkfp2.AcquireFingerprint(mDevHandle, FPBuffer, CapTmp, ref cbCapTmp);
+                if (ret == zkfp.ZKFP_ERR_OK)
+                {
+                    Console.Beep();
+                    if (!ReadFPCaptureForMember(MESSAGE_CAPTURED_OK))
+                    {
+                        Console.Beep();
+                    }
+                }
+                Console.WriteLine("Capturing for member");
+                Thread.Sleep(200);
+            }
+            Console.WriteLine("Stopping capture for member");
+        }
+
+        private bool ReadFPCaptureForMember(int msg)
+        {
+            bool result = true;
+            if (msg == MESSAGE_CAPTURED_OK)
+            {
+                var window = meetingController.mainWindow.updateFingerPrintWindow;
+                byte[] blob1 = CapTmp;
+
+                String showFP = zkfp2.BlobToBase64(blob1, cbCapTmp);
+                Console.WriteLine("capture template data:" + showFP + "\n");
+
+                if (window.RegisterCount > 0 && zkfp2.DBMatch(mDBHandle, CapTmp, RegTmps[window.RegisterCount - 1]) <= 0)
+                {
+                    window.Dispatcher.Invoke(() =>
+                    {
+                        Xceed.Wpf.Toolkit.MessageBox.Show("Та нэг л хуруугаа 3 удаа уншуулна уу!");
+                    });
+                    return false;
+                }
+
+                Array.Copy(CapTmp, RegTmps[window.RegisterCount], cbCapTmp);
+
+                if (window.RegisterCount+1 >= REGISTER_FINGER_COUNT)
+                {
+                    int ret = zkfp.ZKFP_ERR_OK;
+
+                    window.RegisterCount = 0;
+                    if (zkfp.ZKFP_ERR_OK == (ret = zkfp2.DBMerge(mDBHandle, RegTmps[0], RegTmps[1], RegTmps[2], RegTmp, ref cbRegTmp)))
+                    {
+                        String base64fp = zkfp2.BlobToBase64(RegTmp, cbCapTmp);
+                        Console.WriteLine("merged template data:" + base64fp + "\n");
+                        window.Dispatcher.BeginInvoke((Action)(() =>
+                        {
+                            window.updateUserFingerPrint(base64fp);
+                        }));
+                        return true;
+                    }
+                    else
+                    {
+                        window.Dispatcher.Invoke(() =>
+                        {
+                            Xceed.Wpf.Toolkit.MessageBox.Show("Бүртгэхэд алдаа гарлаа. Та түр хүлээгээд ахин оролдож үзнэ үү. ");
+                        });
+                        return false;
+                    }
+                }
+
+                window.Dispatcher.Invoke(() =>
+                {
+                    window.RegisterCount++;
+                    var v = "Та хуруугаа " + (REGISTER_FINGER_COUNT - window.RegisterCount).ToString() + " удаа уншуулна уу!";
+                    MemoryStream ms = new MemoryStream();
+                    BitmapFormat.GetBitmap(FPBuffer, mfpWidth, mfpHeight, ref ms);
+                    BitmapImage ObjBitmapImage = new BitmapImage();
+                    ObjBitmapImage.BeginInit();
+                    ObjBitmapImage.StreamSource = ms;
+                    ObjBitmapImage.EndInit();
+                    window.image.Source = ObjBitmapImage;
+                    window.InfoLabel.Content = v;
+                });
+                result = true;
             }
             else
             {

@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
+        xmlns:resx="clr-namespace:IrtsBurtgel.Properties"
         mc:Ignorable="d"
         Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Үндсэн цонх" MinHeight="500" MinWidth="900" Height="500" Width ="900" WindowStartupLocation="CenterScreen"  Icon="images/time-logo.png" 
         SizeChanged="MainWindow_SizeChanged">
@@ -47,8 +48,8 @@
         </Grid>
         <Grid Grid.Column="1">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"  Width="450"  x:Name="RightSide">
-                <Image Height="200" Width="200" Source="images/logo.jpg"/>
-                <TextBlock Margin="20 5 20 30" FontSize="15" HorizontalAlignment="Center" Text="ЦЕГ-ын Эрүүгийн Цагдаагийн алба"/>
+                <Image Height="200" Width="200" Source="images/eruu.png"/>
+                <TextBlock Margin="20 5 20 30" FontSize="15" HorizontalAlignment="Center" Text="{x:Static resx:Resources.CompanyName1}"/>
                 <TextBlock x:Name="time" TextAlignment="Center" FontWeight="Bold" FontSize="20" TextWrapping="Wrap" Margin="10" />
                 <Button HorizontalAlignment="Center" Width="120" Height="32" Background="#FF007ACC" BorderBrush="{x:Null}" DockPanel.Dock="Top" Click="showStatus">
                     <StackPanel Orientation="Horizontal">

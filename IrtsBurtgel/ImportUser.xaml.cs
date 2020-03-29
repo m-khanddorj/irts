@@ -24,11 +24,10 @@ namespace IrtsBurtgel
         public string fpdatPath;
         public string userdatPath;
         public string[] imagePaths;
-        public int c;
         public ImportUser()
         {
             InitializeComponent();
-            c = 0;
+            imagePaths = new string[0];
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -45,7 +44,6 @@ namespace IrtsBurtgel
                 string filename = dlg.FileName;
                 fpdatPath = filename;
                 fpdatImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
-                c++;
             }
 
         }
@@ -64,14 +62,13 @@ namespace IrtsBurtgel
                 string filename = dlg.FileName;
                 xlPath = filename;
                 xlImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
-                c++;
             }
 
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            if(c==4) this.DialogResult = true;
+            if (xlPath != "") this.DialogResult = true;
         }
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
@@ -90,7 +87,6 @@ namespace IrtsBurtgel
                 string[] filenames = dlg.FileNames;
                 imagePaths = filenames;
                 imageImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
-                c++;
             }
         }
 
@@ -109,7 +105,6 @@ namespace IrtsBurtgel
                 string filename = dlg.FileName;
                 userdatPath = filename;
                 userdatImage.Source = new BitmapImage(new Uri("images/tick.png", UriKind.Relative));
-                c++;
             }
 
         }

@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:local="clr-namespace:IrtsBurtgel"
+        xmlns:resx="clr-namespace:IrtsBurtgel.Properties"
         xmlns:winformchart="clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"
         mc:Ignorable="d"
         Title="ХУРЛЫН ИРЦ БҮРТГЭЛИЙН СИСТЕМ - Ирц бүртгэлийн төлөв" Height="530.455" Width="1049.545" WindowStartupLocation="Manual" Icon="images/time-logo.png">
@@ -42,8 +43,8 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Image Grid.Column="0" Source="images/logo.png"  Width="80" Height="80" Margin="10"></Image>
-                    <TextBlock Grid.Column="1" TextAlignment="Center" VerticalAlignment="Center" FontSize="25" Foreground="White" TextWrapping="Wrap" FontWeight="Bold">ЦЕГ-ын Эрүүгийн Цагдаагийн Алба</TextBlock>
+                    <Image Grid.Column="0" Source="images/eruu.png"  Width="80" Height="80" Margin="10"></Image>
+                    <TextBlock Grid.Column="1" TextAlignment="Center" VerticalAlignment="Center" FontSize="25" Foreground="White" TextWrapping="Wrap" FontWeight="Bold" Text="{x:Static resx:Resources.CompanyName1}"></TextBlock>
                 </Grid>
                 <Grid Grid.Column="2" Margin="5 10 5 5">
                     <Grid.ColumnDefinitions>

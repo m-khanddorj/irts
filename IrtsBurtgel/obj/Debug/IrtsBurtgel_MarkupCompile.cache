@@ -4,17 +4,17 @@
 winexe
 C#
 .cs
-C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\obj\Debug\
+C:\Users\Peak\source\repos\irts\IrtsBurtgel\obj\Debug\
 IrtsBurtgel
 none
 false
 DEBUG;TRACE
-C:\Users\Ханддорж\source\repos\IrtsBurtgel\IrtsBurtgel\App.xaml
-8-2014706088
-91066734453
-381994276875
-140-1009152332
-AddParticipantToMeeting.xaml;ChangeUserStatus.xaml;ConfirmDelete.xaml;DepartmentStatus.xaml;ImportUser.xaml;MainWindow.xaml;MeetingStatus.xaml;AskTheReason.xaml;
+C:\Users\Peak\source\repos\irts\IrtsBurtgel\App.xaml
+11-1894725469
+26-90688910
+41-430346578
+145335770811
+AddParticipantToMeeting.xaml;AttendanceList.xaml;AttendanceStatus.xaml;ChangeUserStatus.xaml;ConfirmDelete.xaml;DepartmentStatus.xaml;ImportUser.xaml;MainWindow.xaml;MeetingStatus.xaml;AskTheReason.xaml;UpdateFingerprint.xaml;
 
 False
 

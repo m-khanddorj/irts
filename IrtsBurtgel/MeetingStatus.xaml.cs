@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Net.Cache;
 
 namespace IrtsBurtgel
 {
@@ -303,18 +304,8 @@ namespace IrtsBurtgel
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(60) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
-                    Console.WriteLine(meetingController.GetUserImage(user));
 
-                    BitmapImage webImage;
-                    try
-                    {
-                        webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
-                        meetingController.userImagePool.Add(new Object[] { webImage, user.id });
-                    }
-                    catch (Exception ex)
-                    {
-                        webImage = new BitmapImage(new Uri("./images/user.png", UriKind.Relative));
-                    }
+                    BitmapImage webImage = meetingController.GetUserImage(user);
                     float scaleHeight = (float)60 / (float)webImage.Height;
                     float scaleWidth = (float)60 / (float)webImage.Width;
                     float scale = Math.Max(scaleHeight, scaleWidth);
@@ -325,7 +316,6 @@ namespace IrtsBurtgel
                         Height = (int)(webImage.Width * scale),
                         Width = (int)(webImage.Height * scale)
                     };
-                    meetingController.userImagePool.Add(new Object[] { image, webImage, user });
 
                     Label name = new Label { Content = user.fname + " " + user.lname, HorizontalAlignment = HorizontalAlignment.Center, FontSize = 15 };
                     Label status = new Label

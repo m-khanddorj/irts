@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Cache;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -82,15 +83,7 @@ namespace IrtsBurtgel
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
                     DynamicGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(30) });
 
-                    BitmapImage webImage;
-                    try
-                    {
-                        webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
-                    }
-                    catch (Exception ex)
-                    {
-                        webImage = new BitmapImage(new Uri("./images/user.png", UriKind.Relative));
-                    }
+                    BitmapImage webImage = meetingController.GetUserImage(user);
                     float scaleHeight = (float)120 / (float)webImage.Height;
                     float scaleWidth = (float)100 / (float)webImage.Width;
                     float scale = Math.Max(scaleHeight, scaleWidth);
@@ -101,7 +94,6 @@ namespace IrtsBurtgel
                         Height = (int)(webImage.Width * scale),
                         Width = (int)(webImage.Height * scale)
                     };
-                    meetingController.userImagePool.Add(new Object[] { image, webImage, user });
 
                     Label name = new Label {
                         Content = user.fname + " " + user.lname,

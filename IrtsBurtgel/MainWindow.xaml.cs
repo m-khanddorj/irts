@@ -18,6 +18,8 @@ using Sample;
 using System.Text.RegularExpressions;
 using Xceed.Wpf.Toolkit;
 using System.Reflection;
+using Microsoft.Win32;
+using System.Net.Cache;
 
 namespace IrtsBurtgel
 {
@@ -38,6 +40,7 @@ namespace IrtsBurtgel
         Model<Attendance> attModel;
         Model<ArchivedMeeting> archModel;
         public List<MeetingStatus> meetingStatusWindows;
+        public UpdateFingerprint updateFingerPrintWindow;
         Admin loggedAdmin;
         bool is_home = false;
 
@@ -153,6 +156,8 @@ namespace IrtsBurtgel
             }
             //meetingController.StopMeeting();
             LeftSide.Children.Clear();
+            LeftSide.UpdateLayout();
+            GC.Collect();
             LeftSide.HorizontalAlignment = HorizontalAlignment.Stretch;
             LeftSide.VerticalAlignment = VerticalAlignment.Center;
             DockPanel dock = addHeader();
@@ -228,6 +233,8 @@ namespace IrtsBurtgel
             dock.Children.Add(Menu);
 
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
+            GC.Collect();
             RightSide.HorizontalAlignment = HorizontalAlignment.Stretch;
 
             List<Object[]> closestMeetings = meetingController.GetClosestMeetings(10);
@@ -555,6 +562,7 @@ namespace IrtsBurtgel
 
             LeftSide.Tag = calendar.SelectedDate;
             LeftSide.Children.Clear();
+            LeftSide.UpdateLayout();
 
             List<Object> list = new List<Object>();
             Label header = new Label();
@@ -604,6 +612,7 @@ namespace IrtsBurtgel
         {
             is_home = false;
             LeftSide.Children.Clear();
+            LeftSide.UpdateLayout();
             Label label = new Label();
             label.Content = "Нийт тэмдэглэлт өдрүүд:";
 
@@ -683,7 +692,9 @@ namespace IrtsBurtgel
         {
             is_home = false;
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
             LeftSide.Children.Clear();
+            LeftSide.UpdateLayout();
             LeftSide.Tag = DateTime.Now;
 
             List<Object> list = new List<Object>();
@@ -789,6 +800,7 @@ namespace IrtsBurtgel
         void addMeeting(object sender, RoutedEventArgs e)
         {
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
 
             StackPanel stackPanel = new StackPanel();
             stackPanel.Orientation = Orientation.Vertical;
@@ -989,7 +1001,9 @@ namespace IrtsBurtgel
             {
                 RegisterName("Groups", pGroupList);
             }
+ // The variable 'ex' is declared but never used
             catch (Exception ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
             {
                 UnregisterName("Groups");
                 RegisterName("Groups", pGroupList);
@@ -1202,6 +1216,7 @@ namespace IrtsBurtgel
 
             Meeting meeting = new Meeting();
             meeting.name = name;
+            meeting.isDeleted = true;
             /**checking time and inserting*/
             try
             {
@@ -1247,6 +1262,7 @@ namespace IrtsBurtgel
             {
                 meeting.intervalType = Byte.Parse(((ComboBoxItem)freqType.SelectedItem).Tag.ToString());
             }
+
             catch (Exception ex)
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Та хурал болох давтамжаа  шалгана уу", "Өөрчилсөнгүй");
@@ -1256,7 +1272,7 @@ namespace IrtsBurtgel
             int meetingid = meetingModel.Add(meeting);
             if (meetingid != -1)
             {
-                Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай нэмлээ!");
+                meeting.id = meetingid;
 
                 /**Checking and inserting ppositions*/
                 try
@@ -1302,6 +1318,10 @@ namespace IrtsBurtgel
                     Xceed.Wpf.Toolkit.MessageBox.Show("Бүтэлгүйтлээ.");
                 }
                 ShowMeetings();
+
+                meeting.isDeleted = false;
+                meetingModel.Set(meeting);
+                Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай нэмлээ!");
             }
             else
             {
@@ -1324,6 +1344,7 @@ namespace IrtsBurtgel
             string id = ((ListBoxItem)listBox.SelectedValue).Uid;
 
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
 
             Meeting meeting = meetingModel.Get(Int32.Parse(id));
             List<Object> controls = new List<Object>();
@@ -1903,6 +1924,7 @@ namespace IrtsBurtgel
             }
 
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
 
             List<Object> controls = new List<Object>(); //shine medeenuudiig zooh bus 
 
@@ -2098,6 +2120,7 @@ namespace IrtsBurtgel
                         {
                             Xceed.Wpf.Toolkit.MessageBox.Show("Тэмдэглэлт өдөр амжилттай устлаа.");
                             RightSide.Children.Clear();
+                            RightSide.UpdateLayout();
                         }
                         else
                         {
@@ -2191,6 +2214,7 @@ namespace IrtsBurtgel
         void ShowPasswordChanger(object sender, RoutedEventArgs e)
         {
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
 
             List<Object> controls = new List<Object>();
 
@@ -2380,6 +2404,7 @@ namespace IrtsBurtgel
                 meeting = meetingModel.Get(Int32.Parse(id));
             }
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
 
             List<Object> controls = new List<Object>(); //shine medeenuudiig zooh bus 
 
@@ -2545,7 +2570,9 @@ namespace IrtsBurtgel
                     mmeeting.duration = Int32.Parse(duration.Text);
                     mmeeting.reason = reason.Text;
                 }
+ // The variable 'ex' is declared but never used
                 catch(Exception ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
                 {
                     Xceed.Wpf.Toolkit.MessageBox.Show("Та оруулсан утгуудаа шалгаад дахин оролдоно уу", "Бүтэлгүйтлээ");
                     return;
@@ -2565,7 +2592,9 @@ namespace IrtsBurtgel
                     mmeeting.duration = Int32.Parse(duration.Text);
                     mmeeting.reason = reason.Text;
                 }
+ // The variable 'ex' is declared but never used
                 catch (Exception ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
                 {
                     Xceed.Wpf.Toolkit.MessageBox.Show("Та оруулсан утгуудаа шалгаад дахин оролдоно уу", "Бүтэлгүйтлээ");
                     return;
@@ -2661,6 +2690,7 @@ namespace IrtsBurtgel
         {
             is_home = false;
             LeftSide.Children.Clear();
+            LeftSide.UpdateLayout();
             Label label = new Label();
             label.Content = "Нийт хурлууд:";
 
@@ -2697,7 +2727,9 @@ namespace IrtsBurtgel
             {
                 RegisterName("listbox", listbox);
             }
+ // The variable 'ex' is declared but never used
             catch (Exception ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
             {
                 UnregisterName("listbox");
                 RegisterName("listbox", listbox);
@@ -2742,7 +2774,9 @@ namespace IrtsBurtgel
                 userModel.Set(user);
                 Xceed.Wpf.Toolkit.MessageBox.Show("Амжилттай өөрчлөгдлөө", "Өөрчлөгдлөө");
             }
+ // The variable 'ex' is declared but never used
             catch (Exception ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
             {
                 Xceed.Wpf.Toolkit.MessageBox.Show("Та программ ажиллуулж байгаа орчиноо шалгана уу", "Өөрчилсөнгүй");
             }
@@ -2758,6 +2792,7 @@ namespace IrtsBurtgel
             string id = ((ListBoxItem)listBox.SelectedValue).Uid;
 
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
 
             User user = userModel.Get(Int32.Parse(id));
             List<Object> controls = new List<Object>();
@@ -2805,15 +2840,7 @@ namespace IrtsBurtgel
             grid.RowDefinitions.Add(row3);
             grid.RowDefinitions.Add(row4);
 
-            BitmapImage webImage;
-            try
-            {
-                webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
-            }
-            catch (Exception ex)
-            {
-                webImage = new BitmapImage(new Uri("images/user.png", UriKind.Relative));
-            }
+            BitmapImage webImage = meetingController.GetUserImage(user);
             float scaleHeight = (float)200 / (float)webImage.Height;
             float scaleWidth = (float)200 / (float)webImage.Width;
             float scale = Math.Max(scaleHeight, scaleWidth);
@@ -2824,7 +2851,6 @@ namespace IrtsBurtgel
                 Height = (int)(webImage.Width * scale),
                 Width = (int)(webImage.Height * scale)
             };
-            meetingController.userImagePool.Add(new Object[] { imageControl, webImage, user });
 
             Grid.SetColumn(imageControl, 0);
             Grid.SetColumnSpan(imageControl, 2);
@@ -2872,12 +2898,26 @@ namespace IrtsBurtgel
 
             border.Child = grid;
 
+            Button changePicture = new Button();
+            changePicture.Content = "Зураг шинэчлэх";
+            changePicture.Background = Brushes.White;
+            changePicture.Height = 30;
+            changePicture.Uid = id;
+            changePicture.Click += setMemberImage;
+
             Button changeStatus = new Button();
             changeStatus.Content = "Гишүүний төлөв өөрчлөх";
             changeStatus.Background = Brushes.White;
             changeStatus.Height = 30;
             changeStatus.Uid = id;
             changeStatus.Click += setStatus;
+
+            Button changeFingerPrint = new Button();
+            changeFingerPrint.Content = "Хурууны хээ шинэчлэх";
+            changeFingerPrint.Background = Brushes.White;
+            changeFingerPrint.Height = 30;
+            changeFingerPrint.Uid = id;
+            changeFingerPrint.Click += updateFingerPrint;
 
             List<Attendance> allAtts = attModel.GetByFK(user.IDName, user.id);
             List<Attendance> atts = new List<Attendance>();
@@ -2938,6 +2978,8 @@ namespace IrtsBurtgel
             StackPanel stackPanel = new StackPanel();
             stackPanel.Children.Add(border);
             stackPanel.Children.Add(changeStatus);
+            stackPanel.Children.Add(changeFingerPrint);
+            stackPanel.Children.Add(changePicture);
             stackPanel.Children.Add(statHeader);
             stackPanel.Children.Add(statGrid);
 
@@ -2956,6 +2998,36 @@ namespace IrtsBurtgel
             ch.Owner = this;
             ch.Visibility = Visibility.Visible;
         }
+        void setMemberImage(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.DefaultExt = ".jpg";
+            dlg.Filter = "Images (*.jpg;*.png;*.jpeg)|*.jpg;*.png;*.jpeg";
+
+            Nullable<bool> result = dlg.ShowDialog();
+
+            if (result == true)
+            {
+                string id = ((Button)sender).Uid;
+
+                User usr = userModel.Get(Int32.Parse(id));
+                string srcPath = dlg.FileName;
+
+                string targetDir = System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages";
+                string targetFileName = usr.pin.ToString() + System.IO.Path.GetExtension(srcPath);
+
+                File.Copy(srcPath, System.IO.Path.Combine(targetDir, targetFileName), true);
+            }
+        }
+
+        void updateFingerPrint(object sender, RoutedEventArgs e)
+        {
+            string id = ((Button)sender).Uid;
+            updateFingerPrintWindow = new UpdateFingerprint(Int32.Parse(id), meetingController);
+            updateFingerPrintWindow.Owner = this;
+            updateFingerPrintWindow.Visibility = Visibility.Visible;
+        }
+
         void importData(object sender, RoutedEventArgs e)
         {
             ImportUser iuser = new ImportUser();
@@ -2972,6 +3044,7 @@ namespace IrtsBurtgel
         {
             is_home = false;
             LeftSide.Children.Clear();
+            LeftSide.UpdateLayout();
 
             Label label = new Label();
             label.Content = "Нийт гишүүд:";
@@ -3009,7 +3082,9 @@ namespace IrtsBurtgel
             {
                 RegisterName("listbox", listbox);
             }
+ // The variable 'ex' is declared but never used
             catch (Exception ex)
+#pragma warning restore CS0168 // The variable 'ex' is declared but never used
             {
                 UnregisterName("listbox");
                 RegisterName("listbox", listbox);
@@ -3115,6 +3190,7 @@ namespace IrtsBurtgel
         {
             is_home = false;
             RightSide.Children.Clear();
+            RightSide.UpdateLayout();
 
             List<Object> controls = new List<Object>();
 

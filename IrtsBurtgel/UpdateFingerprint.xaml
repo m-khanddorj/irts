@@ -5,14 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrtsBurtgel"
         mc:Ignorable="d"
-        Title="Хурууны хээ шинэчлэх" Height="103.636" Width="300" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
-    <Grid>
+        Title="Хурууны хээ шинэчлэх" Height="466.236" Width="298.4" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="0,0,3.4,-0.4">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="57*"/>
-            <ColumnDefinition Width="16*"/>
+            <ColumnDefinition Width="96*"/>
+            <ColumnDefinition Width="19*"/>
+            <ColumnDefinition Width="32*"/>
         </Grid.ColumnDefinitions>
-        <Button Content="Болих" HorizontalAlignment="Left" Margin="209,45,0,0" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2"/>
-        <Label x:Name="InfoLabel" Content="" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Width="272" Grid.ColumnSpan="2"/>
-
+        <Button Content="Болих" HorizontalAlignment="Left" Margin="10.2,400,0,0" VerticalAlignment="Top" Width="75" Grid.ColumnSpan="2" Grid.Column="1" Click="Button_Click"/>
+        <Label x:Name="InfoLabel" Content="" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="27" Width="272" Grid.ColumnSpan="3"/>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="353" Margin="10,42,0,0" VerticalAlignment="Top" Width="264" Grid.ColumnSpan="3"/>
     </Grid>
 </Window>

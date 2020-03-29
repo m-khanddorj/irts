@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows.Media.Imaging;
 
 namespace IrtsBurtgel
 {
@@ -34,7 +35,6 @@ namespace IrtsBurtgel
         public ArchivedMeeting onGoingArchivedMeeting;
         public Meeting onGoingMeeting;
         public ScannerHandler scannerHandler;
-        public List<object[]> userImagePool;
 
         public Meeting closestMeeting;
         public int status;
@@ -55,7 +55,6 @@ namespace IrtsBurtgel
             positionModel = new Model<Position>();
             statusModel = new Model<Status>();
             adminModel = new Model<Admin>();
-            userImagePool = new List<object[]>();
 
             muModel = new Model<MeetingAndUser>();
             mdModel = new Model<MeetingAndDepartment>();
@@ -125,8 +124,14 @@ namespace IrtsBurtgel
                     Console.WriteLine("No meeting today.");
                 }
             }
-            else if(status == MEETING_STARTED)
+            else if (status == MEETING_STARTED)
             {
+                if (scannerHandler.captureThread == null || !scannerHandler.captureThread.IsAlive)
+                {
+                    scannerHandler.Stop();
+                    scannerHandler.InitializeDevice();
+                    scannerHandler.StartCaptureThread(scannerHandler.DoCaptureForMeeting);
+                }
                 DateTime date = onGoingArchivedMeeting.meetingDatetime.AddMinutes(onGoingArchivedMeeting.duration);
                 if (date < now)
                 {
@@ -142,12 +147,12 @@ namespace IrtsBurtgel
 
             //Checking todays meetings
             List<Meeting> meetings = FindByDate(now);
-            
+
             if (meetings == null || meetings.Count == 0) return "Өнөөдөр хуралгүй.";
             int i;
-            for (i=0;i<meetings.Count;i++)
+            for (i = 0; i < meetings.Count; i++)
             {
-                if(now.TimeOfDay > meetings[i].startDatetime.TimeOfDay.Add(new TimeSpan(0, meetings[i].duration, 0)) || meetings[i].duration <= 0)
+                if (now.TimeOfDay > meetings[i].startDatetime.TimeOfDay.Add(new TimeSpan(0, meetings[i].duration, 0)) || meetings[i].duration <= 0)
                 {
                     continue;
                 }
@@ -156,7 +161,7 @@ namespace IrtsBurtgel
                     break;
                 }
             }
-            
+
             //i is now equal to present or next meeting index of meetings
             if (i == meetings.Count)
             {
@@ -189,7 +194,7 @@ namespace IrtsBurtgel
 
             List<Event> allEvents = eventModel.GetAll();
             List<Event> events = new List<Event>();
-            foreach(Event ev in allEvents)
+            foreach (Event ev in allEvents)
             {
                 if ((ev.endDate.Date >= date.Date) || (ev.startDate.Date >= date.Date && ev.intervalType == 2))
                 {
@@ -197,23 +202,23 @@ namespace IrtsBurtgel
                 }
             }
 
-            foreach(Event ev in events)
+            foreach (Event ev in events)
             {
                 DateTime endDate = ev.endDate, startDate = ev.startDate;
-                if(endDate.Date <= date.Date)
+                if (endDate.Date <= date.Date)
                 {
-                    if(ev.intervalType == 1)
+                    if (ev.intervalType == 1)
                     {
                         endDate = endDate.AddMonths((date.Month - ev.endDate.Month) + 12 * (date.Year - ev.endDate.Year));
                         startDate = startDate.AddMonths((date.Month - ev.endDate.Month) + 12 * (date.Year - ev.endDate.Year));
                     }
-                    else if(ev.intervalType == 0)
+                    else if (ev.intervalType == 0)
                     {
                         endDate = endDate.AddYears(date.Year - endDate.Year);
                         startDate = startDate.AddYears(date.Year - endDate.Year);
                     }
                 }
-                if(date.Date >= startDate.Date && date.Date <= endDate.Date)
+                if (date.Date >= startDate.Date && date.Date <= endDate.Date)
                 {
                     return result;
                 }
@@ -225,7 +230,7 @@ namespace IrtsBurtgel
                 if (meeting.isDeleted)
                 {
                     continue;
-                } 
+                }
                 bool inDate = IsInDate(date, meeting.intervalType, meeting.week, meeting.intervalDay, meeting.startDatetime);
 
                 if (meeting.endDate != new DateTime())
@@ -263,7 +268,7 @@ namespace IrtsBurtgel
                     }
                 }
             }
-            result = result.OrderBy(x => x.startDatetime.TimeOfDay).ToList();            
+            result = result.OrderBy(x => x.startDatetime.TimeOfDay).ToList();
             return result;
         }
 
@@ -444,8 +449,6 @@ namespace IrtsBurtgel
             onGoingArchivedMeeting = archivedMeeting;
             onGoingMeetingUserAttendance = GetMeetingUserAttendances(archivedMeeting);
 
-            scannerHandler.InitializeDevice();
-            scannerHandler.StartCaptureThread(scannerHandler.DoCapture);
             return true;
         }
 
@@ -455,7 +458,7 @@ namespace IrtsBurtgel
             {
                 ms.Dispatcher.Invoke(() =>
                 {
-                    foreach (KeyValuePair<int,DepartmentStatus> ds in ms.departmentStatusWindows)
+                    foreach (KeyValuePair<int, DepartmentStatus> ds in ms.departmentStatusWindows)
                     {
                         ds.Value.Close();
                     }
@@ -500,9 +503,9 @@ namespace IrtsBurtgel
                 int newDuration = (int)((DateTime.Now.TimeOfDay - onGoingMeeting.startDatetime.TimeOfDay).TotalMinutes) - 1;
                 newDuration = newDuration < 0 ? 0 : newDuration;
                 onGoingMeeting.duration = newDuration;
-                modifiedMeetingModel.Set((ModifiedMeeting) onGoingMeeting);
+                modifiedMeetingModel.Set((ModifiedMeeting)onGoingMeeting);
             }
-            else if(onGoingMeeting is Meeting)
+            else if (onGoingMeeting is Meeting)
             {
                 int newDuration = (int)((DateTime.Now.TimeOfDay - onGoingMeeting.startDatetime.TimeOfDay).TotalMinutes) - 1;
                 newDuration = newDuration < 0 ? 0 : newDuration;
@@ -674,16 +677,32 @@ namespace IrtsBurtgel
             }
         }
 
-        public string GetUserImage(User user)
+        public BitmapImage GetUserImage(User user)
         {
+            string filepath;
+
             if (File.Exists(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages\\" + user.pin + ".jpg"))
             {
-                return Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages\\" + user.pin + ".jpg";
+                filepath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages\\" + user.pin + ".jpg";
             }
             else
             {
-                return "images\\user.png";
+                filepath = "images\\user.png";
             }
+
+            var bi = new BitmapImage();
+
+            using (var fs = new FileStream(filepath, FileMode.Open))
+            {
+                bi.BeginInit();
+                bi.StreamSource = fs;
+                bi.CacheOption = BitmapCacheOption.OnLoad;
+                bi.EndInit();
+            }
+
+            bi.Freeze(); //Important to freeze it, otherwise it will still have minor leaks
+
+            return bi;
         }
 
         public List<UserStatus> GetUserStatuses(User user)
@@ -744,7 +763,7 @@ namespace IrtsBurtgel
             List<Event> allEvents = eventModel.GetAll();
             List<Event> events = new List<Event>();
             //return if there is no meetings
-            if(allMeetings == null || allMeetings.Count == 0)
+            if (allMeetings == null || allMeetings.Count == 0)
             {
                 return new List<Object[]>();
             }
@@ -761,17 +780,17 @@ namespace IrtsBurtgel
             //filtering allMeetings to meetings
             foreach (Meeting meeting in allMeetings)
             {
-                if (((meeting.intervalType == 0 && meeting.startDatetime >= now) || 
-                    (meeting.intervalType != 0 && today <= meeting.endDate) || 
+                if (((meeting.intervalType == 0 && meeting.startDatetime >= now) ||
+                    (meeting.intervalType != 0 && today <= meeting.endDate) ||
                     (meeting.endDate == new DateTime() && meeting.intervalType != 0)) &&
-                    meeting.isDeleted == false )
+                    meeting.isDeleted == false)
                     meetings.Add(meeting);
-                else if((meeting.intervalType == 0 && meeting.startDatetime < now) && meeting.isDeleted ==false)
+                else if ((meeting.intervalType == 0 && meeting.startDatetime < now) && meeting.isDeleted == false)
                 {
                     List<ModifiedMeeting> mmeetings = modifiedMeetingModel.GetByFK(meeting.IDName, meeting.id);
-                    foreach(ModifiedMeeting mmeeting in mmeetings)
+                    foreach (ModifiedMeeting mmeeting in mmeetings)
                     {
-                        if(mmeeting.startDatetime.Date == today.Date && mmeeting.startDatetime > now)
+                        if (mmeeting.startDatetime.Date == today.Date && mmeeting.startDatetime > now)
                         {
                             meetings.Add(mmeeting);
                         }
@@ -823,7 +842,7 @@ namespace IrtsBurtgel
                 {
                     DateTime sdt = ev.startDate;
                     DateTime edt = ev.endDate;
-                    if (edt.Date <= ((DateTime)obj[0]).Date) 
+                    if (edt.Date <= ((DateTime)obj[0]).Date)
                     {
                         switch (ev.intervalType)
                         {
@@ -849,13 +868,13 @@ namespace IrtsBurtgel
             else nextDates = nextDates.OrderBy(o => (DateTime)o[0]).ToList();
 
             //if the array has length below count, fills it
-            for( int step = 0; step<count && nextDates.Count >0 ;step++)
+            for (int step = 0; step < count && nextDates.Count > 0; step++)
             {
                 //adding nextDates into closest dates 
-                for(int i=nextDates.Count-1;i>=0;i--)
+                for (int i = nextDates.Count - 1; i >= 0; i--)
                 {
                     //not needed anymore
-                    if(closestDates.Count >= count && (DateTime)nextDates[i][0] > (DateTime)closestDates[closestDates.Count-1][0])
+                    if (closestDates.Count >= count && (DateTime)nextDates[i][0] > (DateTime)closestDates[closestDates.Count - 1][0])
                     {
                         nextDates.RemoveAt(i);
                         continue;
@@ -873,15 +892,15 @@ namespace IrtsBurtgel
                     closestDates.Add(insertObj);
                     //sorting and cuttin closest dates
                     if (closestDates.Count > count) closestDates = closestDates.OrderBy(o => o[0]).ToList().GetRange(0, count);
-                    else closestDates = closestDates.OrderBy( o => (DateTime)o[0] ).ToList();
+                    else closestDates = closestDates.OrderBy(o => (DateTime)o[0]).ToList();
 
                 }
 
                 //updating nextDates
-                for (int i = nextDates.Count-1; i>=0;i--)
+                for (int i = nextDates.Count - 1; i >= 0; i--)
                 {
                     //removing 1 time meetings
-                    if(((Meeting)nextDates[i][1]).intervalType == 0)
+                    if (((Meeting)nextDates[i][1]).intervalType == 0)
                     {
                         nextDates.RemoveAt(i);
                         continue;
@@ -891,7 +910,7 @@ namespace IrtsBurtgel
                     DateTime nextOccurance = (DateTime)nextDates[i][0];
                     bool is_event = false;
 
-                    switch(((Meeting)nextDates[i][1]).intervalType)
+                    switch (((Meeting)nextDates[i][1]).intervalType)
                     {
                         case 1:
                             nextOccurance = nextOccurance.AddDays(7);
@@ -913,24 +932,24 @@ namespace IrtsBurtgel
                     }
 
                     //removing it from the nextDates if it is ended
-                    if(((Meeting)nextDates[i][1]).endDate < nextOccurance  && ((Meeting)nextDates[i][1]).endDate != new DateTime())
+                    if (((Meeting)nextDates[i][1]).endDate < nextOccurance && ((Meeting)nextDates[i][1]).endDate != new DateTime())
                     {
                         nextDates.RemoveAt(i);
                         continue;
                     }
 
                     //checking if nextOccurance is in any event.
-                    foreach(Event ev in events)
+                    foreach (Event ev in events)
                     {
                         DateTime sdt = ev.startDate;
                         DateTime edt = ev.endDate;
-                        if(edt.Date <= nextOccurance.Date)
+                        if (edt.Date <= nextOccurance.Date)
                         {
                             switch (ev.intervalType)
                             {
                                 case 0:
-                                    sdt = ev.startDate.AddYears( (nextOccurance.Year - ev.startDate.Year) );
-                                    edt = ev.endDate.AddYears( (nextOccurance.Year - ev.endDate.Year) );
+                                    sdt = ev.startDate.AddYears((nextOccurance.Year - ev.startDate.Year));
+                                    edt = ev.endDate.AddYears((nextOccurance.Year - ev.endDate.Year));
                                     break;
                                 case 1:
                                     sdt = ev.startDate.AddMonths((nextOccurance.Month - ev.startDate.Month) + 12 * (nextOccurance.Year - ev.startDate.Year));
@@ -939,7 +958,7 @@ namespace IrtsBurtgel
                             }
                         }
                         if (nextOccurance.Date >= sdt.Date && nextOccurance.Date <= edt.Date) is_event = true;
-                        
+
                     }
 
                     nextDates[i][0] = nextOccurance;
@@ -954,11 +973,11 @@ namespace IrtsBurtgel
             //Check if it is in Modified meeting
             for (int i = 0; i < closestDates.Count; i++)
             {
-                List<ModifiedMeeting> mmeetings = modifiedMeetingModel.GetByFK( ((Meeting)closestDates[i][1]).IDName, ((Meeting)closestDates[i][1]).id);
+                List<ModifiedMeeting> mmeetings = modifiedMeetingModel.GetByFK(((Meeting)closestDates[i][1]).IDName, ((Meeting)closestDates[i][1]).id);
 
-                foreach(ModifiedMeeting mmeeting in mmeetings)
+                foreach (ModifiedMeeting mmeeting in mmeetings)
                 {
-                    if(mmeeting.startDatetime.Date == ((DateTime)closestDates[i][0]).Date)
+                    if (mmeeting.startDatetime.Date == ((DateTime)closestDates[i][0]).Date)
                     {
                         //is_modified = true;
 
@@ -966,9 +985,9 @@ namespace IrtsBurtgel
                         break;
                     }
                 }
-                
+
             }
-            
+
             return closestDates;
         }
     }

@@ -8,7 +8,19 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/eye.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/expand.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/shrink.png")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("content/jquery.timepicker.css")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/user.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/x.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/+.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/default-user.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/no_image.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/no_fp.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/time-logo.ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/time_logo.ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("libzkfpcsharp.dll")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.intellisense.js")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.js")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.min.js")]
@@ -16,6 +28,11 @@
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery-3.3.1.slim.min.js")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery.timepicker.js")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("scripts/jquery.timepicker.min.js")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("libzkfpcsharp.dll")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/tick.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/search.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/searchwhite.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/time-logo.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/cal-+.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/cal-x.png")]
 
 

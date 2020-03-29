@@ -24,7 +24,7 @@ INSERT INTO [dbo].[admin]
 		   ,[reg_date]
 		   ,[organization_name]) 
 	 VALUES
-		   ('superadmin', 'f368f16e52664d1849cee26464ed55bb40822447400e928d7a4c93804096c367', CURRENT_TIMESTAMP, 'Bolorsoft LLC'); /*Password: password*/
+		   ('superadmin', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', CURRENT_TIMESTAMP, 'Bolorsoft LLC'); /*Password: password*/
 
 INSERT INTO [dbo].[admin]
 		   ([username]
@@ -32,7 +32,7 @@ INSERT INTO [dbo].[admin]
 		   ,[reg_date]
 		   ,[organization_name]) 
 	 VALUES
-		   ('admin', 'f368f16e52664d1849cee26464ed55bb40822447400e928d7a4c93804096c367', CURRENT_TIMESTAMP, 'Police'); /*Password: password*/
+		   ('admin', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', CURRENT_TIMESTAMP, 'Police'); /*Password: password*/
 
 
 

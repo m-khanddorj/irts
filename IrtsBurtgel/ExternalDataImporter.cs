@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Cache;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -181,7 +182,6 @@ namespace IrtsBurtgel
         {
             try
             {
-                UnloadUserImages();
                 string targetDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\userimages";
                 Directory.CreateDirectory(targetDir);
                 Console.WriteLine("Copying user images into " + targetDir);
@@ -190,50 +190,10 @@ namespace IrtsBurtgel
                     Console.WriteLine("Copying image from " + file + " to " + Path.Combine(targetDir, Path.GetFileName(file)));
                     File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
                 }
-                LoadUserImages();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Гишүүдийн зураг хуулах явцад алдаа гарлаа. Алдааны мессеж: " + ex.Message);
-            }
-        }
-
-        public void UnloadUserImages()
-        {
-            foreach (object[] userImage in meetingController.userImagePool)
-            {
-                Image imageControl = (Image)userImage[0];
-                BitmapImage image = (BitmapImage)userImage[1];
-                if (imageControl != null && imageControl.IsEnabled)
-                {
-                    imageControl.Source = null;
-                    image.Freeze();
-                    userImage[1] = null;
-                }
-            }
-        }
-
-        public void LoadUserImages()
-        {
-            foreach (object[] userImage in meetingController.userImagePool)
-            {
-                Image imageControl = (Image)userImage[0];
-                BitmapImage image = (BitmapImage)userImage[1];
-                User user = (User)userImage[2];
-                BitmapImage webImage;
-                try
-                {
-                    webImage = new BitmapImage(new Uri(meetingController.GetUserImage(user)));
-                }
-                catch (Exception ex)
-                {
-                    webImage = new BitmapImage(new Uri("./images/user.png", UriKind.Relative));
-                }
-                if(imageControl != null && imageControl.IsEnabled)
-                {
-                    imageControl.Source = webImage;
-                    userImage[1] = webImage;
-                }
             }
         }
 
@@ -256,32 +216,42 @@ namespace IrtsBurtgel
                 {
                     continue;
                 }
+                string depName = reader.GetString(1);
+                string posName = reader.GetString(2);
+
+                Department dep = departments.Find(x => x.name == depName && !x.isDeleted);
+                if (dep == null)
+                {
+                    throw new Exception("Мэдээлэл шинэчилэлт амжилтгүй боллоо. Хэлтсийн жагсаалтанд байхгүй нэр гишүүдийн мэдээлэлд байна.");
+                }
+
+                Position pos = positions.Find(x => x.name == posName && !x.isDeleted);
+                if (pos == null)
+                {
+                    throw new Exception("Мэдээлэл шинэчилэлт амжилтгүй боллоо. Албан тушаалын жагсаалтанд байхгүй нэр гишүүдийн мэдээлэлд байна.");
+                }
+                User u = users.Find(x => x.pin == pinnum);
+
                 Dictionary<int, string> fingerprint;
-                
+
                 string fingerprint0 = "";
                 string fingerprint1 = "";
                 if (fingerprints.ContainsKey(pinnum))
                 {
                     fingerprint = fingerprints[pinnum];
-                    fingerprint0 = fingerprint.ContainsKey(0) ? fingerprint[0] : "";
-                    fingerprint1 = fingerprint.ContainsKey(1) ? fingerprint[1] : "";
+                    fingerprint0 = fingerprint.ContainsKey(0) ? fingerprint[0] : u.fingerprint0;
+                    fingerprint1 = fingerprint.ContainsKey(1) ? fingerprint[1] : u.fingerprint1;
                 }
 
-                int depid = GetInt(reader, 8);
-                int posid = GetInt(reader, 2);
-
-                posid = posid == -1 ? 0 : posid;
-
-                if (depid != -1 && departments.Find(x => x.id == depid) == null)
+                if (fingerprint0 == "" && u != null)
                 {
-                    throw new Exception("Мэдээлэл шинэчилэлт амжилтгүй боллоо. Хэлтсийн жагсаалтанд байхгүй дугаар гишүүдийн мэдээлэлд байна.");
+                    fingerprint0 = u.fingerprint0;
                 }
 
-                if (positions.Find(x => x.id == posid) == null)
+                if (fingerprint1 == "" && u != null)
                 {
-                    throw new Exception("Мэдээлэл шинэчилэлт амжилтгүй боллоо. Албан тушаалын жагсаалтанд байхгүй дугаар гишүүдийн мэдээлэлд байна.");
+                    fingerprint1 = u.fingerprint1;
                 }
-                User u = users.Find(x => x.pin == pinnum);
 
                 if (u != null)
                 {
@@ -293,8 +263,8 @@ namespace IrtsBurtgel
                         lname = "",
                         fingerprint0 = fingerprint0,
                         fingerprint1 = fingerprint1,
-                        departmentId = depid,
-                        positionId = posid,
+                        departmentId = dep.id,
+                        positionId = pos.id,
                         isDeleted = false
                     });
                 }
@@ -307,8 +277,8 @@ namespace IrtsBurtgel
                         lname = "",
                         fingerprint0 = fingerprint0,
                         fingerprint1 = fingerprint1,
-                        departmentId = depid,
-                        positionId = posid,
+                        departmentId = dep.id,
+                        positionId = pos.id,
                         isDeleted = false
                     });
                 }
@@ -372,6 +342,7 @@ namespace IrtsBurtgel
                 byDataBuf = File.ReadAllBytes(filename);
 
                 iLength = Convert.ToInt32(stream.Length);
+                Console.WriteLine(iLength);
                 if (iLength % 72 != 0)
                 {
                     MessageBox.Show("Хэрэглэгчийн user.dat файлыг уншихад алдаа гарлаа. Зөв файл оруулсан эсэхээ ахин нягтлана уу.", "Алдаа", MessageBoxButton.OK);
